@@ -19,14 +19,22 @@
     pageTransition,
   } from "$lib/actions/animate";
   import { onMount } from "svelte";
+  import {
+    LayoutDashboard,
+    TrendingUp,
+    FileCode,
+    Settings,
+    Menu,
+    User,
+  } from "@lucide/svelte";
 
   let { children } = $props();
 
   const menuItems = [
-    { title: "Dashboard", href: "/" },
-    { title: "Analytics", href: "/analytics" },
-    { title: "Scripts", href: "/scripts" },
-    { title: "Settings", href: "/settings" },
+    { title: "Dashboard", href: "/", icon: LayoutDashboard },
+    { title: "Analytics", href: "/analytics", icon: TrendingUp },
+    { title: "Scripts", href: "/scripts", icon: FileCode },
+    { title: "Settings", href: "/settings", icon: Settings },
   ];
 
   let mainContentElement: HTMLElement;
@@ -49,12 +57,8 @@
           class="p-6 border-b border-sidebar-border"
           use:animate={{ preset: "slideInLeft", delay: 0.1 }}
         >
-          <h2
-            class="text-xl font-semibold text-sidebar-foreground tracking-tight"
-          >
-            Reino
-          </h2>
-          <p class="text-sm text-sidebar-foreground/60 mt-1">Dashboard</p>
+          <h2 class="text-xl font-bold text-white tracking-tight">Reino</h2>
+          <p class="text-sm font-medium text-white/60 mt-1">Dashboard</p>
         </div>
 
         <!-- Navigation -->
@@ -62,7 +66,7 @@
           <SidebarGroup>
             <div use:animate={{ preset: "fadeIn", delay: 0.2 }}>
               <SidebarGroupLabel
-                class="text-xs font-medium text-sidebar-foreground/40 uppercase tracking-wider mb-3"
+                class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3"
               >
                 Navigation
               </SidebarGroupLabel>
@@ -78,12 +82,14 @@
               >
                 <SidebarMenu class="space-y-1">
                   {#each menuItems as item}
+                    {@const Icon = item.icon}
                     <SidebarMenuItem>
                       <div use:hover={{ scale: 1.02, y: -1 }} use:buttonPress>
                         <a
                           href={item.href}
-                          class="w-full justify-start px-3 py-3 text-sm font-medium text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition-all duration-200 flex items-center"
+                          class="w-full justify-start px-3 py-3 text-sm font-semibold text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg transition-all duration-200 flex items-center gap-3"
                         >
+                          <Icon size={16} class="text-white/50" />
                           {item.title}
                         </a>
                       </div>
@@ -108,11 +114,13 @@
           <div use:hover={{ scale: 1.1 }} use:buttonPress>
             <SidebarTrigger
               class="mr-4 p-2 hover:bg-accent rounded-lg transition-colors duration-200"
-            />
+            >
+              <Menu size={16} />
+            </SidebarTrigger>
           </div>
           <div class="flex flex-1 items-center justify-between">
             <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
-              <h1 class="text-lg font-semibold text-foreground">Dashboard</h1>
+              <h1 class="text-lg font-bold text-white">Dashboard</h1>
             </div>
             <div
               class="flex items-center space-x-3"
@@ -122,8 +130,9 @@
                 <Button
                   variant="outline"
                   size="sm"
-                  class="px-4 py-2 text-sm font-medium bg-card border-border hover:bg-accent transition-all duration-200"
+                  class="px-4 py-2 text-sm font-semibold bg-card border-border hover:bg-accent transition-all duration-200 flex items-center gap-2"
                 >
+                  <User size={14} />
                   Profile
                 </Button>
               </div>

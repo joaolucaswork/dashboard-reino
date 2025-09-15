@@ -17,6 +17,15 @@
     feedback,
   } from "$lib/actions/animate";
   import { onMount } from "svelte";
+  import {
+    Play,
+    Plus,
+    FileCode,
+    Terminal,
+    Clock,
+    CheckCircle,
+    AlertCircle,
+  } from "@lucide/svelte";
 
   let scripts: any[] = $state([]);
   let executionLog: string = $state("");
@@ -95,17 +104,18 @@
       use:animate={{ preset: "slideInUp", delay: 0.1 }}
     >
       <div class="space-y-3">
-        <h2 class="text-3xl font-semibold text-foreground tracking-tight">
+        <h2 class="text-3xl font-bold text-white tracking-tight">
           Python Scripts
         </h2>
-        <p class="text-lg text-muted-foreground">
+        <p class="text-lg font-medium text-white/70">
           Manage and execute your Python scripts from the dashboard.
         </p>
       </div>
       <div use:hover={{ scale: 1.05, y: -2 }} use:buttonPress>
         <Button
-          class="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
+          class="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 flex items-center gap-2 font-semibold"
         >
+          <Plus size={16} />
           Add Script
         </Button>
       </div>
@@ -124,10 +134,10 @@
             <CardHeader class="p-6">
               <div class="flex items-start justify-between">
                 <div class="space-y-2">
-                  <CardTitle class="text-lg font-semibold text-card-foreground">
+                  <CardTitle class="text-lg font-bold text-white">
                     {script.name}
                   </CardTitle>
-                  <CardDescription class="text-muted-foreground">
+                  <CardDescription class="text-white/60 font-medium">
                     {script.description}
                   </CardDescription>
                 </div>
@@ -145,8 +155,9 @@
                       size="sm"
                       onclick={() => runScript(script.id)}
                       disabled={isRunning}
-                      class="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-all duration-200"
+                      class="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-all duration-200 flex items-center gap-2 font-semibold"
                     >
+                      <Play size={14} />
                       {isRunning ? "Running..." : "Run"}
                     </Button>
                   </div>
@@ -155,13 +166,19 @@
             </CardHeader>
             <CardContent class="p-6 pt-0">
               <div class="flex items-center justify-between text-sm">
-                <span class="text-muted-foreground">
-                  Last run: <span class="text-foreground"
+                <span class="text-white/60 flex items-center gap-1 font-medium">
+                  <Clock size={12} />
+                  Last run:
+                  <span class="text-white font-semibold"
                     >{script.lastRun || "Never"}</span
                   >
                 </span>
-                <span class="text-muted-foreground">
-                  Status: <span class="text-primary">Ready to execute</span>
+                <span class="text-white/60 flex items-center gap-1 font-medium">
+                  <CheckCircle size={12} class="text-primary" />
+                  Status:
+                  <span class="text-primary font-semibold"
+                    >Ready to execute</span
+                  >
                 </span>
               </div>
             </CardContent>
@@ -173,21 +190,20 @@
     <!-- Execution Log -->
     <Card class="bg-card border-border">
       <CardHeader class="p-6">
-        <CardTitle class="text-xl font-semibold text-card-foreground"
-          >Script Execution Log</CardTitle
-        >
-        <CardDescription class="text-muted-foreground mt-2">
+        <CardTitle class="text-xl font-bold text-white flex items-center gap-2">
+          <Terminal size={20} class="text-primary" />
+          Script Execution Log
+        </CardTitle>
+        <CardDescription class="text-white/60 mt-2 font-medium">
           View the output and results of your script executions
         </CardDescription>
       </CardHeader>
       <CardContent class="p-6 pt-0">
         {#if executionLog}
           <pre
-            class="text-sm bg-muted/50 text-foreground p-4 rounded-lg overflow-auto max-h-80 whitespace-pre-wrap border border-border font-mono">{executionLog}</pre>
+            class="text-sm bg-muted/50 text-white font-medium p-4 rounded-lg overflow-auto max-h-80 whitespace-pre-wrap border border-border font-mono">{executionLog}</pre>
         {:else}
-          <div
-            class="flex items-center justify-center h-40 text-muted-foreground"
-          >
+          <div class="flex items-center justify-center h-40 text-white/60">
             <div class="text-center space-y-3">
               <div
                 class="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center"
@@ -195,8 +211,10 @@
                 <div class="w-8 h-8 bg-muted-foreground/20 rounded-full"></div>
               </div>
               <div>
-                <p class="text-sm font-medium">No execution logs yet</p>
-                <p class="text-xs text-muted-foreground/60 mt-1">
+                <p class="text-sm font-semibold text-white/80">
+                  No execution logs yet
+                </p>
+                <p class="text-xs font-medium text-white/50 mt-1">
                   Run a script to see output here
                 </p>
               </div>
