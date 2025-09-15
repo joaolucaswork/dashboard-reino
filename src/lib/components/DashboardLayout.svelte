@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import { SIDEBAR_COOKIE_NAME } from "$lib/components/ui/sidebar/constants.js";
+  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
 
   import { animate, stagger, pageTransition } from "$lib/actions/animate";
   import { onMount } from "svelte";
@@ -192,7 +193,7 @@
               </a>
             </div>
             <Sidebar.Trigger
-              class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors"
+              class="p-2 hover:bg-white/10 rounded-lg transition-colors"
               title="Recolher sidebar"
               aria-label="Recolher menu lateral"
             >
@@ -216,7 +217,7 @@
 
             <!-- Toggle button below -->
             <Sidebar.Trigger
-              class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors"
+              class="p-2 hover:bg-white/10 rounded-lg transition-colors"
               title="Expandir sidebar"
               aria-label="Expandir menu lateral"
             >
@@ -258,7 +259,7 @@
                               {#snippet child({ props })}
                                 <div
                                   {...props}
-                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg flex items-center gap-3 cursor-pointer"
+                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-lg flex items-center gap-3 cursor-pointer"
                                 >
                                   <div
                                     class="w-4 h-4 rounded-sm {integration.color} flex-shrink-0"
@@ -284,134 +285,183 @@
                 class="hidden group-data-[collapsible=icon]:flex flex-col items-center justify-center px-1 py-1 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
               >
                 <!-- Integrations Thumbnail -->
-                <div
-                  class="thumbnail-preview w-14 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-14 mb-4"
-                  style={expandedSections.has("integrations")
-                    ? `height: ${getExpandedHeight("integrations")}`
-                    : ""}
-                >
-                  <!-- Clickable folder icon area - only when collapsed -->
-                  {#if !expandedSections.has("integrations")}
-                    <button
-                      class="absolute inset-0 w-full h-16 cursor-pointer z-10"
-                      title="Integrações Bancárias"
-                      onclick={() => toggleSection("integrations")}
-                      onkeydown={(e) =>
-                        e.key === "Enter" && toggleSection("integrations")}
-                      aria-label="Toggle integrations menu"
-                    ></button>
-                  {/if}
-                  <!-- Collapsed state: Dynamic representation of integrations -->
-                  <div
-                    class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
-                      'integrations'
-                    )
-                      ? 'opacity-0'
-                      : 'opacity-100'}"
-                  >
-                    <DynamicFolderPreview config={integrationsConfig} />
-                  </div>
+                <Tooltip.Root>
+                  <Tooltip.Trigger>
+                    <div
+                      class="thumbnail-preview w-14 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-14 mb-4 cursor-pointer"
+                      style={expandedSections.has("integrations")
+                        ? `height: ${getExpandedHeight("integrations")}`
+                        : ""}
+                    >
+                      <!-- Clickable folder icon area - only when collapsed -->
+                      {#if !expandedSections.has("integrations")}
+                        <button
+                          class="absolute inset-0 w-full h-full cursor-pointer z-10"
+                          onclick={() => toggleSection("integrations")}
+                          onkeydown={(e) =>
+                            e.key === "Enter" && toggleSection("integrations")}
+                          aria-label="Toggle integrations menu"
+                        ></button>
+                      {/if}
+                      <!-- Collapsed state: Dynamic representation of integrations -->
+                      <div
+                        class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                          'integrations'
+                        )
+                          ? 'opacity-0'
+                          : 'opacity-100'}"
+                      >
+                        <DynamicFolderPreview config={integrationsConfig} />
+                      </div>
 
-                  <!-- Expanded state: Full menu items -->
-                  <div
-                    class="absolute inset-x-2 top-4 bottom-2 flex flex-col gap-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
-                      'integrations'
-                    )
-                      ? 'opacity-100 translate-y-0'
-                      : 'opacity-0 translate-y-2'}"
+                      <!-- Expanded state: Full menu items -->
+                      <div
+                        class="absolute inset-x-2 top-4 bottom-2 flex flex-col gap-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                          'integrations'
+                        )
+                          ? 'opacity-100 translate-y-0'
+                          : 'opacity-0 translate-y-2'}"
+                      >
+                        <!-- Folder icon indicator - clickable to close -->
+                        <div class="flex justify-center mb-2">
+                          <button
+                            class="p-1 hover:bg-white/10 rounded-md transition-colors duration-200"
+                            onclick={() => toggleSection("integrations")}
+                            title="Fechar menu"
+                            aria-label="Close integrations menu"
+                          >
+                            <Folder
+                              size={16}
+                              class="text-white/60 hover:text-white/80"
+                            />
+                          </button>
+                        </div>
+                        {#each integrations as integration}
+                          <Tooltip.Root>
+                            <Tooltip.Trigger>
+                              <a
+                                href={integration.href}
+                                class="w-full h-8 rounded-md hover:bg-white/10 flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
+                                aria-label={integration.name}
+                              >
+                                <div
+                                  class="w-5 h-5 rounded-sm {integration.color}"
+                                ></div>
+                              </a>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content
+                              side="right"
+                              align="center"
+                              sideOffset={8}
+                              hidden={sidebarOpen}
+                              class="tooltip-standard"
+                            >
+                              {integration.name}
+                            </Tooltip.Content>
+                          </Tooltip.Root>
+                        {/each}
+                      </div>
+                    </div></Tooltip.Trigger
                   >
-                    <!-- Folder icon indicator - clickable to close -->
-                    <div class="flex justify-center mb-2">
-                      <button
-                        class="p-1 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
-                        onclick={() => toggleSection("integrations")}
-                        title="Fechar menu"
-                        aria-label="Close integrations menu"
-                      >
-                        <Folder
-                          size={16}
-                          class="text-white/60 hover:text-white/80"
-                        />
-                      </button>
-                    </div>
-                    {#each integrations as integration}
-                      <a
-                        href={integration.href}
-                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
-                        title={integration.name}
-                        aria-label={integration.name}
-                      >
-                        <div
-                          class="w-5 h-5 rounded-sm {integration.color}"
-                        ></div>
-                      </a>
-                    {/each}
-                  </div>
-                </div>
+                  <Tooltip.Content
+                    side="right"
+                    align="center"
+                    sideOffset={16}
+                    hidden={sidebarOpen}
+                    class="tooltip-standard z-50"
+                  >
+                    Integrações Bancárias
+                  </Tooltip.Content>
+                </Tooltip.Root>
 
                 <!-- Tables Thumbnail -->
-                <div
-                  class="thumbnail-preview w-14 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-14"
-                  style={expandedSections.has("tables")
-                    ? `height: ${getExpandedHeight("tables")}`
-                    : ""}
-                >
-                  <!-- Clickable folder icon area - only when collapsed -->
-                  {#if !expandedSections.has("tables")}
-                    <button
-                      class="absolute inset-0 w-full h-16 cursor-pointer z-10"
-                      title="Tabelas e Relatórios"
-                      onclick={() => toggleSection("tables")}
-                      onkeydown={(e) =>
-                        e.key === "Enter" && toggleSection("tables")}
-                      aria-label="Toggle tables menu"
-                    ></button>
-                  {/if}
-                  <!-- Collapsed state: Dynamic representation of tables -->
-                  <div
-                    class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
-                      'tables'
-                    )
-                      ? 'opacity-0'
-                      : 'opacity-100'}"
-                  >
-                    <DynamicFolderPreview config={tablesConfig} />
-                  </div>
+                <Tooltip.Root>
+                  <Tooltip.Trigger>
+                    <div
+                      class="thumbnail-preview w-14 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-14 cursor-pointer"
+                      style={expandedSections.has("tables")
+                        ? `height: ${getExpandedHeight("tables")}`
+                        : ""}
+                    >
+                      <!-- Clickable folder icon area - only when collapsed -->
+                      {#if !expandedSections.has("tables")}
+                        <button
+                          class="absolute inset-0 w-full h-full cursor-pointer z-10"
+                          onclick={() => toggleSection("tables")}
+                          onkeydown={(e) =>
+                            e.key === "Enter" && toggleSection("tables")}
+                          aria-label="Toggle tables menu"
+                        ></button>
+                      {/if}
+                      <!-- Collapsed state: Dynamic representation of tables -->
+                      <div
+                        class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                          'tables'
+                        )
+                          ? 'opacity-0'
+                          : 'opacity-100'}"
+                      >
+                        <DynamicFolderPreview config={tablesConfig} />
+                      </div>
 
-                  <!-- Expanded state: Full menu items -->
-                  <div
-                    class="absolute inset-x-2 top-4 bottom-2 flex flex-col gap-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
-                      'tables'
-                    )
-                      ? 'opacity-100 translate-y-0'
-                      : 'opacity-0 translate-y-2'}"
+                      <!-- Expanded state: Full menu items -->
+                      <div
+                        class="absolute inset-x-2 top-4 bottom-2 flex flex-col gap-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                          'tables'
+                        )
+                          ? 'opacity-100 translate-y-0'
+                          : 'opacity-0 translate-y-2'}"
+                      >
+                        <!-- Folder icon indicator - clickable to close -->
+                        <div class="flex justify-center mb-2">
+                          <button
+                            class="p-1 hover:bg-white/10 rounded-md transition-colors duration-200"
+                            onclick={() => toggleSection("tables")}
+                            title="Fechar menu"
+                            aria-label="Close tables menu"
+                          >
+                            <Folder
+                              size={16}
+                              class="text-white/60 hover:text-white/80"
+                            />
+                          </button>
+                        </div>
+                        {#each tableMenuItems as item}
+                          {@const Icon = item.icon}
+                          <Tooltip.Root>
+                            <Tooltip.Trigger>
+                              <a
+                                href={item.href}
+                                class="w-full h-8 rounded-md hover:bg-white/10 flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
+                                aria-label={item.title}
+                              >
+                                <Icon size={20} class="text-white/70" />
+                              </a>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content
+                              side="right"
+                              align="center"
+                              sideOffset={8}
+                              hidden={sidebarOpen}
+                              class="tooltip-standard"
+                            >
+                              {item.title}
+                            </Tooltip.Content>
+                          </Tooltip.Root>
+                        {/each}
+                      </div>
+                    </div></Tooltip.Trigger
                   >
-                    <!-- Folder icon indicator - clickable to close -->
-                    <div class="flex justify-center mb-2">
-                      <button
-                        class="p-1 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
-                        onclick={() => toggleSection("tables")}
-                        title="Fechar menu"
-                        aria-label="Close tables menu"
-                      >
-                        <Folder
-                          size={16}
-                          class="text-white/60 hover:text-white/80"
-                        />
-                      </button>
-                    </div>
-                    {#each tableMenuItems as item}
-                      {@const Icon = item.icon}
-                      <a
-                        href={item.href}
-                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
-                        title={item.title}
-                      >
-                        <Icon size={20} class="text-white/70" />
-                      </a>
-                    {/each}
-                  </div>
-                </div>
+                  <Tooltip.Content
+                    side="right"
+                    align="center"
+                    sideOffset={16}
+                    hidden={sidebarOpen}
+                    class="tooltip-standard z-50"
+                  >
+                    Tabelas e Relatórios
+                  </Tooltip.Content>
+                </Tooltip.Root>
               </div>
             </Sidebar.Group>
           </div>
@@ -449,7 +499,7 @@
                                 <a
                                   href={item.href}
                                   {...props}
-                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg flex items-center gap-3"
+                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-lg flex items-center gap-3"
                                 >
                                   <Icon
                                     size={20}
@@ -480,10 +530,10 @@
           use:animate={{ preset: "slideInLeft", delay: 0.1 }}
         >
           <div
-            class="p-3 group-data-[collapsible=icon]:p-6 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center"
+            class="p-3 group-data-[collapsible=icon]:p-3 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center"
           >
             <div
-              class="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-4 w-full"
+              class="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-3 w-full"
             >
               <div
                 class="flex items-center gap-3 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2 min-w-0 flex-1"
@@ -501,29 +551,74 @@
               <div
                 class="flex items-center gap-1 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1"
               >
-                <a
-                  href="/"
-                  class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-                  title="Home"
-                >
-                  <Home size={18} class="text-white/60 hover:text-white/80" />
-                </a>
-                <button
-                  class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-                  title="Notificações"
-                >
-                  <Bell size={18} class="text-white/60 hover:text-white/80" />
-                </button>
-                <a
-                  href="/settings"
-                  class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-                  title="Configurações"
-                >
-                  <Settings
-                    size={18}
-                    class="text-white/60 hover:text-white/80"
-                  />
-                </a>
+                <Tooltip.Root>
+                  <Tooltip.Trigger class="inline-flex">
+                    <a
+                      href="/"
+                      class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                      aria-label="Home"
+                    >
+                      <Home
+                        size={18}
+                        class="text-white/60 hover:text-white/80"
+                      />
+                    </a>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content
+                    side="right"
+                    align="center"
+                    sideOffset={8}
+                    hidden={sidebarOpen}
+                    class="tooltip-standard"
+                  >
+                    Home
+                  </Tooltip.Content>
+                </Tooltip.Root>
+                <Tooltip.Root>
+                  <Tooltip.Trigger class="inline-flex">
+                    <button
+                      class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                      aria-label="Notificações"
+                    >
+                      <Bell
+                        size={18}
+                        class="text-white/60 hover:text-white/80"
+                      />
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content
+                    side="right"
+                    align="center"
+                    sideOffset={8}
+                    hidden={sidebarOpen}
+                    class="tooltip-standard"
+                  >
+                    Notificações
+                  </Tooltip.Content>
+                </Tooltip.Root>
+                <Tooltip.Root>
+                  <Tooltip.Trigger class="inline-flex">
+                    <a
+                      href="/settings"
+                      class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                      aria-label="Configurações"
+                    >
+                      <Settings
+                        size={18}
+                        class="text-white/60 hover:text-white/80"
+                      />
+                    </a>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content
+                    side="right"
+                    align="center"
+                    sideOffset={8}
+                    hidden={sidebarOpen}
+                    class="tooltip-standard"
+                  >
+                    Configurações
+                  </Tooltip.Content>
+                </Tooltip.Root>
               </div>
             </div>
           </div>

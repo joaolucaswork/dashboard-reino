@@ -206,6 +206,11 @@
     @apply focus:border-ring focus:ring-1 focus:ring-ring;
   }
 
+  /* Tooltip Standard Style */
+  .tooltip-standard {
+    @apply bg-accent text-white font-semibold text-base border border-foreground/20 shadow-lg;
+  }
+
   /* Typography Enhancements */
   .text-display {
     @apply text-4xl font-semibold tracking-tight text-foreground;
