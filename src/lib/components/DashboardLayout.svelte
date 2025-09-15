@@ -14,33 +14,87 @@
     ChartBar,
     RefreshCw,
     Target,
-    ChevronDown,
+    Folder,
   } from "@lucide/svelte";
 
   let { children } = $props();
 
+  // Interactive thumbnail state management
+  let expandedSections = $state(new Set<"integrations" | "tables">());
+
   // Integrations with their respective colors
   const integrations = [
-    { name: "Itaú", color: "bg-orange-500" },
-    { name: "BTG", color: "bg-blue-500" },
-    { name: "XP", color: "bg-yellow-500" },
-    { name: "Banco do Brasil", color: "bg-sky-400" },
+    { name: "Itaú", color: "bg-orange-500", shortName: "ITU" },
+    { name: "BTG", color: "bg-blue-500", shortName: "BTG" },
+    { name: "XP", color: "bg-yellow-500", shortName: "XP" },
+    { name: "Banco do Brasil", color: "bg-sky-400", shortName: "BB" },
   ];
 
   // Tables menu items from the design
   const tableMenuItems = [
-    { title: "Relatório", href: "/relatorio", icon: FileText },
+    {
+      title: "Relatório",
+      href: "/relatorio",
+      icon: FileText,
+      shortTitle: "REL",
+    },
     {
       title: "Posição Consolidada",
       href: "/posicao-consolidada",
       icon: ChartBar,
+      shortTitle: "POS",
     },
-    { title: "Movimentações", href: "/movimentacoes", icon: RefreshCw },
-    { title: "Análises", href: "/analises", icon: TrendingUp },
-    { title: "Asset Allocation", href: "/asset-allocation", icon: Target },
+    {
+      title: "Movimentações",
+      href: "/movimentacoes",
+      icon: RefreshCw,
+      shortTitle: "MOV",
+    },
+    {
+      title: "Análises",
+      href: "/analises",
+      icon: TrendingUp,
+      shortTitle: "ANA",
+    },
+    {
+      title: "Asset Allocation",
+      href: "/asset-allocation",
+      icon: Target,
+      shortTitle: "AST",
+    },
   ];
 
   let mainContentElement: HTMLElement;
+
+  // Thumbnail interaction handlers
+  function toggleSection(section: "integrations" | "tables") {
+    if (expandedSections.has(section)) {
+      expandedSections.delete(section);
+    } else {
+      expandedSections.add(section);
+    }
+    // Trigger reactivity
+    expandedSections = new Set(expandedSections);
+  }
+
+  // Calculate dynamic height for thumbnail previews
+  function getExpandedHeight(section: "integrations" | "tables"): string {
+    const topPadding = 16; // Extra padding at top for better spacing
+    const folderIconHeight = 44; // Icon + margin (20px icon + 16px margin + 8px gap)
+    const itemHeight = 40; // h-8 + gap-2 (32px + 8px)
+    const bottomPadding = 8; // Bottom padding
+
+    let itemCount = 0;
+    if (section === "integrations") {
+      itemCount = integrations.length;
+    } else if (section === "tables") {
+      itemCount = tableMenuItems.length;
+    }
+
+    const totalHeight =
+      topPadding + folderIconHeight + itemCount * itemHeight + bottomPadding;
+    return `${totalHeight}px`;
+  }
 
   onMount(() => {
     // Animate main content on mount
@@ -63,103 +117,260 @@
           <!-- Integrações Section -->
           <div class="p-4 pt-6">
             <Sidebar.Group>
-              <div use:animate={{ preset: "fadeIn", delay: 0.2 }}>
+              <!-- Full Content View -->
+              <div
+                class="group-data-[collapsible=icon]:hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
+                use:animate={{ preset: "fadeIn", delay: 0.2 }}
+              >
                 <Sidebar.GroupLabel
-                  class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between group-data-[collapsible=icon]:hidden sidebar-text-fade group-data-[collapsible=icon]:mb-0 group-data-[collapsible=icon]:h-0 group-data-[collapsible=icon]:overflow-hidden"
+                  class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Integrações
-                  <ChevronDown size={14} class="text-white/30" />
+                  <Folder size={14} class="text-white/30" />
                 </Sidebar.GroupLabel>
-              </div>
-              <Sidebar.GroupContent>
-                <div
-                  class="space-y-2"
-                  use:stagger={{
-                    preset: "slideInLeft",
-                    staggerType: "fast",
-                    delay: 0.3,
-                  }}
-                >
-                  <Sidebar.Menu class="space-y-2">
-                    {#each integrations as integration}
-                      <Sidebar.MenuItem>
-                        <div>
-                          <Sidebar.MenuButton>
-                            {#snippet child({ props })}
-                              <div
-                                {...props}
-                                class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg flex items-center gap-3 cursor-pointer group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-3"
-                              >
+                <Sidebar.GroupContent>
+                  <div
+                    class="space-y-2"
+                    use:stagger={{
+                      preset: "slideInLeft",
+                      staggerType: "fast",
+                      delay: 0.3,
+                    }}
+                  >
+                    <Sidebar.Menu class="space-y-2">
+                      {#each integrations as integration}
+                        <Sidebar.MenuItem>
+                          <div>
+                            <Sidebar.MenuButton>
+                              {#snippet child({ props })}
                                 <div
-                                  class="w-4 h-4 rounded-sm {integration.color} flex-shrink-0"
-                                ></div>
-                                <span
-                                  class="sidebar-menu-item-text sidebar-text-no-wrap group-data-[collapsible=icon]:hidden"
+                                  {...props}
+                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg flex items-center gap-3 cursor-pointer"
                                 >
-                                  {integration.name}
-                                </span>
-                              </div>
-                            {/snippet}
-                          </Sidebar.MenuButton>
-                        </div>
-                      </Sidebar.MenuItem>
+                                  <div
+                                    class="w-4 h-4 rounded-sm {integration.color} flex-shrink-0"
+                                  ></div>
+                                  <span
+                                    class="sidebar-menu-item-text sidebar-text-no-wrap"
+                                  >
+                                    {integration.name}
+                                  </span>
+                                </div>
+                              {/snippet}
+                            </Sidebar.MenuButton>
+                          </div>
+                        </Sidebar.MenuItem>
+                      {/each}
+                    </Sidebar.Menu>
+                  </div>
+                </Sidebar.GroupContent>
+              </div>
+
+              <!-- Thumbnail Preview for Collapsed State -->
+              <div
+                class="hidden group-data-[collapsible=icon]:flex flex-col items-center justify-center p-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
+              >
+                <!-- Integrations Thumbnail -->
+                <div
+                  class="thumbnail-preview w-12 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-16 mb-6"
+                  style={expandedSections.has("integrations")
+                    ? `height: ${getExpandedHeight("integrations")}`
+                    : ""}
+                >
+                  <!-- Clickable folder icon area -->
+                  <button
+                    class="absolute inset-0 w-full h-16 cursor-pointer z-10"
+                    title="Integrações Bancárias"
+                    onclick={() => toggleSection("integrations")}
+                    onkeydown={(e) =>
+                      e.key === "Enter" && toggleSection("integrations")}
+                    aria-label="Toggle integrations menu"
+                  ></button>
+                  <!-- Collapsed state: Mini representation of integration colors -->
+                  <div
+                    class="absolute inset-2 flex flex-col gap-1 transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                      'integrations'
+                    )
+                      ? 'opacity-0'
+                      : 'opacity-100'}"
+                  >
+                    <div class="flex gap-1">
+                      <div
+                        class="w-2 h-2 bg-orange-500 rounded-sm opacity-80"
+                      ></div>
+                      <div
+                        class="w-2 h-2 bg-blue-500 rounded-sm opacity-80"
+                      ></div>
+                    </div>
+                    <div class="flex gap-1">
+                      <div
+                        class="w-2 h-2 bg-yellow-500 rounded-sm opacity-80"
+                      ></div>
+                      <div
+                        class="w-2 h-2 bg-sky-400 rounded-sm opacity-80"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <!-- Expanded state: Full menu items -->
+                  <div
+                    class="absolute inset-x-2 top-4 bottom-2 flex flex-col gap-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                      'integrations'
+                    )
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 translate-y-2'}"
+                  >
+                    <!-- Folder icon indicator -->
+                    <div class="flex justify-center mb-4">
+                      <Folder size={20} class="text-white/60" />
+                    </div>
+                    {#each integrations as integration}
+                      <button
+                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200"
+                        title={integration.name}
+                        aria-label={integration.name}
+                      >
+                        <div
+                          class="w-5 h-5 rounded-sm {integration.color}"
+                        ></div>
+                      </button>
                     {/each}
-                  </Sidebar.Menu>
+                  </div>
+
+                  <!-- Subtle glow effect -->
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-60"
+                  ></div>
                 </div>
-              </Sidebar.GroupContent>
+
+                <!-- Tables Thumbnail -->
+                <div
+                  class="thumbnail-preview w-12 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-16"
+                  style={expandedSections.has("tables")
+                    ? `height: ${getExpandedHeight("tables")}`
+                    : ""}
+                >
+                  <!-- Clickable folder icon area -->
+                  <button
+                    class="absolute inset-0 w-full h-16 cursor-pointer z-10"
+                    title="Tabelas e Relatórios"
+                    onclick={() => toggleSection("tables")}
+                    onkeydown={(e) =>
+                      e.key === "Enter" && toggleSection("tables")}
+                    aria-label="Toggle tables menu"
+                  ></button>
+                  <!-- Collapsed state: Mini representation of table icons -->
+                  <div
+                    class="absolute inset-2 flex flex-col gap-1 items-center justify-center transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                      'tables'
+                    )
+                      ? 'opacity-0'
+                      : 'opacity-100'}"
+                  >
+                    <div class="flex gap-1">
+                      <div class="w-1.5 h-1.5 bg-white/60 rounded-sm"></div>
+                      <div class="w-1.5 h-1.5 bg-white/60 rounded-sm"></div>
+                      <div class="w-1.5 h-1.5 bg-white/60 rounded-sm"></div>
+                    </div>
+                    <div class="flex gap-1">
+                      <div class="w-1.5 h-1.5 bg-white/40 rounded-sm"></div>
+                      <div class="w-1.5 h-1.5 bg-white/40 rounded-sm"></div>
+                      <div class="w-1.5 h-1.5 bg-white/40 rounded-sm"></div>
+                    </div>
+                    <div class="flex gap-1">
+                      <div class="w-1.5 h-1.5 bg-white/30 rounded-sm"></div>
+                      <div class="w-1.5 h-1.5 bg-white/30 rounded-sm"></div>
+                      <div class="w-1.5 h-1.5 bg-white/30 rounded-sm"></div>
+                    </div>
+                  </div>
+
+                  <!-- Expanded state: Full menu items -->
+                  <div
+                    class="absolute inset-x-2 top-4 bottom-2 flex flex-col gap-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                      'tables'
+                    )
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 translate-y-2'}"
+                  >
+                    <!-- Folder icon indicator -->
+                    <div class="flex justify-center mb-4">
+                      <Folder size={20} class="text-white/60" />
+                    </div>
+                    {#each tableMenuItems as item}
+                      {@const Icon = item.icon}
+                      <a
+                        href={item.href}
+                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200"
+                        title={item.title}
+                      >
+                        <Icon size={20} class="text-white/70" />
+                      </a>
+                    {/each}
+                  </div>
+
+                  <!-- Subtle glow effect -->
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-60"
+                  ></div>
+                </div>
+              </div>
             </Sidebar.Group>
           </div>
 
           <!-- Tabelas Section -->
           <div class="p-4">
             <Sidebar.Group>
-              <div use:animate={{ preset: "fadeIn", delay: 0.4 }}>
+              <!-- Full Content View -->
+              <div
+                class="group-data-[collapsible=icon]:hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
+                use:animate={{ preset: "fadeIn", delay: 0.4 }}
+              >
                 <Sidebar.GroupLabel
-                  class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between group-data-[collapsible=icon]:hidden sidebar-text-fade group-data-[collapsible=icon]:mb-0 group-data-[collapsible=icon]:h-0 group-data-[collapsible=icon]:overflow-hidden"
+                  class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Tabelas
-                  <ChevronDown size={14} class="text-white/30" />
+                  <Folder size={14} class="text-white/30" />
                 </Sidebar.GroupLabel>
-              </div>
-              <Sidebar.GroupContent>
-                <div
-                  class="space-y-1"
-                  use:stagger={{
-                    preset: "slideInLeft",
-                    staggerType: "fast",
-                    delay: 0.5,
-                  }}
-                >
-                  <Sidebar.Menu class="space-y-1">
-                    {#each tableMenuItems as item}
-                      {@const Icon = item.icon}
-                      <Sidebar.MenuItem>
-                        <div>
-                          <Sidebar.MenuButton>
-                            {#snippet child({ props })}
-                              <a
-                                href={item.href}
-                                {...props}
-                                class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-3"
-                              >
-                                <Icon
-                                  size={20}
-                                  class="text-white/50 flex-shrink-0"
-                                />
-                                <span
-                                  class="sidebar-menu-item-text sidebar-text-no-wrap group-data-[collapsible=icon]:hidden"
+                <Sidebar.GroupContent>
+                  <div
+                    class="space-y-1"
+                    use:stagger={{
+                      preset: "slideInLeft",
+                      staggerType: "fast",
+                      delay: 0.5,
+                    }}
+                  >
+                    <Sidebar.Menu class="space-y-2">
+                      {#each tableMenuItems as item}
+                        {@const Icon = item.icon}
+                        <Sidebar.MenuItem>
+                          <div>
+                            <Sidebar.MenuButton>
+                              {#snippet child({ props })}
+                                <a
+                                  href={item.href}
+                                  {...props}
+                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-sidebar-accent rounded-lg flex items-center gap-3"
                                 >
-                                  {item.title}
-                                </span>
-                              </a>
-                            {/snippet}
-                          </Sidebar.MenuButton>
-                        </div>
-                      </Sidebar.MenuItem>
-                    {/each}
-                  </Sidebar.Menu>
-                </div>
-              </Sidebar.GroupContent>
+                                  <Icon
+                                    size={20}
+                                    class="text-white/50 flex-shrink-0"
+                                  />
+                                  <span
+                                    class="sidebar-menu-item-text sidebar-text-no-wrap"
+                                  >
+                                    {item.title}
+                                  </span>
+                                </a>
+                              {/snippet}
+                            </Sidebar.MenuButton>
+                          </div>
+                        </Sidebar.MenuItem>
+                      {/each}
+                    </Sidebar.Menu>
+                  </div>
+                </Sidebar.GroupContent>
+              </div>
             </Sidebar.Group>
           </div>
         </div>
@@ -350,5 +561,108 @@
       margin 300ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 280ms cubic-bezier(0.4, 0, 0.2, 1);
     will-change: height, margin, opacity;
+  }
+
+  /* Thumbnail Preview System Styles */
+  :global(.thumbnail-preview) {
+    will-change: transform, opacity;
+    backdrop-filter: blur(8px);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      0 2px 4px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :global(.thumbnail-preview:hover) {
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.2),
+      0 4px 8px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Smooth thumbnail container transitions */
+  :global(.group-data-[collapsible="icon"] .thumbnail-preview) {
+    animation: thumbnailFadeIn 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes thumbnailFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Enhanced background styling for collapsed sidebar */
+  :global(.group-data-[collapsible="icon"] [data-sidebar="sidebar"]) {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--sidebar)) 0%,
+      hsl(var(--sidebar-accent)) 100%
+    );
+  }
+
+  /* Optimize thumbnail rendering */
+  :global(.thumbnail-preview) {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: layout style paint;
+  }
+
+  /* Enhanced height transition for thumbnail expansion */
+  :global(.thumbnail-preview) {
+    transition:
+      height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      background 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Smooth content reveal animations */
+  :global(.thumbnail-preview .absolute) {
+    transition:
+      opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Enhanced hover effects for expanded menu items - no scale transforms */
+  :global(.thumbnail-preview a:hover, .thumbnail-preview button:hover) {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Smooth transitions for thumbnail container */
+  :global(.group-data-[collapsible="icon"] .thumbnail-preview) {
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Enhanced focus states for accessibility */
+  :global(.thumbnail-preview:focus-visible) {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  :global(
+      .thumbnail-preview a:focus-visible,
+      .thumbnail-preview button:focus-visible
+    ) {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 1px;
+  }
+
+  /* Prevent content overflow during height animation */
+  :global(.thumbnail-preview) {
+    overflow: hidden;
+  }
+
+  /* Enhanced staggered animation for menu items */
+  :global(.thumbnail-preview a, .thumbnail-preview button) {
+    transition:
+      all 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 </style>
