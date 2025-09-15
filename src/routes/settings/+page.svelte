@@ -8,7 +8,6 @@
     CardTitle,
   } from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
-  import { Separator } from "$lib/components/ui/separator";
   import {
     Settings,
     Palette,
@@ -28,22 +27,20 @@
       <h2 class="text-3xl font-bold text-white tracking-tight">
         Configurações
       </h2>
-      <p class="text-lg font-medium text-white/70">
+      <p class="text-body">
         Configure suas preferências do dashboard e integrações bancárias.
       </p>
     </div>
 
     <!-- Settings Grid -->
     <div class="grid gap-8">
-      <Card class="bg-card border-border">
+      <Card class="card-premium">
         <CardHeader class="p-6">
-          <CardTitle
-            class="text-xl font-bold text-white flex items-center gap-2"
-          >
+          <CardTitle class="text-subheading flex items-center gap-2">
             <Settings size={20} class="text-primary" />
             Integrações Bancárias
           </CardTitle>
-          <CardDescription class="text-white/60 mt-2 font-medium">
+          <CardDescription class="text-caption mt-2">
             Configure suas conexões com bancos e corretoras
           </CardDescription>
         </CardHeader>
@@ -52,15 +49,15 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">APIs Bancárias</p>
-              <p class="text-xs font-medium text-white/50">
+              <p class="text-label">APIs Bancárias</p>
+              <p class="text-caption">
                 Configurar chaves de acesso às APIs dos bancos
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
+              class="btn-secondary flex items-center gap-2"
             >
               <Settings size={14} />
               Configurar
@@ -70,17 +67,15 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">
-                Sincronização de Dados
-              </p>
-              <p class="text-xs font-medium text-white/50">
+              <p class="text-label">Sincronização de Dados</p>
+              <p class="text-caption">
                 Gerenciar frequência de atualização dos dados financeiros
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
+              class="btn-secondary flex items-center gap-2"
             >
               <FolderOpen size={14} />
               Gerenciar
@@ -89,15 +84,13 @@
         </CardContent>
       </Card>
 
-      <Card class="bg-card border-border">
+      <Card class="card-premium">
         <CardHeader class="p-6">
-          <CardTitle
-            class="text-xl font-bold text-white flex items-center gap-2"
-          >
+          <CardTitle class="text-subheading flex items-center gap-2">
             <Palette size={20} class="text-primary" />
             Preferências do Dashboard
           </CardTitle>
-          <CardDescription class="text-white/60 mt-2 font-medium">
+          <CardDescription class="text-caption mt-2">
             Personalize a aparência e comportamento do seu dashboard financeiro
           </CardDescription>
         </CardHeader>
@@ -106,15 +99,13 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">Tema</p>
-              <p class="text-xs font-medium text-white/50">
-                Escolha seu esquema de cores preferido
-              </p>
+              <p class="text-label">Tema</p>
+              <p class="text-caption">Escolha seu esquema de cores preferido</p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
+              class="btn-secondary flex items-center gap-2"
             >
               <Moon size={14} />
               Escuro
@@ -124,17 +115,15 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">
-                Atualização Automática
-              </p>
-              <p class="text-xs font-medium text-white/50">
+              <p class="text-label">Atualização Automática</p>
+              <p class="text-caption">
                 Atualizar automaticamente dados financeiros
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
+              class="btn-secondary flex items-center gap-2"
             >
               <RefreshCw size={14} />
               Ativado
@@ -143,15 +132,13 @@
         </CardContent>
       </Card>
 
-      <Card class="bg-card border-border">
+      <Card class="card-premium">
         <CardHeader class="p-6">
-          <CardTitle
-            class="text-xl font-semibold text-card-foreground flex items-center gap-2"
-          >
+          <CardTitle class="text-subheading flex items-center gap-2">
             <FolderOpen size={20} class="text-primary" />
             Gestão de Relatórios
           </CardTitle>
-          <CardDescription class="text-white/60 mt-2 font-medium">
+          <CardDescription class="text-caption mt-2">
             Configure como os relatórios financeiros são gerados e gerenciados
           </CardDescription>
         </CardHeader>
@@ -160,17 +147,15 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">
-                Diretório de Relatórios
-              </p>
-              <p class="text-xs font-medium text-white/50">
+              <p class="text-label">Diretório de Relatórios</p>
+              <p class="text-caption">
                 Local padrão para salvar relatórios financeiros
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
+              class="btn-secondary flex items-center gap-2"
             >
               <Search size={14} />
               Procurar
@@ -180,17 +165,15 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">
-                Timeout de Processamento
-              </p>
-              <p class="text-xs font-medium text-white/50">
+              <p class="text-label">Timeout de Processamento</p>
+              <p class="text-caption">
                 Tempo máximo para processamento de dados financeiros
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
+              class="btn-secondary flex items-center gap-2"
             >
               <Timer size={14} />
               30s
@@ -199,15 +182,13 @@
         </CardContent>
       </Card>
 
-      <Card class="bg-card border-border">
+      <Card class="card-premium">
         <CardHeader class="p-6">
-          <CardTitle
-            class="text-xl font-semibold text-card-foreground flex items-center gap-2"
-          >
+          <CardTitle class="text-subheading flex items-center gap-2">
             <Info size={20} class="text-primary" />
             Sobre o Sistema
           </CardTitle>
-          <CardDescription class="text-white/60 mt-2 font-medium">
+          <CardDescription class="text-caption mt-2">
             Informações do dashboard financeiro e detalhes da versão
           </CardDescription>
         </CardHeader>
@@ -216,24 +197,20 @@
             <div
               class="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
             >
-              <span class="text-sm font-medium text-white/60">Versão:</span>
-              <span class="text-sm font-semibold text-white">1.0.0</span>
+              <span class="text-caption">Versão:</span>
+              <span class="text-label">1.0.0</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
             >
-              <span class="text-sm font-medium text-white/60">Framework:</span>
-              <span class="text-sm font-semibold text-white"
-                >SvelteKit + shadcn-svelte</span
-              >
+              <span class="text-caption">Framework:</span>
+              <span class="text-label">SvelteKit + shadcn-svelte</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
             >
-              <span class="text-sm font-medium text-white/60"
-                >Integrações Bancárias:</span
-              >
-              <span class="text-sm font-semibold text-primary">Pronto</span>
+              <span class="text-caption">Integrações Bancárias:</span>
+              <span class="text-label text-primary">Pronto</span>
             </div>
           </div>
         </CardContent>

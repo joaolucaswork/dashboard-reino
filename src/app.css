@@ -16,11 +16,11 @@
 :root {
   --radius: 12px;
   /* Premium Dark Mode - Warm Investment Palette */
-  --background: #0d0b0a;
+  --background: #1a1612;
   --foreground: #faf8f6;
-  --card: #1a1612;
+  --card: #211e18;
   --card-foreground: #faf8f6;
-  --popover: #1a1612;
+  --popover: #211e18;
   --popover-foreground: #faf8f6;
   --primary: #d4af37;
   --primary-foreground: #1a1612;
@@ -39,13 +39,13 @@
   --chart-3: #daa520;
   --chart-4: #b8860b;
   --chart-5: #8b7355;
-  --sidebar: #141210;
+  --sidebar: #0f0d0b;
   --sidebar-foreground: #e6ddd4;
   --sidebar-primary: #d4af37;
-  --sidebar-primary-foreground: #1a1612;
-  --sidebar-accent: #2a251f;
+  --sidebar-primary-foreground: #0f0d0b;
+  --sidebar-accent: #1a1612;
   --sidebar-accent-foreground: #e6ddd4;
-  --sidebar-border: #3d342a;
+  --sidebar-border: #2a251f;
   --sidebar-ring: #d4af37;
 }
 
@@ -153,12 +153,12 @@
   }
 
   p {
-    @apply text-muted-foreground leading-relaxed;
+    @apply text-muted-foreground leading-relaxed font-medium;
   }
 
   /* Button base styles */
   button {
-    @apply transition-all duration-200;
+    /* No transitions for instant feedback */
   }
 
   /* Input improvements */
@@ -168,13 +168,11 @@
     @apply bg-input border-border text-foreground;
     @apply placeholder:text-muted-foreground;
     @apply focus:border-ring focus:ring-1 focus:ring-ring;
-    @apply transition-all duration-200;
   }
 
   /* Link improvements */
   a {
     @apply text-primary hover:text-primary/80;
-    @apply transition-colors duration-200;
   }
 }
 
@@ -182,28 +180,23 @@
 @layer components {
   /* Enhanced Card Styles */
   .card-premium {
-    @apply bg-card border-border rounded-2xl shadow-sm;
-    @apply transition-all duration-300 ease-out;
-    @apply hover:shadow-md hover:border-border/60;
+    @apply bg-card rounded-2xl shadow-sm;
   }
 
   /* Enhanced Button Styles */
   .btn-premium {
     @apply px-6 py-3 rounded-xl font-medium;
-    @apply transition-all duration-200 ease-out;
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
 
   .btn-primary {
     @apply bg-primary text-primary-foreground;
-    @apply hover:bg-primary/90 hover:shadow-sm;
-    @apply active:scale-[0.98];
+    @apply hover:bg-primary/90;
   }
 
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground border border-border;
     @apply hover:bg-accent hover:text-accent-foreground;
-    @apply active:scale-[0.98];
   }
 
   /* Enhanced Input Styles */
@@ -211,7 +204,6 @@
     @apply bg-input border-border rounded-lg px-4 py-3;
     @apply text-foreground placeholder:text-muted-foreground;
     @apply focus:border-ring focus:ring-1 focus:ring-ring;
-    @apply transition-all duration-200 ease-out;
   }
 
   /* Typography Enhancements */
@@ -228,11 +220,11 @@
   }
 
   .text-body {
-    @apply text-base text-muted-foreground leading-relaxed;
+    @apply text-base text-muted-foreground leading-relaxed font-medium;
   }
 
   .text-caption {
-    @apply text-sm text-muted-foreground;
+    @apply text-sm text-muted-foreground font-medium;
   }
 
   .text-label {
@@ -267,13 +259,11 @@
 
   /* Hover Effects */
   .hover-lift {
-    @apply transition-transform duration-200 ease-out;
-    @apply hover:-translate-y-1 hover:shadow-lg;
+    @apply hover:bg-accent/50;
   }
 
   .hover-glow {
-    @apply transition-all duration-200 ease-out;
-    @apply hover:shadow-lg hover:shadow-primary/10;
+    @apply hover:bg-accent/30;
   }
 
   /* Glass Effect */
@@ -307,7 +297,6 @@
     font-weight: 500;
     color: var(--muted-foreground);
     background: transparent;
-    transition: color 200ms ease-out;
   }
 
   .btn-minimal:hover {
