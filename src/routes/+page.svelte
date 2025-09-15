@@ -21,7 +21,7 @@
   <!-- Header Section -->
   <div class="space-y-3" use:animate={{ preset: "slideInUp", delay: 0.2 }}>
     <h2 class="text-3xl font-bold text-white tracking-tight">
-      Ferramentas do BackOffice
+      Dashboard de Gestão Financeira
     </h2>
     <p class="text-body max-w-2xl">
       Gerencie seus investimentos e análises financeiras com design sofisticado

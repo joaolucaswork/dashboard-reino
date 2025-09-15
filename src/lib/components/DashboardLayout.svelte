@@ -177,24 +177,14 @@
       <Sidebar.Content class="p-0 flex flex-col h-full">
         <!-- Sidebar Header with Toggle Button -->
         <div class="p-4 border-b border-sidebar-border/50">
+          <!-- Expanded state: horizontal layout -->
           <div
-            class="flex items-center justify-between group-data-[collapsible=icon]:justify-center"
+            class="flex items-center justify-between group-data-[collapsible=icon]:hidden"
           >
-            <div class="group-data-[collapsible=icon]:hidden">
+            <div>
               <a
                 href="/"
                 class="inline-block hover:opacity-80 transition-opacity duration-200 cursor-pointer"
-                title="Voltar para Home"
-                aria-label="Voltar para página inicial"
-              >
-                <ReinoLogo size={28} class="text-white/90" />
-              </a>
-            </div>
-            <!-- Logo for collapsed state -->
-            <div class="hidden group-data-[collapsible=icon]:block">
-              <a
-                href="/"
-                class="inline-block hover:opacity-80 transition-opacity duration-200 cursor-pointer p-1"
                 title="Voltar para Home"
                 aria-label="Voltar para página inicial"
               >
@@ -203,8 +193,34 @@
             </div>
             <Sidebar.Trigger
               class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors"
+              title="Recolher sidebar"
+              aria-label="Recolher menu lateral"
             >
               <Menu size={24} class="text-white/70 hover:text-white" />
+            </Sidebar.Trigger>
+          </div>
+
+          <!-- Collapsed state: vertical layout -->
+          <div
+            class="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-3"
+          >
+            <!-- Logo on top -->
+            <a
+              href="/"
+              class="inline-block hover:opacity-80 transition-opacity duration-200 cursor-pointer p-1"
+              title="Voltar para Home"
+              aria-label="Voltar para página inicial"
+            >
+              <ReinoLogo size={20} class="text-white/90" />
+            </a>
+
+            <!-- Toggle button below -->
+            <Sidebar.Trigger
+              class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors"
+              title="Expandir sidebar"
+              aria-label="Expandir menu lateral"
+            >
+              <Menu size={20} class="text-white/70 hover:text-white" />
             </Sidebar.Trigger>
           </div>
         </div>
@@ -265,7 +281,7 @@
 
               <!-- Thumbnail Preview for Collapsed State -->
               <div
-                class="hidden group-data-[collapsible=icon]:flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
+                class="hidden group-data-[collapsible=icon]:flex flex-col items-center justify-center px-1 py-1 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
               >
                 <!-- Integrations Thumbnail -->
                 <div
@@ -525,7 +541,9 @@
         <div class="flex h-16 items-center px-6">
           <div class="flex flex-1 items-center justify-between">
             <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
-              <h1 class="text-lg font-bold text-white">Reino Capital</h1>
+              <h1 class="text-lg font-bold text-white">
+                Ferramentas do BackOffice
+              </h1>
             </div>
           </div>
         </div>
