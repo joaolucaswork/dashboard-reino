@@ -25,9 +25,11 @@
   <div class="space-y-8">
     <!-- Header Section -->
     <div class="space-y-3">
-      <h2 class="text-3xl font-bold text-white tracking-tight">Settings</h2>
+      <h2 class="text-3xl font-bold text-white tracking-tight">
+        Configurações
+      </h2>
       <p class="text-lg font-medium text-white/70">
-        Configure your dashboard preferences and Python environment.
+        Configure suas preferências do dashboard e integrações bancárias.
       </p>
     </div>
 
@@ -39,10 +41,10 @@
             class="text-xl font-bold text-white flex items-center gap-2"
           >
             <Settings size={20} class="text-primary" />
-            Python Environment
+            Integrações Bancárias
           </CardTitle>
           <CardDescription class="text-white/60 mt-2 font-medium">
-            Configure your Python interpreter and environment settings
+            Configure suas conexões com bancos e corretoras
           </CardDescription>
         </CardHeader>
         <CardContent class="p-6 pt-0 space-y-6">
@@ -50,9 +52,9 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">Python Path</p>
+              <p class="text-sm font-semibold text-white">APIs Bancárias</p>
               <p class="text-xs font-medium text-white/50">
-                Current Python interpreter location
+                Configurar chaves de acesso às APIs dos bancos
               </p>
             </div>
             <Button
@@ -61,7 +63,7 @@
               class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
             >
               <Settings size={14} />
-              Configure
+              Configurar
             </Button>
           </div>
           <div
@@ -69,10 +71,10 @@
           >
             <div class="space-y-1">
               <p class="text-sm font-semibold text-white">
-                Virtual Environment
+                Sincronização de Dados
               </p>
               <p class="text-xs font-medium text-white/50">
-                Manage Python virtual environments
+                Gerenciar frequência de atualização dos dados financeiros
               </p>
             </div>
             <Button
@@ -81,7 +83,7 @@
               class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
             >
               <FolderOpen size={14} />
-              Manage
+              Gerenciar
             </Button>
           </div>
         </CardContent>
@@ -93,10 +95,10 @@
             class="text-xl font-bold text-white flex items-center gap-2"
           >
             <Palette size={20} class="text-primary" />
-            Dashboard Preferences
+            Preferências do Dashboard
           </CardTitle>
           <CardDescription class="text-white/60 mt-2 font-medium">
-            Customize your dashboard appearance and behavior
+            Personalize a aparência e comportamento do seu dashboard financeiro
           </CardDescription>
         </CardHeader>
         <CardContent class="p-6 pt-0 space-y-6">
@@ -104,9 +106,9 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">Theme</p>
+              <p class="text-sm font-semibold text-white">Tema</p>
               <p class="text-xs font-medium text-white/50">
-                Choose your preferred color scheme
+                Escolha seu esquema de cores preferido
               </p>
             </div>
             <Button
@@ -115,16 +117,18 @@
               class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
             >
               <Moon size={14} />
-              Dark
+              Escuro
             </Button>
           </div>
           <div
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">Auto-refresh</p>
+              <p class="text-sm font-semibold text-white">
+                Atualização Automática
+              </p>
               <p class="text-xs font-medium text-white/50">
-                Automatically refresh dashboard data
+                Atualizar automaticamente dados financeiros
               </p>
             </div>
             <Button
@@ -133,7 +137,7 @@
               class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
             >
               <RefreshCw size={14} />
-              Enabled
+              Ativado
             </Button>
           </div>
         </CardContent>
@@ -145,10 +149,10 @@
             class="text-xl font-semibold text-card-foreground flex items-center gap-2"
           >
             <FolderOpen size={20} class="text-primary" />
-            Script Management
+            Gestão de Relatórios
           </CardTitle>
           <CardDescription class="text-white/60 mt-2 font-medium">
-            Configure how scripts are executed and managed
+            Configure como os relatórios financeiros são gerados e gerenciados
           </CardDescription>
         </CardHeader>
         <CardContent class="p-6 pt-0 space-y-6">
@@ -156,9 +160,11 @@
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">Script Directory</p>
+              <p class="text-sm font-semibold text-white">
+                Diretório de Relatórios
+              </p>
               <p class="text-xs font-medium text-white/50">
-                Default location for Python scripts
+                Local padrão para salvar relatórios financeiros
               </p>
             </div>
             <Button
@@ -167,16 +173,18 @@
               class="px-4 py-2 bg-background border-border hover:bg-accent transition-colors duration-200 flex items-center gap-2"
             >
               <Search size={14} />
-              Browse
+              Procurar
             </Button>
           </div>
           <div
             class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div class="space-y-1">
-              <p class="text-sm font-semibold text-white">Execution Timeout</p>
+              <p class="text-sm font-semibold text-white">
+                Timeout de Processamento
+              </p>
               <p class="text-xs font-medium text-white/50">
-                Maximum time for script execution
+                Tempo máximo para processamento de dados financeiros
               </p>
             </div>
             <Button
@@ -197,10 +205,10 @@
             class="text-xl font-semibold text-card-foreground flex items-center gap-2"
           >
             <Info size={20} class="text-primary" />
-            About
+            Sobre o Sistema
           </CardTitle>
           <CardDescription class="text-white/60 mt-2 font-medium">
-            Dashboard information and version details
+            Informações do dashboard financeiro e detalhes da versão
           </CardDescription>
         </CardHeader>
         <CardContent class="p-6 pt-0">
@@ -208,7 +216,7 @@
             <div
               class="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
             >
-              <span class="text-sm font-medium text-white/60">Version:</span>
+              <span class="text-sm font-medium text-white/60">Versão:</span>
               <span class="text-sm font-semibold text-white">1.0.0</span>
             </div>
             <div
@@ -223,9 +231,9 @@
               class="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
             >
               <span class="text-sm font-medium text-white/60"
-                >Python Support:</span
+                >Integrações Bancárias:</span
               >
-              <span class="text-sm font-semibold text-primary">Ready</span>
+              <span class="text-sm font-semibold text-primary">Pronto</span>
             </div>
           </div>
         </CardContent>

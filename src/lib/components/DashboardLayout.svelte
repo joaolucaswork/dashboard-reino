@@ -39,8 +39,8 @@
   const integrations = [
     { name: "Itaú", color: "bg-orange-500" },
     { name: "BTG", color: "bg-blue-500" },
-    { name: "XP", color: "bg-gray-900" },
-    { name: "Banco do Brasil", color: "bg-yellow-500" },
+    { name: "XP", color: "bg-yellow-500" },
+    { name: "Banco do Brasil", color: "bg-sky-400" },
   ];
 
   // Tables menu items from the design
@@ -211,9 +211,7 @@
           </div>
           <div class="flex flex-1 items-center justify-between">
             <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
-              <h1 class="text-lg font-bold text-white">
-                Ferramentas do BackOffice
-              </h1>
+              <h1 class="text-lg font-bold text-white">Reino Capital</h1>
             </div>
           </div>
         </div>
