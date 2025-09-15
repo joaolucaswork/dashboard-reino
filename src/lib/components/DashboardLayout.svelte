@@ -321,15 +321,15 @@
                       : 'opacity-0 translate-y-2'}"
                   >
                     <!-- Folder icon indicator - clickable to close -->
-                    <div class="flex justify-center mb-4">
+                    <div class="flex justify-center mb-2">
                       <button
-                        class="p-2 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
+                        class="p-1 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
                         onclick={() => toggleSection("integrations")}
                         title="Fechar menu"
                         aria-label="Close integrations menu"
                       >
                         <Folder
-                          size={20}
+                          size={16}
                           class="text-white/60 hover:text-white/80"
                         />
                       </button>
@@ -387,15 +387,15 @@
                       : 'opacity-0 translate-y-2'}"
                   >
                     <!-- Folder icon indicator - clickable to close -->
-                    <div class="flex justify-center mb-4">
+                    <div class="flex justify-center mb-2">
                       <button
-                        class="p-2 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
+                        class="p-1 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
                         onclick={() => toggleSection("tables")}
                         title="Fechar menu"
                         aria-label="Close tables menu"
                       >
                         <Folder
-                          size={20}
+                          size={16}
                           class="text-white/60 hover:text-white/80"
                         />
                       </button>
@@ -480,7 +480,7 @@
           use:animate={{ preset: "slideInLeft", delay: 0.1 }}
         >
           <div
-            class="p-6 group-data-[collapsible=icon]:p-6 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center"
+            class="p-3 group-data-[collapsible=icon]:p-6 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center"
           >
             <div
               class="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-4 w-full"
@@ -506,13 +506,13 @@
                   class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
                   title="Home"
                 >
-                  <Home size={20} class="text-white/60 hover:text-white/80" />
+                  <Home size={18} class="text-white/60 hover:text-white/80" />
                 </a>
                 <button
                   class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
                   title="Notificações"
                 >
-                  <Bell size={20} class="text-white/60 hover:text-white/80" />
+                  <Bell size={18} class="text-white/60 hover:text-white/80" />
                 </button>
                 <a
                   href="/settings"
@@ -520,7 +520,7 @@
                   title="Configurações"
                 >
                   <Settings
-                    size={20}
+                    size={18}
                     class="text-white/60 hover:text-white/80"
                   />
                 </a>
