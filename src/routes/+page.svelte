@@ -23,11 +23,11 @@
     <!-- Header Section -->
     <div class="space-y-3" use:animate={{ preset: "slideInUp", delay: 0.2 }}>
       <h2 class="text-3xl font-bold text-white tracking-tight">
-        Welcome to Reino
+        Ferramentas do BackOffice
       </h2>
       <p class="text-lg font-medium text-white/70 max-w-2xl">
-        A minimal dashboard for managing your Python scripts and analytics with
-        sophisticated design.
+        Gerencie seus investimentos e análises financeiras com design
+        sofisticado e minimalista.
       </p>
     </div>
 
@@ -39,7 +39,7 @@
             class="text-lg font-bold text-white flex items-center gap-2"
           >
             <Activity size={18} class="text-primary" />
-            Recent Activity
+            Atividade Recente
           </CardTitle>
         </CardHeader>
         <CardContent class="p-4 pt-0">
@@ -55,10 +55,11 @@
               </div>
               <div>
                 <p class="text-sm font-semibold text-white/80">
-                  No activity to display
+                  Nenhuma atividade para exibir
                 </p>
                 <p class="text-xs font-medium text-white/50 mt-1">
-                  Execute some Python scripts to see analytics data here
+                  Conecte suas contas bancárias para ver dados de investimentos
+                  aqui
                 </p>
               </div>
             </div>
@@ -81,11 +82,11 @@
               class="text-lg font-bold text-white mb-2 flex items-center gap-2"
             >
               <TrendingUp size={18} class="text-primary" />
-              Analytics
+              Análises
             </CardTitle>
             <p class="text-sm font-medium text-white/60">
-              No data available yet. Start by running some scripts to see
-              analytics.
+              Nenhum dado disponível ainda. Conecte suas contas para ver
+              análises de investimentos.
             </p>
           </CardContent>
         </Card>
@@ -100,10 +101,10 @@
               class="text-lg font-bold text-white mb-2 flex items-center gap-2"
             >
               <FileCode size={18} class="text-primary" />
-              Python Scripts
+              Relatórios
             </CardTitle>
             <p class="text-sm font-medium text-white/60">
-              Ready to run Python scripts directly from the dashboard interface.
+              Gere relatórios detalhados de seus investimentos e performance.
             </p>
           </CardContent>
         </Card>
@@ -118,11 +119,11 @@
               class="text-lg font-bold text-white mb-2 flex items-center gap-2"
             >
               <Settings size={18} class="text-primary" />
-              Settings
+              Configurações
             </CardTitle>
             <p class="text-sm font-medium text-white/60">
-              Customize your dashboard experience and Python environment
-              settings.
+              Personalize sua experiência no dashboard e configure suas
+              integrações bancárias.
             </p>
           </CardContent>
         </Card>
@@ -135,9 +136,9 @@
         <CardContent class="p-6">
           <div class="space-y-4">
             <div>
-              <h3 class="text-lg font-bold text-white mb-2">Quick Actions</h3>
+              <h3 class="text-lg font-bold text-white mb-2">Ações Rápidas</h3>
               <p class="text-sm font-medium text-white/60">
-                Get started with these common tasks
+                Comece com essas tarefas comuns
               </p>
             </div>
             <div
@@ -149,22 +150,22 @@
               }}
             >
               <a
-                href="/scripts"
+                href="/relatorio"
                 class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors duration-200 flex items-center gap-2"
                 use:hover={{ scale: 1.02 }}
                 use:buttonPress
               >
                 <Play size={14} />
-                Run Scripts
+                Gerar Relatório
               </a>
               <a
-                href="/analytics"
+                href="/analises"
                 class="px-4 py-2 text-white/60 hover:text-white font-medium transition-colors duration-200 flex items-center gap-2"
                 use:hover={{ scale: 1.02 }}
                 use:buttonPress
               >
                 <ChartLine size={14} />
-                View Analytics
+                Ver Análises
               </a>
               <a
                 href="/settings"
@@ -173,7 +174,7 @@
                 use:buttonPress
               >
                 <Cog size={14} />
-                Configure Settings
+                Configurar Integrações
               </a>
             </div>
           </div>
