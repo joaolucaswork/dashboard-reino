@@ -16,6 +16,10 @@
     Target,
     Folder,
   } from "@lucide/svelte";
+  import {
+    DynamicFolderPreview,
+    type FolderConfig,
+  } from "$lib/components/ui/dynamic-folder-preview/index.js";
 
   let { children } = $props();
 
@@ -63,6 +67,25 @@
       shortTitle: "AST",
     },
   ];
+
+  // Dynamic folder configurations
+  const integrationsConfig: FolderConfig = {
+    type: "integrations",
+    items: integrations.map((integration) => ({
+      id: integration.shortName,
+      name: integration.name,
+      color: integration.color,
+    })),
+  };
+
+  const tablesConfig: FolderConfig = {
+    type: "tables",
+    items: tableMenuItems.map((item) => ({
+      id: item.shortTitle,
+      name: item.title,
+      icon: item.icon,
+    })),
+  };
 
   let mainContentElement: HTMLElement;
 
@@ -168,11 +191,11 @@
 
               <!-- Thumbnail Preview for Collapsed State -->
               <div
-                class="hidden group-data-[collapsible=icon]:flex flex-col items-center justify-center p-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
+                class="hidden group-data-[collapsible=icon]:flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
               >
                 <!-- Integrations Thumbnail -->
                 <div
-                  class="thumbnail-preview w-12 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-16 mb-6"
+                  class="thumbnail-preview w-14 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-14 mb-4"
                   style={expandedSections.has("integrations")
                     ? `height: ${getExpandedHeight("integrations")}`
                     : ""}
@@ -186,30 +209,15 @@
                       e.key === "Enter" && toggleSection("integrations")}
                     aria-label="Toggle integrations menu"
                   ></button>
-                  <!-- Collapsed state: Mini representation of integration colors -->
+                  <!-- Collapsed state: Dynamic representation of integrations -->
                   <div
-                    class="absolute inset-2 flex flex-col gap-1 transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                    class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
                       'integrations'
                     )
                       ? 'opacity-0'
                       : 'opacity-100'}"
                   >
-                    <div class="flex gap-1">
-                      <div
-                        class="w-2 h-2 bg-orange-500 rounded-sm opacity-80"
-                      ></div>
-                      <div
-                        class="w-2 h-2 bg-blue-500 rounded-sm opacity-80"
-                      ></div>
-                    </div>
-                    <div class="flex gap-1">
-                      <div
-                        class="w-2 h-2 bg-yellow-500 rounded-sm opacity-80"
-                      ></div>
-                      <div
-                        class="w-2 h-2 bg-sky-400 rounded-sm opacity-80"
-                      ></div>
-                    </div>
+                    <DynamicFolderPreview config={integrationsConfig} />
                   </div>
 
                   <!-- Expanded state: Full menu items -->
@@ -245,7 +253,7 @@
 
                 <!-- Tables Thumbnail -->
                 <div
-                  class="thumbnail-preview w-12 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-16"
+                  class="thumbnail-preview w-14 bg-gradient-to-br from-sidebar-accent/80 to-sidebar-accent/40 rounded-xl border border-sidebar-border/50 backdrop-blur-sm relative overflow-hidden transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) h-14"
                   style={expandedSections.has("tables")
                     ? `height: ${getExpandedHeight("tables")}`
                     : ""}
@@ -259,29 +267,15 @@
                       e.key === "Enter" && toggleSection("tables")}
                     aria-label="Toggle tables menu"
                   ></button>
-                  <!-- Collapsed state: Mini representation of table icons -->
+                  <!-- Collapsed state: Dynamic representation of tables -->
                   <div
-                    class="absolute inset-2 flex flex-col gap-1 items-center justify-center transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
+                    class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
                       'tables'
                     )
                       ? 'opacity-0'
                       : 'opacity-100'}"
                   >
-                    <div class="flex gap-1">
-                      <div class="w-1.5 h-1.5 bg-white/60 rounded-sm"></div>
-                      <div class="w-1.5 h-1.5 bg-white/60 rounded-sm"></div>
-                      <div class="w-1.5 h-1.5 bg-white/60 rounded-sm"></div>
-                    </div>
-                    <div class="flex gap-1">
-                      <div class="w-1.5 h-1.5 bg-white/40 rounded-sm"></div>
-                      <div class="w-1.5 h-1.5 bg-white/40 rounded-sm"></div>
-                      <div class="w-1.5 h-1.5 bg-white/40 rounded-sm"></div>
-                    </div>
-                    <div class="flex gap-1">
-                      <div class="w-1.5 h-1.5 bg-white/30 rounded-sm"></div>
-                      <div class="w-1.5 h-1.5 bg-white/30 rounded-sm"></div>
-                      <div class="w-1.5 h-1.5 bg-white/30 rounded-sm"></div>
-                    </div>
+                    <DynamicFolderPreview config={tablesConfig} />
                   </div>
 
                   <!-- Expanded state: Full menu items -->
@@ -384,10 +378,10 @@
             class="p-6 group-data-[collapsible=icon]:p-6 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center"
           >
             <div
-              class="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-4"
+              class="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-4 w-full"
             >
               <div
-                class="flex items-center gap-3 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2"
+                class="flex items-center gap-3 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2 min-w-0 flex-1"
               >
                 <div
                   class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
@@ -395,7 +389,7 @@
                   <User size={20} class="text-white/70" />
                 </div>
                 <span
-                  class="text-sm font-medium text-white/90 group-data-[collapsible=icon]:hidden sidebar-text-fade"
+                  class="text-sm font-medium text-white/90 group-data-[collapsible=icon]:hidden sidebar-text-fade sidebar-text-no-wrap"
                   style="font-weight: 500;">João Lucas</span
                 >
               </div>
