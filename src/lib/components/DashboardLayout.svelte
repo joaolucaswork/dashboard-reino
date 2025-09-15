@@ -10,7 +10,7 @@
     Settings,
     Menu,
     User,
-    Home,
+    House,
     Bell,
     FileText,
     ChartBar,
@@ -27,7 +27,7 @@
   let { children } = $props();
 
   // Initialize sidebar state from cookie
-  let sidebarOpen = $state(true); // Default to true, will be updated from cookie
+  let sidebarOpen = $state(false); // Default to false (closed), will be updated from cookie
 
   // Interactive thumbnail state management
   let expandedSections = $state(new Set<"integrations" | "tables">());
@@ -176,7 +176,7 @@
       class="border-r border-sidebar-border bg-sidebar"
     >
       <Sidebar.Content class="p-0 flex flex-col h-full">
-        <!-- Sidebar Header with Toggle Button -->
+        <!-- Sidebar Header -->
         <div class="p-4 border-b border-sidebar-border/50">
           <!-- Expanded state: horizontal layout -->
           <div
@@ -192,13 +192,25 @@
                 <ReinoLogo size={20} class="text-white/90" />
               </a>
             </div>
-            <Sidebar.Trigger
-              class="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              title="Recolher sidebar"
-              aria-label="Recolher menu lateral"
-            >
-              <Menu size={24} class="text-white/70 hover:text-white" />
-            </Sidebar.Trigger>
+            <Tooltip.Root>
+              <Tooltip.Trigger class="inline-flex">
+                <a
+                  href="/"
+                  class="p-2 hover:bg-white/10 rounded-md transition-colors"
+                  aria-label="Home"
+                >
+                  <House size={20} class="text-white/90" />
+                </a>
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="bottom"
+                align="center"
+                sideOffset={8}
+                class="tooltip-standard"
+              >
+                Home
+              </Tooltip.Content>
+            </Tooltip.Root>
           </div>
 
           <!-- Collapsed state: vertical layout -->
@@ -215,14 +227,26 @@
               <ReinoLogo size={20} class="text-white/90" />
             </a>
 
-            <!-- Toggle button below -->
-            <Sidebar.Trigger
-              class="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              title="Expandir sidebar"
-              aria-label="Expandir menu lateral"
-            >
-              <Menu size={20} class="text-white/70 hover:text-white" />
-            </Sidebar.Trigger>
+            <!-- Home icon below logo -->
+            <Tooltip.Root>
+              <Tooltip.Trigger class="inline-flex">
+                <a
+                  href="/"
+                  class="p-2 hover:bg-white/10 rounded-md transition-colors"
+                  aria-label="Home"
+                >
+                  <House size={20} class="text-white/90" />
+                </a>
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="right"
+                align="center"
+                sideOffset={8}
+                class="tooltip-standard"
+              >
+                Home
+              </Tooltip.Content>
+            </Tooltip.Root>
           </div>
         </div>
 
@@ -553,29 +577,6 @@
               >
                 <Tooltip.Root>
                   <Tooltip.Trigger class="inline-flex">
-                    <a
-                      href="/"
-                      class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-                      aria-label="Home"
-                    >
-                      <Home
-                        size={18}
-                        class="text-white/60 hover:text-white/80"
-                      />
-                    </a>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content
-                    side="right"
-                    align="center"
-                    sideOffset={8}
-                    hidden={sidebarOpen}
-                    class="tooltip-standard"
-                  >
-                    Home
-                  </Tooltip.Content>
-                </Tooltip.Root>
-                <Tooltip.Root>
-                  <Tooltip.Trigger class="inline-flex">
                     <button
                       class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
                       aria-label="Notificações"
@@ -619,6 +620,15 @@
                     Configurações
                   </Tooltip.Content>
                 </Tooltip.Root>
+                <Sidebar.Trigger
+                  class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                  title={sidebarOpen ? "Recolher sidebar" : "Expandir sidebar"}
+                  aria-label={sidebarOpen
+                    ? "Recolher menu lateral"
+                    : "Expandir menu lateral"}
+                >
+                  <Menu size={18} class="text-white/60 hover:text-white/80" />
+                </Sidebar.Trigger>
               </div>
             </div>
           </div>
