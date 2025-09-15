@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+  import { SIDEBAR_COOKIE_NAME } from "$lib/components/ui/sidebar/constants.js";
 
   import { animate, stagger, pageTransition } from "$lib/actions/animate";
   import { onMount } from "svelte";
@@ -22,6 +23,9 @@
   } from "$lib/components/ui/dynamic-folder-preview/index.js";
 
   let { children } = $props();
+
+  // Initialize sidebar state from cookie
+  let sidebarOpen = $state(true); // Default to true, will be updated from cookie
 
   // Interactive thumbnail state management
   let expandedSections = $state(new Set<"integrations" | "tables">());
@@ -89,6 +93,15 @@
 
   let mainContentElement: HTMLElement;
 
+  // Function to read cookie value
+  function getCookieValue(name: string): string | null {
+    if (typeof document === "undefined") return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+    return null;
+  }
+
   // Thumbnail interaction handlers
   function toggleSection(section: "integrations" | "tables") {
     if (expandedSections.has(section)) {
@@ -120,6 +133,12 @@
   }
 
   onMount(() => {
+    // Read sidebar state from cookie
+    const savedState = getCookieValue(SIDEBAR_COOKIE_NAME);
+    if (savedState !== null) {
+      sidebarOpen = savedState === "true";
+    }
+
     // Animate main content on mount
     if (mainContentElement) {
       animate(mainContentElement, { preset: "slideInUp", delay: 0.1 });
@@ -127,7 +146,7 @@
   });
 </script>
 
-<Sidebar.Provider>
+<Sidebar.Provider bind:open={sidebarOpen}>
   <div class="flex h-screen w-full bg-background">
     <!-- Sidebar -->
     <Sidebar.Root
