@@ -21,6 +21,7 @@
     DynamicFolderPreview,
     type FolderConfig,
   } from "$lib/components/ui/dynamic-folder-preview/index.js";
+  import { ReinoLogo } from "$lib/components/ui/reino-logo/index.js";
 
   let { children } = $props();
 
@@ -32,10 +33,30 @@
 
   // Integrations with their respective colors
   const integrations = [
-    { name: "Itaú", color: "bg-orange-500", shortName: "ITU" },
-    { name: "BTG", color: "bg-blue-500", shortName: "BTG" },
-    { name: "XP", color: "bg-yellow-500", shortName: "XP" },
-    { name: "Banco do Brasil", color: "bg-sky-400", shortName: "BB" },
+    {
+      name: "Itaú",
+      color: "bg-orange-500",
+      shortName: "ITU",
+      href: "/integracoes/itau",
+    },
+    {
+      name: "BTG",
+      color: "bg-blue-500",
+      shortName: "BTG",
+      href: "/integracoes/btg",
+    },
+    {
+      name: "XP",
+      color: "bg-yellow-500",
+      shortName: "XP",
+      href: "/integracoes/xp",
+    },
+    {
+      name: "Banco do Brasil",
+      color: "bg-sky-400",
+      shortName: "BB",
+      href: "/integracoes/bb",
+    },
   ];
 
   // Tables menu items from the design
@@ -154,10 +175,44 @@
       class="border-r border-sidebar-border bg-sidebar"
     >
       <Sidebar.Content class="p-0 flex flex-col h-full">
+        <!-- Sidebar Header with Toggle Button -->
+        <div class="p-4 border-b border-sidebar-border/50">
+          <div
+            class="flex items-center justify-between group-data-[collapsible=icon]:justify-center"
+          >
+            <div class="group-data-[collapsible=icon]:hidden">
+              <a
+                href="/"
+                class="inline-block hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+                title="Voltar para Home"
+                aria-label="Voltar para página inicial"
+              >
+                <ReinoLogo size={28} class="text-white/90" />
+              </a>
+            </div>
+            <!-- Logo for collapsed state -->
+            <div class="hidden group-data-[collapsible=icon]:block">
+              <a
+                href="/"
+                class="inline-block hover:opacity-80 transition-opacity duration-200 cursor-pointer p-1"
+                title="Voltar para Home"
+                aria-label="Voltar para página inicial"
+              >
+                <ReinoLogo size={20} class="text-white/90" />
+              </a>
+            </div>
+            <Sidebar.Trigger
+              class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors"
+            >
+              <Menu size={24} class="text-white/70 hover:text-white" />
+            </Sidebar.Trigger>
+          </div>
+        </div>
+
         <!-- Main Navigation Content -->
         <div class="flex-1 overflow-y-auto">
           <!-- Integrações Section -->
-          <div class="p-4 pt-6">
+          <div class="p-1 pt-1">
             <Sidebar.Group>
               <!-- Full Content View -->
               <div
@@ -219,15 +274,17 @@
                     ? `height: ${getExpandedHeight("integrations")}`
                     : ""}
                 >
-                  <!-- Clickable folder icon area -->
-                  <button
-                    class="absolute inset-0 w-full h-16 cursor-pointer z-10"
-                    title="Integrações Bancárias"
-                    onclick={() => toggleSection("integrations")}
-                    onkeydown={(e) =>
-                      e.key === "Enter" && toggleSection("integrations")}
-                    aria-label="Toggle integrations menu"
-                  ></button>
+                  <!-- Clickable folder icon area - only when collapsed -->
+                  {#if !expandedSections.has("integrations")}
+                    <button
+                      class="absolute inset-0 w-full h-16 cursor-pointer z-10"
+                      title="Integrações Bancárias"
+                      onclick={() => toggleSection("integrations")}
+                      onkeydown={(e) =>
+                        e.key === "Enter" && toggleSection("integrations")}
+                      aria-label="Toggle integrations menu"
+                    ></button>
+                  {/if}
                   <!-- Collapsed state: Dynamic representation of integrations -->
                   <div
                     class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
@@ -247,27 +304,33 @@
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-2'}"
                   >
-                    <!-- Folder icon indicator -->
+                    <!-- Folder icon indicator - clickable to close -->
                     <div class="flex justify-center mb-4">
-                      <Folder size={20} class="text-white/60" />
+                      <button
+                        class="p-2 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
+                        onclick={() => toggleSection("integrations")}
+                        title="Fechar menu"
+                        aria-label="Close integrations menu"
+                      >
+                        <Folder
+                          size={20}
+                          class="text-white/60 hover:text-white/80"
+                        />
+                      </button>
                     </div>
                     {#each integrations as integration}
-                      <button
-                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200"
+                      <a
+                        href={integration.href}
+                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
                         title={integration.name}
                         aria-label={integration.name}
                       >
                         <div
                           class="w-5 h-5 rounded-sm {integration.color}"
                         ></div>
-                      </button>
+                      </a>
                     {/each}
                   </div>
-
-                  <!-- Subtle glow effect -->
-                  <div
-                    class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-60"
-                  ></div>
                 </div>
 
                 <!-- Tables Thumbnail -->
@@ -277,15 +340,17 @@
                     ? `height: ${getExpandedHeight("tables")}`
                     : ""}
                 >
-                  <!-- Clickable folder icon area -->
-                  <button
-                    class="absolute inset-0 w-full h-16 cursor-pointer z-10"
-                    title="Tabelas e Relatórios"
-                    onclick={() => toggleSection("tables")}
-                    onkeydown={(e) =>
-                      e.key === "Enter" && toggleSection("tables")}
-                    aria-label="Toggle tables menu"
-                  ></button>
+                  <!-- Clickable folder icon area - only when collapsed -->
+                  {#if !expandedSections.has("tables")}
+                    <button
+                      class="absolute inset-0 w-full h-16 cursor-pointer z-10"
+                      title="Tabelas e Relatórios"
+                      onclick={() => toggleSection("tables")}
+                      onkeydown={(e) =>
+                        e.key === "Enter" && toggleSection("tables")}
+                      aria-label="Toggle tables menu"
+                    ></button>
+                  {/if}
                   <!-- Collapsed state: Dynamic representation of tables -->
                   <div
                     class="transition-opacity duration-300 cubic-bezier(0.4, 0, 0.2, 1) {expandedSections.has(
@@ -305,33 +370,38 @@
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-2'}"
                   >
-                    <!-- Folder icon indicator -->
+                    <!-- Folder icon indicator - clickable to close -->
                     <div class="flex justify-center mb-4">
-                      <Folder size={20} class="text-white/60" />
+                      <button
+                        class="p-2 hover:bg-sidebar-accent rounded-md transition-colors duration-200"
+                        onclick={() => toggleSection("tables")}
+                        title="Fechar menu"
+                        aria-label="Close tables menu"
+                      >
+                        <Folder
+                          size={20}
+                          class="text-white/60 hover:text-white/80"
+                        />
+                      </button>
                     </div>
                     {#each tableMenuItems as item}
                       {@const Icon = item.icon}
                       <a
                         href={item.href}
-                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200"
+                        class="w-full h-8 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
                         title={item.title}
                       >
                         <Icon size={20} class="text-white/70" />
                       </a>
                     {/each}
                   </div>
-
-                  <!-- Subtle glow effect -->
-                  <div
-                    class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-60"
-                  ></div>
                 </div>
               </div>
             </Sidebar.Group>
           </div>
 
           <!-- Tabelas Section -->
-          <div class="p-4">
+          <div class="p-1">
             <Sidebar.Group>
               <!-- Full Content View -->
               <div
@@ -390,7 +460,7 @@
 
         <!-- User Profile Section - Bottom -->
         <div
-          class="mt-auto border-t border-sidebar-border bg-sidebar-accent/30 backdrop-blur-sm"
+          class="mt-auto border-t border-sidebar-border bg-sidebar-accent/60 backdrop-blur-sm"
           use:animate={{ preset: "slideInLeft", delay: 0.1 }}
         >
           <div
@@ -420,13 +490,13 @@
                   class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
                   title="Home"
                 >
-                  <Home size={16} class="text-white/60 hover:text-white/80" />
+                  <Home size={20} class="text-white/60 hover:text-white/80" />
                 </a>
                 <button
                   class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
                   title="Notificações"
                 >
-                  <Bell size={16} class="text-white/60 hover:text-white/80" />
+                  <Bell size={20} class="text-white/60 hover:text-white/80" />
                 </button>
                 <a
                   href="/settings"
@@ -434,7 +504,7 @@
                   title="Configurações"
                 >
                   <Settings
-                    size={16}
+                    size={20}
                     class="text-white/60 hover:text-white/80"
                   />
                 </a>
@@ -453,11 +523,6 @@
         use:animate={{ preset: "slideInDown", delay: 0.1 }}
       >
         <div class="flex h-16 items-center px-6">
-          <div>
-            <Sidebar.Trigger class="mr-4 p-2 hover:bg-accent rounded-lg">
-              <Menu size={20} />
-            </Sidebar.Trigger>
-          </div>
           <div class="flex flex-1 items-center justify-between">
             <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
               <h1 class="text-lg font-bold text-white">Reino Capital</h1>
