@@ -81,45 +81,56 @@
             id={modo.value}
             class="peer sr-only"
           />
-          <Tooltip.Root>
-            <Tooltip.Trigger>
-              <Label
-                for={modo.value}
-                class="flex items-center justify-start p-4 h-12 w-fit rounded-lg border-transparent cursor-pointer hover:bg-accent transition-all duration-200 {$modoVisualizacao ===
-                modo.value
-                  ? 'bg-accent/80 border-border'
-                  : $modoVisualizacao && $modoVisualizacao !== modo.value
-                    ? 'opacity-40'
-                    : ''}"
-              >
-                <Icon
-                  size={18}
-                  class="mr-3 flex-shrink-0 transition-colors duration-200 {$modoVisualizacao ===
-                  modo.value
-                    ? 'text-primary'
-                    : $modoVisualizacao && $modoVisualizacao !== modo.value
-                      ? 'text-white/60'
-                      : 'text-primary'}"
-                />
-                <span
-                  class="font-medium text-sm text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
-                  $modoVisualizacao !== modo.value
-                    ? 'text-white/60'
-                    : 'text-foreground'}"
-                >
-                  {modo.label}
-                </span>
-              </Label>
-            </Tooltip.Trigger>
-            <Tooltip.Content
-              side="top"
-              align="center"
-              sideOffset={8}
-              class="bg-accent text-accent-foreground font-medium text-sm max-w-xs text-center"
+          <div class="relative">
+            <Label
+              for={modo.value}
+              class="flex items-center justify-start p-4 h-12 w-fit rounded-lg border-transparent cursor-pointer hover:bg-accent transition-all duration-200 {$modoVisualizacao ===
+              modo.value
+                ? 'bg-accent/80 border-border'
+                : $modoVisualizacao && $modoVisualizacao !== modo.value
+                  ? 'opacity-40'
+                  : ''}"
             >
-              {modo.description}
-            </Tooltip.Content>
-          </Tooltip.Root>
+              <Icon
+                size={18}
+                class="mr-3 flex-shrink-0 transition-colors duration-200 {$modoVisualizacao ===
+                modo.value
+                  ? 'text-primary'
+                  : $modoVisualizacao && $modoVisualizacao !== modo.value
+                    ? 'text-white/60'
+                    : 'text-primary'}"
+              />
+              <span
+                class="font-medium text-sm text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
+                $modoVisualizacao !== modo.value
+                  ? 'text-white/60'
+                  : 'text-foreground'}"
+              >
+                {modo.label}
+              </span>
+              <!-- Tooltip trigger as separate element -->
+              <Tooltip.Root>
+                <Tooltip.Trigger
+                  class="ml-2 p-1 rounded-full opacity-60 hover:opacity-100 transition-opacity"
+                  aria-label="More information about {modo.label}"
+                >
+                  <div
+                    class="w-3 h-3 rounded-full border border-current flex items-center justify-center text-xs"
+                  >
+                    ?
+                  </div>
+                </Tooltip.Trigger>
+                <Tooltip.Content
+                  side="top"
+                  align="center"
+                  sideOffset={8}
+                  class="bg-accent text-accent-foreground font-medium text-sm max-w-xs text-center"
+                >
+                  {modo.description}
+                </Tooltip.Content>
+              </Tooltip.Root>
+            </Label>
+          </div>
         </div>
       {/each}
     </RadioGroup>
