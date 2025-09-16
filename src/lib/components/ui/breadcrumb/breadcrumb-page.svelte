@@ -2,7 +2,7 @@
   role="link"
   aria-disabled="true"
   aria-current="page"
-  class="font-normal text-foreground"
+  class="font-semibold text-foreground"
   {...$$restProps}
 >
   <slot />

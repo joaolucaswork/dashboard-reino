@@ -62,7 +62,7 @@
   }
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 tabela-financeira">
   <!-- Cabeçalho da Tabela -->
   <div class="flex items-center justify-between">
     <div>

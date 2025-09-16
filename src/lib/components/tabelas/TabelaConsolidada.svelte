@@ -1,10 +1,5 @@
 <script>
-  import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-  } from "$lib/components/ui/card";
+  import { Card, CardContent, CardHeader } from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
   import {
     Breadcrumb,
@@ -14,6 +9,9 @@
     BreadcrumbPage,
     BreadcrumbSeparator,
   } from "$lib/components/ui/breadcrumb";
+  import * as Popover from "$lib/components/ui/popover";
+  import * as Command from "$lib/components/ui/command";
+  import { ChevronDown, Check } from "@lucide/svelte";
   import TabelaFinanceira from "./TabelaFinanceira.svelte";
   import { formatCurrency } from "$lib/components/ui/data-table/index.js";
   import { Plus, Minus } from "@lucide/svelte";
@@ -160,35 +158,109 @@
     }
   }
 
-  // Funções para sticky positioning
+  // Funções para extrair opções disponíveis para comboboxes
+  function getBancoOptions() {
+    if (!data?.agrupados) return [];
+    return Object.keys(data.agrupados).map((banco) => ({
+      value: banco,
+      label: banco,
+    }));
+  }
+
+  function getCategoriaOptions(/** @type {string} */ banco) {
+    if (!data?.agrupados?.[banco]) return [];
+    return Object.keys(data.agrupados[banco])
+      .filter((key) => key !== "_total_banco")
+      .map((categoria) => ({
+        value: categoria,
+        label: categoria,
+      }));
+  }
+
+  function getTipoOptions(
+    /** @type {string} */ banco,
+    /** @type {string} */ categoria
+  ) {
+    if (!data?.agrupados?.[banco]?.[categoria]) return [];
+    return Object.keys(data.agrupados[banco][categoria])
+      .filter((key) => key !== "_total_categoria")
+      .map((tipo) => ({
+        value: tipo,
+        label: tipo,
+      }));
+  }
+
+  // Funções de navegação para comboboxes
+  function navigateToBanco(/** @type {string} */ novoBanco) {
+    // Limpar estados atuais
+    expandedBancos.clear();
+    expandedCategorias.clear();
+    expandedTipos.clear();
+
+    // Expandir novo banco
+    expandedBancos.add(novoBanco);
+
+    // Atualizar estados
+    expandedBancos = new Set(expandedBancos);
+    expandedCategorias = new Set(expandedCategorias);
+    expandedTipos = new Set(expandedTipos);
+  }
+
+  function navigateToCategoria(/** @type {string} */ novaCategoria) {
+    const bancoAtual = Array.from(expandedBancos)[0];
+    if (!bancoAtual) return;
+
+    // Limpar categorias e tipos
+    expandedCategorias.clear();
+    expandedTipos.clear();
+
+    // Expandir nova categoria
+    const categoriaKey = `${bancoAtual}-${novaCategoria}`;
+    expandedCategorias.add(categoriaKey);
+
+    // Atualizar estados
+    expandedCategorias = new Set(expandedCategorias);
+    expandedTipos = new Set(expandedTipos);
+  }
+
+  function navigateToTipo(/** @type {string} */ novoTipo) {
+    const bancoAtual = Array.from(expandedBancos)[0];
+    const categoriaAtual = Array.from(expandedCategorias)[0];
+    if (!bancoAtual || !categoriaAtual) return;
+
+    // Limpar tipos
+    expandedTipos.clear();
+
+    // Expandir novo tipo
+    const categoria = categoriaAtual.split("-").slice(1).join("-");
+    const tipoKey = `${bancoAtual}-${categoria}-${novoTipo}`;
+    expandedTipos.add(tipoKey);
+
+    // Atualizar estado
+    expandedTipos = new Set(expandedTipos);
+  }
+
+  // Estados para controlar popovers
+  let openBancoPopover = $state(false);
+  let openCategoriaPopover = $state(false);
+  let openTipoPopover = $state(false);
+
+  // Função desativada - sticky positioning removido dos accordions
   function getStickyClasses(
     /** @type {string} */ level,
     /** @type {string} */ key
   ) {
-    if (level === "banco" && expandedBancos.has(key)) {
-      return "sticky top-0 z-30";
-    } else if (
-      level === "categoria" &&
-      expandedCategorias.has(key.split("-").slice(0, 2).join("-"))
-    ) {
-      const banco = key.split("-")[0];
-      if (expandedBancos.has(banco)) {
-        return "sticky top-[72px] z-20"; // Altura do cabeçalho do banco
-      }
-    } else if (level === "tipo" && expandedTipos.has(key)) {
-      const [banco, categoria] = key.split("-");
-      const categoriaKey = `${banco}-${categoria}`;
-      if (expandedBancos.has(banco) && expandedCategorias.has(categoriaKey)) {
-        return "sticky top-[144px] z-10"; // Altura do banco + categoria
-      }
-    }
+    // Sticky positioning desativado para evitar problemas de sobreposição
+    // Apenas o breadcrumb permanecerá sticky
     return "";
   }
 </script>
 
 <Card>
-  <CardHeader>
-    <!-- Breadcrumb de Navegação -->
+  <CardHeader
+    class="sticky top-0 z-40 bg-background border-b flex items-center justify-start py-4"
+  >
+    <!-- Breadcrumb de Navegação Interativo -->
     <Breadcrumb>
       <BreadcrumbList>
         {#each getBreadcrumbPath() as breadcrumbItem, index}
@@ -196,14 +268,149 @@
             <BreadcrumbSeparator />
           {/if}
           <BreadcrumbItem>
-            {#if index === getBreadcrumbPath().length - 1}
-              <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
-            {:else}
+            <!-- Item clicável para abrir combobox -->
+            {#if breadcrumbItem.level === "root"}
+              <!-- Apenas o root mantém navegação regressiva -->
               <BreadcrumbLink
                 onclick={() => navigateToBreadcrumb(breadcrumbItem)}
               >
                 {breadcrumbItem.label}
               </BreadcrumbLink>
+            {:else if breadcrumbItem.level === "banco" && getBancoOptions().length > 1}
+              <Popover.Root bind:open={openBancoPopover}>
+                <Popover.Trigger
+                  class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                >
+                  <span>{breadcrumbItem.label}</span>
+                  <ChevronDown class="h-3 w-3 text-muted-foreground" />
+                </Popover.Trigger>
+                <Popover.Content class="w-64 p-0" align="start">
+                  <Command.Root>
+                    <Command.Input placeholder="Buscar banco..." class="h-9" />
+                    <Command.List>
+                      <Command.Empty>Nenhum banco encontrado.</Command.Empty>
+                      <Command.Group>
+                        {#each getBancoOptions() as option}
+                          <Command.Item
+                            value={option.value}
+                            onSelect={() => {
+                              navigateToBanco(option.value);
+                              openBancoPopover = false;
+                            }}
+                            class="flex items-center justify-between"
+                          >
+                            <span>{option.label}</span>
+                            {#if breadcrumbItem.key === option.value}
+                              <Check class="h-4 w-4" />
+                            {/if}
+                          </Command.Item>
+                        {/each}
+                      </Command.Group>
+                    </Command.List>
+                  </Command.Root>
+                </Popover.Content>
+              </Popover.Root>
+            {:else if breadcrumbItem.level === "banco"}
+              <!-- Banco sem dropdown (apenas uma opção) -->
+              <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+            {:else if breadcrumbItem.level === "categoria"}
+              {@const bancoAtual = Array.from(expandedBancos)[0]}
+              {#if bancoAtual && getCategoriaOptions(bancoAtual).length > 1}
+                <Popover.Root bind:open={openCategoriaPopover}>
+                  <Popover.Trigger
+                    class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                  >
+                    <span>{breadcrumbItem.label}</span>
+                    <ChevronDown class="h-3 w-3 text-muted-foreground" />
+                  </Popover.Trigger>
+                  <Popover.Content class="w-64 p-0" align="start">
+                    <Command.Root>
+                      <Command.Input
+                        placeholder="Buscar categoria..."
+                        class="h-9"
+                      />
+                      <Command.List>
+                        <Command.Empty
+                          >Nenhuma categoria encontrada.</Command.Empty
+                        >
+                        <Command.Group>
+                          {#each getCategoriaOptions(bancoAtual) as option}
+                            <Command.Item
+                              value={option.value}
+                              onSelect={() => {
+                                navigateToCategoria(option.value);
+                                openCategoriaPopover = false;
+                              }}
+                              class="flex items-center justify-between"
+                            >
+                              <span>{option.label}</span>
+                              {#if breadcrumbItem.label === option.value}
+                                <Check class="h-4 w-4" />
+                              {/if}
+                            </Command.Item>
+                          {/each}
+                        </Command.Group>
+                      </Command.List>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
+              {:else}
+                <!-- Categoria sem dropdown (apenas uma opção) -->
+                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+              {/if}
+            {:else if breadcrumbItem.level === "tipo"}
+              {@const bancoAtual = Array.from(expandedBancos)[0]}
+              {@const categoriaAtual = Array.from(expandedCategorias)[0]}
+              {#if bancoAtual && categoriaAtual}
+                {@const categoria = categoriaAtual
+                  .split("-")
+                  .slice(1)
+                  .join("-")}
+                {#if getTipoOptions(bancoAtual, categoria).length > 1}
+                  <Popover.Root bind:open={openTipoPopover}>
+                    <Popover.Trigger
+                      class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                    >
+                      <span>{breadcrumbItem.label}</span>
+                      <ChevronDown class="h-3 w-3 text-muted-foreground" />
+                    </Popover.Trigger>
+                    <Popover.Content class="w-64 p-0" align="start">
+                      <Command.Root>
+                        <Command.Input
+                          placeholder="Buscar tipo..."
+                          class="h-9"
+                        />
+                        <Command.List>
+                          <Command.Empty>Nenhum tipo encontrado.</Command.Empty>
+                          <Command.Group>
+                            {#each getTipoOptions(bancoAtual, categoria) as option}
+                              <Command.Item
+                                value={option.value}
+                                onSelect={() => {
+                                  navigateToTipo(option.value);
+                                  openTipoPopover = false;
+                                }}
+                                class="flex items-center justify-between"
+                              >
+                                <span>{option.label}</span>
+                                {#if breadcrumbItem.label === option.value}
+                                  <Check class="h-4 w-4" />
+                                {/if}
+                              </Command.Item>
+                            {/each}
+                          </Command.Group>
+                        </Command.List>
+                      </Command.Root>
+                    </Popover.Content>
+                  </Popover.Root>
+                {:else}
+                  <!-- Tipo sem dropdown (apenas uma opção) -->
+                  <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+                {/if}
+              {:else}
+                <!-- Tipo sem dropdown (sem dados) -->
+                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+              {/if}
             {/if}
           </BreadcrumbItem>
         {/each}
@@ -215,6 +422,7 @@
       <!-- Accordion por Bancos -->
       {#each Object.entries(data.agrupados) as [banco, categorias]}
         <div
+          data-banco={banco}
           class="border rounded-lg overflow-hidden transition-opacity duration-300 {getBancoOpacity(
             banco
           )} {getStickyClasses('banco', banco)}"
@@ -251,6 +459,7 @@
               {#each Object.entries(categorias) as [categoria, conteudo]}
                 {#if categoria !== "_total_banco"}
                   <div
+                    data-categoria="{banco}-{categoria}"
                     class="border rounded-md overflow-hidden bg-background transition-opacity duration-300 {getCategoriaOpacity(
                       banco,
                       categoria
@@ -285,6 +494,7 @@
                         {#each Object.entries(conteudo) as [tipo, grupo]}
                           {#if tipo !== "_total_categoria"}
                             <div
+                              data-tipo="{banco}-{categoria}-{tipo}"
                               class="border rounded-sm overflow-hidden bg-background transition-opacity duration-300 {getTipoOpacity(
                                 banco,
                                 categoria,
@@ -367,24 +577,24 @@
 </Card>
 
 <style>
-  /* Melhorias para sticky positioning */
-  :global(.sticky) {
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid hsl(var(--border));
-  }
+  /* Estilos simplificados - apenas para breadcrumb sticky */
 
-  /* Garantir que elementos sticky tenham um fundo sólido */
-  :global(.sticky .bg-background) {
+  /* Estilo para breadcrumb sticky */
+  :global(.sticky) {
     background: hsl(var(--background)) !important;
-  }
-
-  /* Melhorar a transição dos elementos sticky */
-  :global([class*="sticky"]) {
-    transition: all 200ms ease-in-out;
-  }
-
-  /* Adicionar sombra sutil aos elementos sticky para melhor separação visual */
-  :global(.sticky) {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Garantir overflow correto para tabelas */
+  :global(.tabela-financeira [data-slot="table-container"]) {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  /* Transições suaves para accordions */
+  :global([data-banco], [data-categoria], [data-tipo]) {
+    transition: opacity 200ms ease-in-out;
   }
 </style>

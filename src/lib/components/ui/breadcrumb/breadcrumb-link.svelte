@@ -1,11 +1,14 @@
 <!-- Dynamically render the element -->
 {#if $$props.href}
-  <a class="transition-colors hover:text-foreground" {...$$restProps}>
+  <a
+    class="font-semibold transition-colors hover:text-foreground"
+    {...$$restProps}
+  >
     <slot />
   </a>
 {:else}
   <button
-    class="transition-colors hover:text-foreground text-left"
+    class="font-semibold transition-colors hover:text-foreground text-left"
     {...$$restProps}
   >
     <slot />
