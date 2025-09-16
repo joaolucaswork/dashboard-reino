@@ -96,6 +96,21 @@ dashboard-reino/
 
 ## Development
 
+### Navigation Guidelines
+
+This project follows strict SPA (Single Page Application) navigation patterns to ensure optimal performance and user experience.
+
+**📖 Important**: Before implementing any navigation, read our comprehensive guidelines:
+
+- [`docs/navigation-guidelines.md`](docs/navigation-guidelines.md) - Complete navigation rules and examples
+- [`docs/navigation-quick-ref.md`](docs/navigation-quick-ref.md) - Quick reference for common patterns
+- [`docs/navigation-code-review-checklist.md`](docs/navigation-code-review-checklist.md) - Code review checklist
+- [`docs/chatbot-navigation-rules.md`](docs/chatbot-navigation-rules.md) - Rules for chatbot assistance
+- [`docs/ai-navigation-context.md`](docs/ai-navigation-context.md) - AI context and prompts
+- [`docs/ai-prompt-navigation.md`](docs/ai-prompt-navigation.md) - Ready-to-use AI prompt
+
+**Key Rule**: Always use `goto()` from `$app/navigation` for internal routing, never `window.location.href` (except for external links).
+
 ### Building for Production
 
 ```bash

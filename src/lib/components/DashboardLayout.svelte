@@ -5,6 +5,7 @@
 
   import { animate, stagger, pageTransition } from "$lib/actions/animate";
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
   import {
     TrendingUp,
     Settings,
@@ -201,7 +202,7 @@
               <Tooltip.Trigger
                 class="p-2 hover:bg-white/10 rounded-md transition-colors"
                 aria-label="Home"
-                onclick={() => (window.location.href = "/")}
+                onclick={() => goto("/")}
               >
                 <House size={20} class="text-white/90" />
               </Tooltip.Trigger>
@@ -235,7 +236,7 @@
               <Tooltip.Trigger
                 class="p-2 hover:bg-white/10 rounded-md transition-colors"
                 aria-label="Home"
-                onclick={() => (window.location.href = "/")}
+                onclick={() => goto("/")}
               >
                 <House size={20} class="text-white/90" />
               </Tooltip.Trigger>
@@ -373,8 +374,7 @@
                       <Tooltip.Root>
                         <Tooltip.Trigger
                           class="w-full h-8 rounded-md hover:bg-white/10 flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
-                          onclick={() =>
-                            (window.location.href = integration.href)}
+                          onclick={() => goto(integration.href)}
                           aria-label={integration.name}
                         >
                           <div
@@ -460,7 +460,7 @@
                       <Tooltip.Root>
                         <Tooltip.Trigger
                           class="w-full h-8 rounded-md hover:bg-white/10 flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
-                          onclick={() => (window.location.href = item.href)}
+                          onclick={() => goto(item.href)}
                           aria-label={item.title}
                         >
                           <Icon size={20} class="text-white/70" />
@@ -587,7 +587,7 @@
                 <Tooltip.Root>
                   <Tooltip.Trigger
                     class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-                    onclick={() => (window.location.href = "/settings")}
+                    onclick={() => goto("/settings")}
                     aria-label="Configurações"
                   >
                     <Settings
