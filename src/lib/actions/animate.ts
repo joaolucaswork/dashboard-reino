@@ -1,12 +1,16 @@
-import { animationUtils, animations, createScrollAnimation } from '$lib/utils/animations';
-import type { Action } from 'svelte/action';
+import {
+  animationUtils,
+  animations,
+  createScrollAnimation,
+} from "$lib/utils/animations";
+import type { Action } from "svelte/action";
 
 // Types for animation actions
 interface AnimateOptions {
   preset?: keyof typeof animations;
-  trigger?: 'immediate' | 'hover' | 'focus' | 'scroll' | 'click';
+  trigger?: "immediate" | "hover" | "focus" | "scroll" | "click";
   delay?: number;
-  spring?: 'gentle' | 'bouncy' | 'snappy' | 'smooth';
+  spring?: "gentle" | "bouncy" | "snappy" | "smooth";
   custom?: {
     to: Record<string, any>;
     options?: Record<string, any>;
@@ -15,7 +19,7 @@ interface AnimateOptions {
 
 interface StaggerOptions {
   preset?: keyof typeof animations;
-  staggerType?: 'fast' | 'standard' | 'slow';
+  staggerType?: "fast" | "standard" | "slow";
   delay?: number;
   selector?: string;
 }
@@ -28,13 +32,16 @@ interface HoverOptions {
 }
 
 // Main animation action
-export const animate: Action<Element, AnimateOptions> = (element, options = {}) => {
+export const animate: Action<Element, AnimateOptions> = (
+  element,
+  options = {}
+) => {
   const {
-    preset = 'fadeIn',
-    trigger = 'immediate',
+    preset = "fadeIn",
+    trigger = "immediate",
     delay = 0,
     spring,
-    custom
+    custom,
   } = options;
 
   let cleanup: (() => void) | null = null;
@@ -42,7 +49,7 @@ export const animate: Action<Element, AnimateOptions> = (element, options = {}) 
 
   const performAnimation = async () => {
     if (delay > 0) {
-      await new Promise(resolve => setTimeout(resolve, delay * 1000));
+      await new Promise((resolve) => setTimeout(resolve, delay * 1000));
     }
 
     if (custom) {
@@ -61,31 +68,32 @@ export const animate: Action<Element, AnimateOptions> = (element, options = {}) 
 
   const setupTrigger = () => {
     switch (trigger) {
-      case 'immediate':
+      case "immediate":
         performAnimation();
         break;
 
-      case 'scroll':
+      case "scroll":
         observer = createScrollAnimation(element, preset);
         cleanup = () => observer?.disconnect();
         break;
 
-      case 'hover':
+      case "hover":
         const handleMouseEnter = () => performAnimation();
-        element.addEventListener('mouseenter', handleMouseEnter);
-        cleanup = () => element.removeEventListener('mouseenter', handleMouseEnter);
+        element.addEventListener("mouseenter", handleMouseEnter);
+        cleanup = () =>
+          element.removeEventListener("mouseenter", handleMouseEnter);
         break;
 
-      case 'focus':
+      case "focus":
         const handleFocus = () => performAnimation();
-        element.addEventListener('focus', handleFocus);
-        cleanup = () => element.removeEventListener('focus', handleFocus);
+        element.addEventListener("focus", handleFocus);
+        cleanup = () => element.removeEventListener("focus", handleFocus);
         break;
 
-      case 'click':
+      case "click":
         const handleClick = () => performAnimation();
-        element.addEventListener('click', handleClick);
-        cleanup = () => element.removeEventListener('click', handleClick);
+        element.addEventListener("click", handleClick);
+        cleanup = () => element.removeEventListener("click", handleClick);
         break;
     }
   };
@@ -101,17 +109,20 @@ export const animate: Action<Element, AnimateOptions> = (element, options = {}) 
     destroy() {
       cleanup?.();
       observer?.disconnect();
-    }
+    },
   };
 };
 
 // Stagger animation action for child elements
-export const stagger: Action<Element, StaggerOptions> = (element, options = {}) => {
+export const stagger: Action<Element, StaggerOptions> = (
+  element,
+  options = {}
+) => {
   const {
-    preset = 'slideInUp',
-    staggerType = 'standard',
+    preset = "slideInUp",
+    staggerType = "standard",
     delay = 0,
-    selector = '> *'
+    selector = ":scope > *",
   } = options;
 
   let observer: IntersectionObserver | null = null;
@@ -121,7 +132,7 @@ export const stagger: Action<Element, StaggerOptions> = (element, options = {}) 
     if (children.length === 0) return;
 
     if (delay > 0) {
-      await new Promise(resolve => setTimeout(resolve, delay * 1000));
+      await new Promise((resolve) => setTimeout(resolve, delay * 1000));
     }
 
     const animation = animations[preset];
@@ -145,7 +156,7 @@ export const stagger: Action<Element, StaggerOptions> = (element, options = {}) 
     },
     {
       threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px',
+      rootMargin: "0px 0px -50px 0px",
     }
   );
 
@@ -157,71 +168,74 @@ export const stagger: Action<Element, StaggerOptions> = (element, options = {}) 
     },
     destroy() {
       observer?.disconnect();
-    }
+    },
   };
 };
 
 // Hover animation action
 export const hover: Action<Element, HoverOptions> = (element, options = {}) => {
-  const {
-    scale = 1.02,
-    y = -2,
-    duration = 0.3,
-    ease = 'apple'
-  } = options;
+  const { scale = 1.02, y = -2, duration = 0.3, ease = "apple" } = options;
 
   const handleMouseEnter = () => {
-    animationUtils.animateSpring(element, {
-      scale,
-      y,
-    }, 'gentle');
+    animationUtils.animateSpring(
+      element,
+      {
+        scale,
+        y,
+      },
+      "gentle"
+    );
   };
 
   const handleMouseLeave = () => {
-    animationUtils.animateSpring(element, {
-      scale: 1,
-      y: 0,
-    }, 'gentle');
+    animationUtils.animateSpring(
+      element,
+      {
+        scale: 1,
+        y: 0,
+      },
+      "gentle"
+    );
   };
 
-  element.addEventListener('mouseenter', handleMouseEnter);
-  element.addEventListener('mouseleave', handleMouseLeave);
+  element.addEventListener("mouseenter", handleMouseEnter);
+  element.addEventListener("mouseleave", handleMouseLeave);
 
   return {
     update(newOptions: HoverOptions) {
       Object.assign(options, newOptions);
     },
     destroy() {
-      element.removeEventListener('mouseenter', handleMouseEnter);
-      element.removeEventListener('mouseleave', handleMouseLeave);
-    }
+      element.removeEventListener("mouseenter", handleMouseEnter);
+      element.removeEventListener("mouseleave", handleMouseLeave);
+    },
   };
 };
 
 // Button press animation action
 export const buttonPress: Action<Element> = (element) => {
   const handleMouseDown = () => {
-    animationUtils.animatePreset(element, 'buttonPress');
+    animationUtils.animatePreset(element, "buttonPress");
   };
 
   const handleMouseUp = () => {
-    animationUtils.animatePreset(element, 'buttonRelease');
+    animationUtils.animatePreset(element, "buttonRelease");
   };
 
   const handleMouseLeave = () => {
-    animationUtils.animatePreset(element, 'buttonRelease');
+    animationUtils.animatePreset(element, "buttonRelease");
   };
 
-  element.addEventListener('mousedown', handleMouseDown);
-  element.addEventListener('mouseup', handleMouseUp);
-  element.addEventListener('mouseleave', handleMouseLeave);
+  element.addEventListener("mousedown", handleMouseDown);
+  element.addEventListener("mouseup", handleMouseUp);
+  element.addEventListener("mouseleave", handleMouseLeave);
 
   return {
     destroy() {
-      element.removeEventListener('mousedown', handleMouseDown);
-      element.removeEventListener('mouseup', handleMouseUp);
-      element.removeEventListener('mouseleave', handleMouseLeave);
-    }
+      element.removeEventListener("mousedown", handleMouseDown);
+      element.removeEventListener("mouseup", handleMouseUp);
+      element.removeEventListener("mouseleave", handleMouseLeave);
+    },
   };
 };
 
@@ -235,32 +249,35 @@ export const focusAnimation: Action<Element> = (element) => {
     animationUtils.blurAnimation(element);
   };
 
-  element.addEventListener('focus', handleFocus);
-  element.addEventListener('blur', handleBlur);
+  element.addEventListener("focus", handleFocus);
+  element.addEventListener("blur", handleBlur);
 
   return {
     destroy() {
-      element.removeEventListener('focus', handleFocus);
-      element.removeEventListener('blur', handleBlur);
-    }
+      element.removeEventListener("focus", handleFocus);
+      element.removeEventListener("blur", handleBlur);
+    },
   };
 };
 
 // Page transition action
 export const pageTransition: Action<Element> = (element) => {
   // Animate in on mount
-  animationUtils.pageTransition(element, 'in');
+  animationUtils.pageTransition(element, "in");
 
   return {
     destroy() {
       // Animate out on unmount if needed
-      animationUtils.pageTransition(element, 'out');
-    }
+      animationUtils.pageTransition(element, "out");
+    },
   };
 };
 
 // Loading animation action
-export const loading: Action<Element, boolean> = (element, isLoading = false) => {
+export const loading: Action<Element, boolean> = (
+  element,
+  isLoading = false
+) => {
   let animation: any = null;
 
   const updateLoading = (loading: boolean) => {
@@ -270,7 +287,7 @@ export const loading: Action<Element, boolean> = (element, isLoading = false) =>
       animation.stop?.();
       animation = null;
       // Reset to normal state
-      animationUtils.animatePreset(element, 'fadeIn');
+      animationUtils.animatePreset(element, "fadeIn");
     }
   };
 
@@ -282,16 +299,19 @@ export const loading: Action<Element, boolean> = (element, isLoading = false) =>
     },
     destroy() {
       animation?.stop?.();
-    }
+    },
   };
 };
 
 // Success/Error feedback actions
-export const feedback: Action<Element, 'success' | 'error' | null> = (element, type = null) => {
-  const performFeedback = (feedbackType: 'success' | 'error' | null) => {
-    if (feedbackType === 'success') {
+export const feedback: Action<Element, "success" | "error" | null> = (
+  element,
+  type = null
+) => {
+  const performFeedback = (feedbackType: "success" | "error" | null) => {
+    if (feedbackType === "success") {
       animationUtils.successAnimation(element);
-    } else if (feedbackType === 'error') {
+    } else if (feedbackType === "error") {
       animationUtils.errorAnimation(element);
     }
   };
@@ -301,13 +321,13 @@ export const feedback: Action<Element, 'success' | 'error' | null> = (element, t
   }
 
   return {
-    update(newType: 'success' | 'error' | null) {
+    update(newType: "success" | "error" | null) {
       if (newType) {
         performFeedback(newType);
       }
     },
     destroy() {
       // Cleanup if needed
-    }
+    },
   };
 };
