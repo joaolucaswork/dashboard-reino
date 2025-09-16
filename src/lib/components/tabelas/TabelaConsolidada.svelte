@@ -190,8 +190,104 @@
       }));
   }
 
-  // Funções de navegação para comboboxes
+  // Funções auxiliares para verificar existência de caminhos
+  function pathExists(
+    /** @type {string} */ banco,
+    /** @type {string} */ categoria = "",
+    /** @type {string} */ tipo = ""
+  ) {
+    if (!data?.agrupados?.[banco]) return false;
+
+    if (categoria && !data.agrupados[banco][categoria]) return false;
+    if (categoria && tipo && !data.agrupados[banco][categoria]?.[tipo])
+      return false;
+
+    return true;
+  }
+
+  // Função para verificar se um caminho específico tem dados válidos
+  function hasValidData(
+    /** @type {string} */ banco,
+    /** @type {string} */ categoria = "",
+    /** @type {string} */ tipo = ""
+  ) {
+    if (!pathExists(banco, categoria, tipo)) return false;
+
+    // Verificar se há dados além dos totais
+    if (tipo) {
+      const tipoData = data.agrupados[banco][categoria][tipo];
+      return (
+        tipoData &&
+        typeof tipoData === "object" &&
+        Object.keys(tipoData).length > 0
+      );
+    }
+
+    if (categoria) {
+      const categoriaData = data.agrupados[banco][categoria];
+      return (
+        categoriaData &&
+        typeof categoriaData === "object" &&
+        Object.keys(categoriaData).filter((key) => key !== "_total_categoria")
+          .length > 0
+      );
+    }
+
+    const bancoData = data.agrupados[banco];
+    return (
+      bancoData &&
+      typeof bancoData === "object" &&
+      Object.keys(bancoData).filter((key) => key !== "_total_banco").length > 0
+    );
+  }
+
+  function findDeepestValidPath(
+    /** @type {string} */ novoBanco,
+    /** @type {string} */ categoriaAtual = "",
+    /** @type {string} */ tipoAtual = ""
+  ) {
+    // Verificar se o caminho completo existe e tem dados válidos
+    if (
+      categoriaAtual &&
+      tipoAtual &&
+      hasValidData(novoBanco, categoriaAtual, tipoAtual)
+    ) {
+      return { categoria: categoriaAtual, tipo: tipoAtual };
+    }
+
+    // Verificar se pelo menos a categoria existe e tem dados válidos
+    if (categoriaAtual && hasValidData(novoBanco, categoriaAtual)) {
+      return { categoria: categoriaAtual, tipo: "" };
+    }
+
+    // Apenas o banco existe
+    return { categoria: "", tipo: "" };
+  }
+
+  // Funções de navegação inteligente para comboboxes
   function navigateToBanco(/** @type {string} */ novoBanco) {
+    // Obter contexto atual
+    const categoriaAtualKey = Array.from(expandedCategorias)[0];
+    const tipoAtualKey = Array.from(expandedTipos)[0];
+
+    let categoriaAtual = "";
+    let tipoAtual = "";
+
+    if (categoriaAtualKey) {
+      categoriaAtual = categoriaAtualKey.split("-").slice(1).join("-");
+    }
+
+    if (tipoAtualKey) {
+      tipoAtual = tipoAtualKey.split("-").slice(2).join("-");
+    }
+
+    // Encontrar o caminho mais profundo válido no novo banco
+    const validPath = findDeepestValidPath(
+      novoBanco,
+      categoriaAtual,
+      tipoAtual
+    );
+
     // Limpar estados atuais
     expandedBancos.clear();
     expandedCategorias.clear();
@@ -199,6 +295,18 @@
 
     // Expandir novo banco
     expandedBancos.add(novoBanco);
+
+    // Expandir categoria se existir
+    if (validPath.categoria) {
+      const categoriaKey = `${novoBanco}-${validPath.categoria}`;
+      expandedCategorias.add(categoriaKey);
+    }
+
+    // Expandir tipo se existir
+    if (validPath.tipo) {
+      const tipoKey = `${novoBanco}-${validPath.categoria}-${validPath.tipo}`;
+      expandedTipos.add(tipoKey);
+    }
 
     // Atualizar estados
     expandedBancos = new Set(expandedBancos);
@@ -210,6 +318,14 @@
     const bancoAtual = Array.from(expandedBancos)[0];
     if (!bancoAtual) return;
 
+    // Obter tipo atual se existir
+    const tipoAtualKey = Array.from(expandedTipos)[0];
+    let tipoAtual = "";
+
+    if (tipoAtualKey) {
+      tipoAtual = tipoAtualKey.split("-").slice(2).join("-");
+    }
+
     // Limpar categorias e tipos
     expandedCategorias.clear();
     expandedTipos.clear();
@@ -217,6 +333,12 @@
     // Expandir nova categoria
     const categoriaKey = `${bancoAtual}-${novaCategoria}`;
     expandedCategorias.add(categoriaKey);
+
+    // Tentar preservar o tipo se existir na nova categoria
+    if (tipoAtual && pathExists(bancoAtual, novaCategoria, tipoAtual)) {
+      const tipoKey = `${bancoAtual}-${novaCategoria}-${tipoAtual}`;
+      expandedTipos.add(tipoKey);
+    }
 
     // Atualizar estados
     expandedCategorias = new Set(expandedCategorias);
@@ -228,11 +350,16 @@
     const categoriaAtual = Array.from(expandedCategorias)[0];
     if (!bancoAtual || !categoriaAtual) return;
 
+    // Extrair nome da categoria
+    const categoria = categoriaAtual.split("-").slice(1).join("-");
+
+    // Verificar se o novo tipo existe na categoria atual
+    if (!pathExists(bancoAtual, categoria, novoTipo)) return;
+
     // Limpar tipos
     expandedTipos.clear();
 
     // Expandir novo tipo
-    const categoria = categoriaAtual.split("-").slice(1).join("-");
     const tipoKey = `${bancoAtual}-${categoria}-${novoTipo}`;
     expandedTipos.add(tipoKey);
 
@@ -244,6 +371,46 @@
   let openBancoPopover = $state(false);
   let openCategoriaPopover = $state(false);
   let openTipoPopover = $state(false);
+
+  // Função para obter contexto atual da navegação
+  function getCurrentNavigationContext() {
+    const bancoAtual = Array.from(expandedBancos)[0] || "";
+    const categoriaAtualKey = Array.from(expandedCategorias)[0];
+    const tipoAtualKey = Array.from(expandedTipos)[0];
+
+    let categoriaAtual = "";
+    let tipoAtual = "";
+
+    if (categoriaAtualKey) {
+      categoriaAtual = categoriaAtualKey.split("-").slice(1).join("-");
+    }
+
+    if (tipoAtualKey) {
+      tipoAtual = tipoAtualKey.split("-").slice(2).join("-");
+    }
+
+    return {
+      banco: bancoAtual,
+      categoria: categoriaAtual,
+      tipo: tipoAtual,
+    };
+  }
+
+  // Função para debug - mostra o caminho que será preservado
+  function previewNavigationPath(/** @type {string} */ novoBanco) {
+    const context = getCurrentNavigationContext();
+    const validPath = findDeepestValidPath(
+      novoBanco,
+      context.categoria,
+      context.tipo
+    );
+
+    let previewPath = novoBanco;
+    if (validPath.categoria) previewPath += ` / ${validPath.categoria}`;
+    if (validPath.tipo) previewPath += ` / ${validPath.tipo}`;
+
+    return previewPath;
+  }
 
   // Função desativada - sticky positioning removido dos accordions
   function getStickyClasses(
@@ -258,7 +425,7 @@
 
 <Card>
   <CardHeader
-    class="sticky top-0 z-40 bg-background border-b flex items-center justify-start py-4"
+    class="sticky top-0 z-40 bg-background border-b !flex !items-center !justify-start !px-6 !py-4 !min-h-[60px] !grid-rows-none !auto-rows-auto"
   >
     <!-- Breadcrumb de Navegação Interativo -->
     <Breadcrumb>
