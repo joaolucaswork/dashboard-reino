@@ -28,7 +28,7 @@
 
   <!-- Formulário de Consulta -->
   <Card class="mb-8">
-    <CardContent class="pt-1">
+    <CardContent class="pt-1 px-0">
       <FormularioConsulta />
     </CardContent>
   </Card>
@@ -50,8 +50,8 @@
             Análises Financeiras
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div class="text-center py-12">
+        <CardContent class="px-0">
+          <div class="text-center py-12 px-6">
             <FileText size={48} class="mx-auto text-muted-foreground mb-4" />
             <h3 class="text-lg font-semibold mb-2">Em Desenvolvimento</h3>
             <p class="text-body max-w-md mx-auto">
@@ -66,8 +66,8 @@
         <CardHeader>
           <CardTitle class="text-lg font-semibold">Asset Allocation</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div class="text-center py-12">
+        <CardContent class="px-0">
+          <div class="text-center py-12 px-6">
             <FileText size={48} class="mx-auto text-muted-foreground mb-4" />
             <h3 class="text-lg font-semibold mb-2">Em Desenvolvimento</h3>
             <p class="text-body max-w-md mx-auto">
@@ -81,17 +81,20 @@
     <!-- Debug info em desenvolvimento -->
     {#if import.meta.env.DEV}
       <Card class="mt-4">
-        <CardContent class="pt-6">
-          <details class="text-left">
-            <summary
-              class="cursor-pointer text-caption hover:text-foreground mb-4"
-            >
-              Ver dados (desenvolvimento)
-            </summary>
-            <pre class="p-4 bg-muted rounded-lg text-xs overflow-auto max-h-64">
+        <CardContent class="pt-6 px-0">
+          <div class="px-6">
+            <details class="text-left">
+              <summary
+                class="cursor-pointer text-caption hover:text-foreground mb-4"
+              >
+                Ver dados (desenvolvimento)
+              </summary>
+              <pre
+                class="p-4 bg-muted rounded-lg text-xs overflow-auto max-h-64">
 {JSON.stringify($dadosConsulta, null, 2)}
-            </pre>
-          </details>
+              </pre>
+            </details>
+          </div>
         </CardContent>
       </Card>
     {/if}

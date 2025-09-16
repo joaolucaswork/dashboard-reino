@@ -1,21 +1,12 @@
 <script>
-  import { Card, CardContent, CardHeader } from "$lib/components/ui/card";
+  import { Card, CardContent } from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
-  import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-  } from "$lib/components/ui/breadcrumb";
-  import * as Popover from "$lib/components/ui/popover";
-  import * as Command from "$lib/components/ui/command";
-  import { ChevronDown, Check } from "@lucide/svelte";
-  import TabelaFinanceira from "./TabelaFinanceira.svelte";
+
+  import TabelaFinanceiraEnhanced from "./TabelaFinanceiraEnhanced.svelte";
   import { formatCurrency } from "$lib/components/ui/data-table/index.js";
   import { Plus, Minus } from "@lucide/svelte";
   import { getBancoCorHex } from "$lib/data/bancos.js";
+  import { Badge } from "$lib/components/ui/badge/index.ts";
 
   let { data } = $props();
 
@@ -55,6 +46,60 @@
   function createTableData(/** @type {any[]} */ linhas) {
     if (!linhas || !Array.isArray(linhas)) return [];
     return linhas;
+  }
+
+  // Função para contar total de ativos por banco
+  function countAssetsInBank(/** @type {any} */ categorias) {
+    let totalAssets = 0;
+
+    Object.entries(categorias).forEach(([categoria, conteudo]) => {
+      if (
+        categoria !== "_total_banco" &&
+        conteudo &&
+        typeof conteudo === "object"
+      ) {
+        Object.entries(conteudo).forEach(([tipo, grupo]) => {
+          if (
+            tipo !== "_total_categoria" &&
+            grupo &&
+            grupo.linhas &&
+            Array.isArray(grupo.linhas)
+          ) {
+            totalAssets += grupo.linhas.length;
+          }
+        });
+      }
+    });
+
+    return totalAssets;
+  }
+
+  // Função para contar total de ativos por categoria
+  function countAssetsInCategory(/** @type {any} */ conteudo) {
+    let totalAssets = 0;
+
+    if (conteudo && typeof conteudo === "object") {
+      Object.entries(conteudo).forEach(([tipo, grupo]) => {
+        if (
+          tipo !== "_total_categoria" &&
+          grupo &&
+          grupo.linhas &&
+          Array.isArray(grupo.linhas)
+        ) {
+          totalAssets += grupo.linhas.length;
+        }
+      });
+    }
+
+    return totalAssets;
+  }
+
+  // Função para contar total de ativos por tipo
+  function countAssetsInType(/** @type {any} */ grupo) {
+    if (grupo && grupo.linhas && Array.isArray(grupo.linhas)) {
+      return grupo.linhas.length;
+    }
+    return 0;
   }
 
   // Funções para controlar hierarquia visual com opacidade
@@ -424,167 +469,7 @@
 </script>
 
 <Card>
-  <CardHeader
-    class="sticky top-0 z-40 bg-background border-b !flex !items-center !justify-start !px-6 !py-4 !min-h-[60px] !grid-rows-none !auto-rows-auto"
-  >
-    <!-- Breadcrumb de Navegação Interativo -->
-    <Breadcrumb>
-      <BreadcrumbList>
-        {#each getBreadcrumbPath() as breadcrumbItem, index}
-          {#if index > 0}
-            <BreadcrumbSeparator />
-          {/if}
-          <BreadcrumbItem>
-            <!-- Item clicável para abrir combobox -->
-            {#if breadcrumbItem.level === "root"}
-              <!-- Apenas o root mantém navegação regressiva -->
-              <BreadcrumbLink
-                onclick={() => navigateToBreadcrumb(breadcrumbItem)}
-              >
-                {breadcrumbItem.label}
-              </BreadcrumbLink>
-            {:else if breadcrumbItem.level === "banco" && getBancoOptions().length > 1}
-              <Popover.Root bind:open={openBancoPopover}>
-                <Popover.Trigger
-                  class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
-                >
-                  <span>{breadcrumbItem.label}</span>
-                  <ChevronDown class="h-3 w-3 text-muted-foreground" />
-                </Popover.Trigger>
-                <Popover.Content class="w-64 p-0" align="start">
-                  <Command.Root>
-                    <Command.Input placeholder="Buscar banco..." class="h-9" />
-                    <Command.List>
-                      <Command.Empty>Nenhum banco encontrado.</Command.Empty>
-                      <Command.Group>
-                        {#each getBancoOptions() as option}
-                          <Command.Item
-                            value={option.value}
-                            onSelect={() => {
-                              navigateToBanco(option.value);
-                              openBancoPopover = false;
-                            }}
-                            class="flex items-center justify-between"
-                          >
-                            <span>{option.label}</span>
-                            {#if breadcrumbItem.key === option.value}
-                              <Check class="h-4 w-4" />
-                            {/if}
-                          </Command.Item>
-                        {/each}
-                      </Command.Group>
-                    </Command.List>
-                  </Command.Root>
-                </Popover.Content>
-              </Popover.Root>
-            {:else if breadcrumbItem.level === "banco"}
-              <!-- Banco sem dropdown (apenas uma opção) -->
-              <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
-            {:else if breadcrumbItem.level === "categoria"}
-              {@const bancoAtual = Array.from(expandedBancos)[0]}
-              {#if bancoAtual && getCategoriaOptions(bancoAtual).length > 1}
-                <Popover.Root bind:open={openCategoriaPopover}>
-                  <Popover.Trigger
-                    class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
-                  >
-                    <span>{breadcrumbItem.label}</span>
-                    <ChevronDown class="h-3 w-3 text-muted-foreground" />
-                  </Popover.Trigger>
-                  <Popover.Content class="w-64 p-0" align="start">
-                    <Command.Root>
-                      <Command.Input
-                        placeholder="Buscar categoria..."
-                        class="h-9"
-                      />
-                      <Command.List>
-                        <Command.Empty
-                          >Nenhuma categoria encontrada.</Command.Empty
-                        >
-                        <Command.Group>
-                          {#each getCategoriaOptions(bancoAtual) as option}
-                            <Command.Item
-                              value={option.value}
-                              onSelect={() => {
-                                navigateToCategoria(option.value);
-                                openCategoriaPopover = false;
-                              }}
-                              class="flex items-center justify-between"
-                            >
-                              <span>{option.label}</span>
-                              {#if breadcrumbItem.label === option.value}
-                                <Check class="h-4 w-4" />
-                              {/if}
-                            </Command.Item>
-                          {/each}
-                        </Command.Group>
-                      </Command.List>
-                    </Command.Root>
-                  </Popover.Content>
-                </Popover.Root>
-              {:else}
-                <!-- Categoria sem dropdown (apenas uma opção) -->
-                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
-              {/if}
-            {:else if breadcrumbItem.level === "tipo"}
-              {@const bancoAtual = Array.from(expandedBancos)[0]}
-              {@const categoriaAtual = Array.from(expandedCategorias)[0]}
-              {#if bancoAtual && categoriaAtual}
-                {@const categoria = categoriaAtual
-                  .split("-")
-                  .slice(1)
-                  .join("-")}
-                {#if getTipoOptions(bancoAtual, categoria).length > 1}
-                  <Popover.Root bind:open={openTipoPopover}>
-                    <Popover.Trigger
-                      class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
-                    >
-                      <span>{breadcrumbItem.label}</span>
-                      <ChevronDown class="h-3 w-3 text-muted-foreground" />
-                    </Popover.Trigger>
-                    <Popover.Content class="w-64 p-0" align="start">
-                      <Command.Root>
-                        <Command.Input
-                          placeholder="Buscar tipo..."
-                          class="h-9"
-                        />
-                        <Command.List>
-                          <Command.Empty>Nenhum tipo encontrado.</Command.Empty>
-                          <Command.Group>
-                            {#each getTipoOptions(bancoAtual, categoria) as option}
-                              <Command.Item
-                                value={option.value}
-                                onSelect={() => {
-                                  navigateToTipo(option.value);
-                                  openTipoPopover = false;
-                                }}
-                                class="flex items-center justify-between"
-                              >
-                                <span>{option.label}</span>
-                                {#if breadcrumbItem.label === option.value}
-                                  <Check class="h-4 w-4" />
-                                {/if}
-                              </Command.Item>
-                            {/each}
-                          </Command.Group>
-                        </Command.List>
-                      </Command.Root>
-                    </Popover.Content>
-                  </Popover.Root>
-                {:else}
-                  <!-- Tipo sem dropdown (apenas uma opção) -->
-                  <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
-                {/if}
-              {:else}
-                <!-- Tipo sem dropdown (sem dados) -->
-                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
-              {/if}
-            {/if}
-          </BreadcrumbItem>
-        {/each}
-      </BreadcrumbList>
-    </Breadcrumb>
-  </CardHeader>
-  <CardContent class="space-y-4">
+  <CardContent class="space-y-4 px-0">
     {#if data?.agrupados}
       <!-- Accordion por Bancos -->
       {#each Object.entries(data.agrupados) as [banco, categorias]}
@@ -606,8 +491,13 @@
                 class="w-4 h-4 rounded-full {getBancoCorHex(banco)}"
                 title="Banco: {banco}"
               ></div>
-              <div>
-                <div class="font-semibold">{banco}</div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold">{banco}</span>
+                  <Badge variant="outline" class="text-xs">
+                    {countAssetsInBank(categorias)} produto(s)
+                  </Badge>
+                </div>
                 <div class="text-caption">
                   Total: {formatCurrency(categorias._total_banco || 0)}
                 </div>
@@ -639,8 +529,13 @@
                       onclick={() => toggleCategoria(`${banco}-${categoria}`)}
                     >
                       <div class="flex items-center gap-2">
-                        <div>
-                          <div class="font-medium">{categoria}</div>
+                        <div class="flex-1">
+                          <div class="flex items-center gap-2">
+                            <span class="font-medium">{categoria}</span>
+                            <Badge variant="outline" class="text-xs">
+                              {countAssetsInCategory(conteudo)} tipo(s)
+                            </Badge>
+                          </div>
                           <div class="text-caption">
                             Total: {formatCurrency(
                               conteudo._total_categoria || 0
@@ -679,9 +574,14 @@
                                   toggleTipo(`${banco}-${categoria}-${tipo}`)}
                               >
                                 <div class="flex items-center gap-2">
-                                  <div>
-                                    <div class="text-sm font-medium">
-                                      {tipo}
+                                  <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                      <span class="text-sm font-medium"
+                                        >{tipo}</span
+                                      >
+                                      <Badge variant="outline" class="text-xs">
+                                        {countAssetsInType(grupo)} item(s)
+                                      </Badge>
                                     </div>
                                     <div class="text-xs text-muted-foreground">
                                       Total: {formatCurrency(
@@ -700,7 +600,7 @@
                               <!-- Tabela de Ativos -->
                               {#if expandedTipos.has(`${banco}-${categoria}-${tipo}`) && grupo.linhas}
                                 <div class="border-t p-2">
-                                  <TabelaFinanceira
+                                  <TabelaFinanceiraEnhanced
                                     data={{
                                       tables: {
                                         tab0: {
@@ -738,7 +638,11 @@
       {/each}
     {:else}
       <!-- Fallback para dados em formato de tabela simples -->
-      <TabelaFinanceira {data} mode="consolidado" title="Dados Consolidados" />
+      <TabelaFinanceiraEnhanced
+        {data}
+        mode="consolidado"
+        title="Dados Consolidados"
+      />
     {/if}
   </CardContent>
 </Card>
@@ -746,12 +650,55 @@
 <style>
   /* Estilos simplificados - apenas para breadcrumb sticky */
 
-  /* Estilo para breadcrumb sticky */
-  :global(.sticky) {
-    background: hsl(var(--background)) !important;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Estilos para breadcrumb sticky aprimorado */
+  :global(.breadcrumb-container) {
+    transition: all 0.2s ease-in-out;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Quando sticky, expandir para largura total e quebrar container */
+  :global(.breadcrumb-container.is-sticky) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: hsl(var(--background) / 0.95) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 50 !important;
+    transform: translateX(0) !important;
+  }
+
+  /* Ajustar conteúdo interno para alinhar com header principal */
+  :global(.breadcrumb-container.is-sticky .breadcrumb-content) {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 1rem 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Garantir que o CardHeader ocupe toda a largura */
+  :global(.breadcrumb-container.is-sticky .breadcrumb-content > *) {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Adicionar espaço no topo do conteúdo quando breadcrumb está sticky */
+  :global(.breadcrumb-container.is-sticky ~ *) {
+    margin-top: 60px !important;
+  }
+
+  /* Garantir que não há overflow horizontal */
+  :global(body) {
+    overflow-x: hidden;
   }
 
   /* Garantir overflow correto para tabelas */
