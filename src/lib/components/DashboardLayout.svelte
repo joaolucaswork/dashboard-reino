@@ -324,7 +324,7 @@
                         onclick={() => toggleSection("integrations")}
                         onkeydown={(e: KeyboardEvent) =>
                           e.key === "Enter" && toggleSection("integrations")}
-                        aria-label="Toggle integrations menu"
+                        aria-label="Integrações Bancárias"
                       ></Tooltip.Trigger>
                       <Tooltip.Content
                         side="right"
@@ -332,7 +332,7 @@
                         sideOffset={8}
                         class="tooltip-standard"
                       >
-                        Toggle Integrations
+                        Integrações Bancárias
                       </Tooltip.Content>
                     </Tooltip.Root>
                   {/if}
@@ -410,7 +410,7 @@
                         onclick={() => toggleSection("tables")}
                         onkeydown={(e: KeyboardEvent) =>
                           e.key === "Enter" && toggleSection("tables")}
-                        aria-label="Toggle tables menu"
+                        aria-label="Tabelas e Relatórios"
                       ></Tooltip.Trigger>
                       <Tooltip.Content
                         side="right"
@@ -418,7 +418,7 @@
                         sideOffset={8}
                         class="tooltip-standard"
                       >
-                        Toggle Tables
+                        Tabelas e Relatórios
                       </Tooltip.Content>
                     </Tooltip.Root>
                   {/if}

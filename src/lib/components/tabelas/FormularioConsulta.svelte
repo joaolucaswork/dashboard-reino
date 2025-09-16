@@ -115,7 +115,7 @@
                   aria-label="More information about {modo.label}"
                 >
                   <div
-                    class="w-3 h-3 rounded-full border border-current flex items-center justify-center text-xs"
+                    class="w-4 h-4 rounded-full border border-current flex items-center justify-center text-xs"
                   >
                     ?
                   </div>

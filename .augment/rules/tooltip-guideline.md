@@ -1,3 +1,7 @@
+---
+type: "always_apply"
+---
+
 # Documentation: Tooltip and Popover Error Fixes (SSR and Hydration)
 
 ## Problem Summary
