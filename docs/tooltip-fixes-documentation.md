@@ -1,11 +1,12 @@
-# Documentação: Correção de Erros de Tooltip (SSR e Snippet Inválido)
+# Documentação: Correção de Erros de Tooltip e Popover (SSR e Hidratação)
 
 ## Resumo dos Problemas
 
-Durante o desenvolvimento, foram encontrados dois tipos de erros relacionados aos componentes de tooltip:
+Durante o desenvolvimento, foram encontrados três tipos de erros relacionados aos componentes de UI:
 
 1. **Erro SSR**: `node_invalid_placement_ssr` - botões aninhados (`<button>` dentro de `<button>`)
 2. **Erro Svelte**: `invalid_default_snippet` - uso incorreto de `asChild` com `let:` directives
+3. **Erro Hidratação**: `hydration_mismatch` - descompasso entre renderização server-side e client-side
 
 ## Análise dos Problemas
 
