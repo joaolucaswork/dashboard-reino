@@ -70,6 +70,25 @@
       calendarValue = undefined;
     }
   });
+
+  // Convert string dates to DateValue objects for Calendar component
+  const calendarMinValue = $derived.by(() => {
+    if (!minValue) return undefined;
+    try {
+      return parseDate(minValue);
+    } catch {
+      return undefined;
+    }
+  });
+
+  const calendarMaxValue = $derived.by(() => {
+    if (!maxValue) return undefined;
+    try {
+      return parseDate(maxValue);
+    } catch {
+      return undefined;
+    }
+  });
 </script>
 
 <Popover bind:open>
@@ -98,6 +117,8 @@
       initialFocus
       type="single"
       captionLayout="dropdown"
+      minValue={calendarMinValue}
+      maxValue={calendarMaxValue}
     />
   </PopoverContent>
 </Popover>

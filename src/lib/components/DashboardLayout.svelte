@@ -17,7 +17,6 @@
     RefreshCw,
     Target,
     Folder,
-    Database,
   } from "@lucide/svelte";
   import {
     DynamicFolderPreview,
@@ -64,41 +63,39 @@
   // Tables menu items from the design
   const tableMenuItems = [
     {
-      title: "Tabelas ComDinheiro",
-      href: "/tabelas",
-      icon: Database,
-      shortTitle: "TAB",
-      description: "Sistema unificado de consulta e relatórios",
-    },
-    {
       title: "Relatório",
-      href: "/relatorio",
+      href: "/tabelas?modo=relatorio",
       icon: FileText,
       shortTitle: "REL",
+      description: "Dados agrupados por instituição financeira",
     },
     {
       title: "Posição Consolidada",
-      href: "/posicao-consolidada",
+      href: "/tabelas?modo=consolidado",
       icon: ChartBar,
       shortTitle: "POS",
+      description: "Visão hierárquica por banco, categoria e tipo",
     },
     {
       title: "Movimentações",
-      href: "/movimentacoes",
+      href: "/tabelas?modo=movimentacoes",
       icon: RefreshCw,
       shortTitle: "MOV",
+      description: "Histórico de transações e operações",
     },
     {
       title: "Análises",
-      href: "/analises",
+      href: "/tabelas?modo=analise",
       icon: TrendingUp,
       shortTitle: "ANA",
+      description: "Gráficos de performance e comparativos",
     },
     {
       title: "Asset Allocation",
-      href: "/asset-allocation",
+      href: "/tabelas?modo=asset_allocation",
       icon: Target,
       shortTitle: "AST",
+      description: "Distribuição e rebalanceamento de ativos",
     },
   ];
 
