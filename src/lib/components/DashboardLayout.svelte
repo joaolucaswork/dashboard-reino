@@ -63,13 +63,14 @@
 
   // Tables menu items from the design
   const tableMenuItems = [
-    {
-      title: "Relatório",
-      href: "/tabelas?modo=relatorio",
-      icon: FileText,
-      shortTitle: "REL",
-      description: "Dados agrupados por instituição financeira",
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   title: "Relatório",
+    //   href: "/tabelas?modo=relatorio",
+    //   icon: FileText,
+    //   shortTitle: "REL",
+    //   description: "Dados agrupados por instituição financeira",
+    // },
     {
       title: "Posição Consolidada",
       href: "/tabelas?modo=consolidado",
@@ -77,20 +78,22 @@
       shortTitle: "POS",
       description: "Visão hierárquica por banco, categoria e tipo",
     },
-    {
-      title: "Movimentações",
-      href: "/tabelas?modo=movimentacoes",
-      icon: RefreshCw,
-      shortTitle: "MOV",
-      description: "Histórico de transações e operações",
-    },
-    {
-      title: "Análises",
-      href: "/tabelas?modo=analise",
-      icon: TrendingUp,
-      shortTitle: "ANA",
-      description: "Gráficos de performance e comparativos",
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   title: "Movimentações",
+    //   href: "/tabelas?modo=movimentacoes",
+    //   icon: RefreshCw,
+    //   shortTitle: "MOV",
+    //   description: "Histórico de transações e operações",
+    // },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   title: "Análises",
+    //   href: "/tabelas?modo=analise",
+    //   icon: TrendingUp,
+    //   shortTitle: "ANA",
+    //   description: "Gráficos de performance e comparativos",
+    // },
     {
       title: "Asset Allocation",
       href: "/tabelas?modo=asset_allocation",

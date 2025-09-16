@@ -25,30 +25,33 @@
 
   // Opções de modo de visualização
   const modos = [
-    {
-      value: "relatorio",
-      label: "Relatório",
-      description: "Dados agrupados por instituição financeira",
-      icon: FileText,
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   value: "relatorio",
+    //   label: "Relatório",
+    //   description: "Dados agrupados por instituição financeira",
+    //   icon: FileText,
+    // },
     {
       value: "consolidado",
       label: "Posição Consolidada",
       description: "Visão hierárquica por banco, categoria e tipo",
       icon: ChartBar,
     },
-    {
-      value: "movimentacoes",
-      label: "Movimentações",
-      description: "Histórico de transações e operações",
-      icon: ArrowRightLeft,
-    },
-    {
-      value: "analise",
-      label: "Análises",
-      description: "Gráficos de performance e comparativos",
-      icon: TrendingUp,
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   value: "movimentacoes",
+    //   label: "Movimentações",
+    //   description: "Histórico de transações e operações",
+    //   icon: ArrowRightLeft,
+    // },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   value: "analise",
+    //   label: "Análises",
+    //   description: "Gráficos de performance e comparativos",
+    //   icon: TrendingUp,
+    // },
     {
       value: "asset_allocation",
       label: "Asset Allocation",
