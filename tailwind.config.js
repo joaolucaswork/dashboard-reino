@@ -22,31 +22,73 @@ export default {
         24: "192px", // 24 units = 192px
         32: "256px", // 32 units = 256px
       },
-      // Premium dark mode color palette
+      // shadcn-svelte color system with CSS variables
       colors: {
-        // Background colors
-        "bg-primary": "#0a0a0a", // Deep black
-        "bg-secondary": "#111111", // Slightly lighter black
-        "bg-tertiary": "#1a1a1a", // Card backgrounds
-        "bg-elevated": "#222222", // Elevated surfaces
-
-        // Text colors
-        "text-primary": "#ffffff", // Primary text
-        "text-secondary": "#a1a1aa", // Secondary text
-        "text-tertiary": "#71717a", // Tertiary text
-        "text-muted": "#52525b", // Muted text
-
-        // Accent colors
-        "accent-blue": "#007aff", // Apple blue
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
+        // Legacy colors for backward compatibility
+        "bg-primary": "#0a0a0a",
+        "bg-secondary": "#111111",
+        "bg-tertiary": "#1a1a1a",
+        "bg-elevated": "#222222",
+        "text-primary": "#ffffff",
+        "text-secondary": "#a1a1aa",
+        "text-tertiary": "#71717a",
+        "text-muted": "#52525b",
+        "accent-blue": "#007aff",
         "accent-blue-hover": "#0056cc",
-        "accent-green": "#30d158", // Apple green
-        "accent-orange": "#ff9500", // Apple orange
-        "accent-red": "#ff3b30", // Apple red
-
-        // Border colors
-        "border-primary": "#2a2a2a", // Primary borders
-        "border-secondary": "#333333", // Secondary borders
-        "border-focus": "#007aff", // Focus states
+        "accent-green": "#30d158",
+        "accent-orange": "#ff9500",
+        "accent-red": "#ff3b30",
+        "border-primary": "#2a2a2a",
+        "border-secondary": "#333333",
+        "border-focus": "#007aff",
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       // Typography improvements
       fontFamily: {

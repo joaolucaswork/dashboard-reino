@@ -17,6 +17,7 @@
     RefreshCw,
     Target,
     Folder,
+    Database,
   } from "@lucide/svelte";
   import {
     DynamicFolderPreview,
@@ -62,6 +63,13 @@
 
   // Tables menu items from the design
   const tableMenuItems = [
+    {
+      title: "Tabelas ComDinheiro",
+      href: "/tabelas",
+      icon: Database,
+      shortTitle: "TAB",
+      description: "Sistema unificado de consulta e relatórios",
+    },
     {
       title: "Relatório",
       href: "/relatorio",
