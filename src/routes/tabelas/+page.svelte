@@ -23,7 +23,7 @@
   />
 </svelte:head>
 
-<div class="container mx-auto p-6 max-w-6xl">
+<div class="space-y-8">
   <!-- Status messages are now handled by toast notifications -->
 
   <!-- Formulário de Consulta -->
@@ -96,16 +96,6 @@
       </Card>
     {/if}
   {:else}
-    <!-- Estado inicial -->
-    <Card>
-      <CardContent class="text-center py-12">
-        <FileText size={64} class="mx-auto text-muted-foreground mb-6" />
-        <h3 class="text-xl font-semibold mb-3">Pronto para Consultar</h3>
-        <p class="text-body max-w-lg mx-auto">
-          Configure os parâmetros acima e clique em "Consultar" para visualizar
-          seus dados financeiros nos formatos disponíveis.
-        </p>
-      </CardContent>
-    </Card>
+    <!-- Estado inicial - removido o placeholder conforme solicitado -->
   {/if}
 </div>
