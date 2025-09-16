@@ -3,7 +3,6 @@
 
   import FormularioConsulta from "$lib/components/tabelas/FormularioConsulta.svelte";
 
-  import { Button } from "$lib/components/ui/button";
   import {
     Card,
     CardContent,
@@ -11,28 +10,6 @@
     CardTitle,
   } from "$lib/components/ui/card";
   import { FileText } from "@lucide/svelte";
-  import { toast, showToast } from "$lib/utils/toast.js";
-
-  // Test functions for toast notifications (development only)
-  function testSuccessToast() {
-    showToast.dataLoaded();
-  }
-
-  function testErrorToast() {
-    showToast.dataLoadFailed("Erro de teste para verificar funcionamento");
-  }
-
-  function testLoadingToast() {
-    const loadingId = showToast.consultingData();
-    setTimeout(() => {
-      toast.dismiss(loadingId);
-      toast.success("Carregamento concluído!");
-    }, 3000);
-  }
-
-  function testCustomToast() {
-    toast.info("Esta é uma notificação personalizada de teste");
-  }
 </script>
 
 <svelte:head>
@@ -90,27 +67,6 @@
 {JSON.stringify($dadosConsulta, null, 2)}
               </pre>
             </details>
-
-            <!-- Toast Testing Buttons (Development Only) -->
-            <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-3">
-                Teste de Notificações Toast
-              </h4>
-              <div class="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onclick={testSuccessToast}>
-                  Sucesso
-                </Button>
-                <Button size="sm" variant="outline" onclick={testErrorToast}>
-                  Erro
-                </Button>
-                <Button size="sm" variant="outline" onclick={testLoadingToast}>
-                  Loading
-                </Button>
-                <Button size="sm" variant="outline" onclick={testCustomToast}>
-                  Info
-                </Button>
-              </div>
-            </div>
           {/if}
         </div>
       </CardContent>
