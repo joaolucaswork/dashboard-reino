@@ -482,7 +482,11 @@
           <!-- Cabeçalho do Banco -->
           <Button
             variant="ghost"
-            class="w-full justify-between p-4 h-auto text-left hover:bg-muted/50 bg-background"
+            class="w-full justify-between p-4 h-auto text-left hover:bg-[#2b251e] {expandedBancos.has(
+              banco
+            )
+              ? 'bg-[#2b251e]'
+              : 'bg-background'}"
             onclick={() => toggleBanco(banco)}
           >
             <div class="flex items-center gap-3">
@@ -525,7 +529,11 @@
                     <!-- Cabeçalho da Categoria -->
                     <Button
                       variant="ghost"
-                      class="w-full justify-between p-3 h-auto text-left hover:bg-muted/30 bg-background"
+                      class="w-full justify-between p-3 h-auto text-left hover:bg-[#2b251e] {expandedCategorias.has(
+                        `${banco}-${categoria}`
+                      )
+                        ? 'bg-[#2b251e]'
+                        : 'bg-background'}"
                       onclick={() => toggleCategoria(`${banco}-${categoria}`)}
                     >
                       <div class="flex items-center gap-2">
@@ -569,7 +577,11 @@
                               <!-- Cabeçalho do Tipo -->
                               <Button
                                 variant="ghost"
-                                class="w-full justify-between p-2 h-auto text-left hover:bg-muted/20 bg-background"
+                                class="w-full justify-between p-2 h-auto text-left hover:bg-[#2b251e] {expandedTipos.has(
+                                  `${banco}-${categoria}-${tipo}`
+                                )
+                                  ? 'bg-[#2b251e]'
+                                  : 'bg-background'}"
                                 onclick={() =>
                                   toggleTipo(`${banco}-${categoria}-${tipo}`)}
                               >

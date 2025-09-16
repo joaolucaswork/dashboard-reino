@@ -376,8 +376,13 @@
 
       <Table.Body>
         {#each paginatedData as row, index (index)}
-          <Table.Row class="hover:bg-muted/50 transition-colors">
-            <!-- Selection Cell -->
+          <Table.Row
+            class="hover:bg-[#2b251e] transition-colors {selectedRows.has(
+              currentPage * pageSize + index
+            )
+              ? 'bg-[#2b251e]'
+              : ''}"
+          >
             {#if enableRowSelection}
               <Table.Cell>
                 <Checkbox
