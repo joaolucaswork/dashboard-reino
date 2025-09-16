@@ -8,7 +8,7 @@
   import { Label } from "$lib/components/ui/label";
   import { Button } from "$lib/components/ui/button";
   import { DatePicker } from "$lib/components/ui/date-picker";
-  import { Calendar, Clock } from "@lucide/svelte";
+  import { Calendar } from "@lucide/svelte";
 
   // Função para obter data atual no formato YYYY-MM-DD
   function getDataAtual() {
@@ -62,67 +62,17 @@
 </script>
 
 <div class="space-y-6">
-  <!-- Botões de período rápido -->
-  <div class="flex flex-wrap gap-3">
-    <Button
-      variant="outline"
-      size="sm"
-      onclick={() => definirPeriodo("hoje")}
-      class="text-xs"
-    >
-      <Clock size={12} class="mr-1" />
-      Hoje
-    </Button>
-    <Button
-      variant="outline"
-      size="sm"
-      onclick={() => definirPeriodo("ultimos30")}
-      class="text-xs"
-    >
-      <Calendar size={12} class="mr-1" />
-      Últimos 30 dias
-    </Button>
-    <Button
-      variant="outline"
-      size="sm"
-      onclick={() => definirPeriodo("anoAtual")}
-      class="text-xs"
-    >
-      <Calendar size={12} class="mr-1" />
-      Ano atual
-    </Button>
-  </div>
+  <!-- Data Final com botões de apoio -->
+  <div class="space-y-3">
+    <!-- Label -->
+    <Label for="data-final" class="text-label flex items-center gap-2">
+      <Calendar size={14} class="text-primary" />
+      Data Final (Data de Referência)
+      <span class="text-destructive">*</span>
+    </Label>
 
-  <!-- Campos de data -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Data Inicial (condicional) -->
-    {#if $camposVisiveis.dataInicial}
-      <div class="space-y-3">
-        <Label for="data-inicial" class="text-label flex items-center gap-2">
-          <Calendar size={14} class="text-primary" />
-          Data Inicial
-        </Label>
-        <DatePicker
-          bind:value={$dataInicial}
-          maxValue={$dataFinal || getDataAtual()}
-          error={!dataInicialValida}
-          placeholder="Selecione a data inicial"
-        />
-        {#if !dataInicialValida}
-          <p class="text-caption text-destructive">
-            A data inicial deve ser anterior ou igual à data final
-          </p>
-        {/if}
-      </div>
-    {/if}
-
-    <!-- Data Final (sempre visível) -->
-    <div class="space-y-3">
-      <Label for="data-final" class="text-label flex items-center gap-2">
-        <Calendar size={14} class="text-primary" />
-        Data Final (Data de Referência)
-        <span class="text-destructive">*</span>
-      </Label>
+    <!-- Date Picker -->
+    <div class="max-w-xs">
       <DatePicker
         bind:value={$dataFinal}
         minValue={$dataInicial}
@@ -131,40 +81,63 @@
         placeholder="Selecione a data final"
       />
       {#if !dataFinalValida}
-        <p class="text-caption text-destructive">
+        <p class="text-caption text-destructive mt-1">
           A data final não pode ser futura
         </p>
       {/if}
     </div>
+
+    <!-- Botões de apoio -->
+    <div class="flex flex-wrap gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => definirPeriodo("hoje")}
+        class="text-xs"
+      >
+        Hoje
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => definirPeriodo("ultimos30")}
+        class="text-xs"
+      >
+        Últimos 30 dias
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => definirPeriodo("anoAtual")}
+        class="text-xs"
+      >
+        Ano atual
+      </Button>
+    </div>
   </div>
 
-  <!-- Resumo do período selecionado -->
-  {#if $dataInicial && $dataFinal && dataInicialValida && dataFinalValida}
-    {@const inicio = new Date($dataInicial)}
-    {@const fim = new Date($dataFinal)}
-    {@const diffTime = Math.abs(fim.getTime() - inicio.getTime())}
-    {@const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1}
-
-    <div class="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-      <div class="flex items-center gap-3">
+  <!-- Data Inicial (condicional) -->
+  {#if $camposVisiveis.dataInicial}
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+      <Label
+        for="data-inicial"
+        class="text-label flex items-center gap-2 whitespace-nowrap"
+      >
         <Calendar size={14} class="text-primary" />
-        <span class="text-label"> Período selecionado: </span>
-        <span class="text-body">
-          {diffDays} dia{diffDays !== 1 ? "s" : ""}
-          ({inicio.toLocaleDateString("pt-BR")} até {fim.toLocaleDateString(
-            "pt-BR"
-          )})
-        </span>
-      </div>
-    </div>
-  {:else if $dataFinal && dataFinalValida}
-    <div class="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-      <div class="flex items-center gap-3">
-        <Calendar size={14} class="text-primary" />
-        <span class="text-label"> Data de referência: </span>
-        <span class="text-body">
-          {new Date($dataFinal).toLocaleDateString("pt-BR")}
-        </span>
+        Data Inicial
+      </Label>
+      <div class="flex-1 max-w-xs">
+        <DatePicker
+          bind:value={$dataInicial}
+          maxValue={$dataFinal || getDataAtual()}
+          error={!dataInicialValida}
+          placeholder="Selecione a data inicial"
+        />
+        {#if !dataInicialValida}
+          <p class="text-caption text-destructive mt-1">
+            A data inicial deve ser anterior ou igual à data final
+          </p>
+        {/if}
       </div>
     </div>
   {/if}

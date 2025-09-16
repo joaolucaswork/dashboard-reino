@@ -10,7 +10,7 @@
     CardHeader,
     CardTitle,
   } from "$lib/components/ui/card";
-  import { Home, ChartPie, FileText } from "@lucide/svelte";
+  import { FileText } from "@lucide/svelte";
   import { toast, showToast } from "$lib/utils/toast.js";
 
   // Test functions for toast notifications (development only)
@@ -44,46 +44,11 @@
 </svelte:head>
 
 <div class="container mx-auto p-6 max-w-6xl">
-  <!-- Navegação -->
-  <div class="flex gap-4 mb-6">
-    <Button variant="outline" href="/">
-      <Home size={16} class="mr-2" />
-      Voltar ao Menu
-    </Button>
-    <Button variant="outline" href="/balanceamento">
-      <ChartPie size={16} class="mr-2" />
-      Voltar ao Balanceamento
-    </Button>
-  </div>
-
-  <!-- Título Principal -->
-  <Card class="mb-8">
-    <CardHeader class="text-center">
-      <CardTitle
-        class="text-2xl font-semibold flex items-center justify-center gap-3"
-      >
-        <FileText size={24} class="text-primary" />
-        Tabelas ComDinheiro
-      </CardTitle>
-      <p class="text-body mt-2">
-        Sistema completo de consulta e análise de dados financeiros
-      </p>
-    </CardHeader>
-  </Card>
-
   <!-- Status messages are now handled by toast notifications -->
 
   <!-- Formulário de Consulta -->
   <Card class="mb-8">
-    <CardHeader>
-      <CardTitle class="text-lg font-semibold">
-        Configuração da Consulta
-      </CardTitle>
-      <p class="text-caption">
-        Selecione o tipo de visualização e configure os parâmetros da consulta
-      </p>
-    </CardHeader>
-    <CardContent>
+    <CardContent class="pt-6">
       <FormularioConsulta />
     </CardContent>
   </Card>

@@ -14,10 +14,10 @@
   import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { RadioGroup, RadioGroupItem } from "$lib/components/ui/radio-group";
-  import { Card, CardContent } from "$lib/components/ui/card";
+  import * as Tooltip from "$lib/components/ui/tooltip";
   import {
     FileText,
-    BarChart3,
+    ChartBar,
     ArrowRightLeft,
     TrendingUp,
     Target,
@@ -35,7 +35,7 @@
       value: "consolidado",
       label: "Posição Consolidada",
       description: "Visão hierárquica por banco, categoria e tipo",
-      icon: BarChart3,
+      icon: ChartBar,
     },
     {
       value: "movimentacoes",
@@ -72,12 +72,7 @@
 <form on:submit|preventDefault={handleSubmit} class="space-y-8">
   <!-- Seleção do Modo de Visualização -->
   <div class="space-y-4">
-    <Label class="text-label">Tipo de Visualização</Label>
-
-    <RadioGroup
-      bind:value={$modoVisualizacao}
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-    >
+    <RadioGroup bind:value={$modoVisualizacao} class="flex flex-wrap gap-4">
       {#each modos as modo}
         {@const Icon = modo.icon}
         <div class="relative">
@@ -86,20 +81,45 @@
             id={modo.value}
             class="peer sr-only"
           />
-          <Label
-            for={modo.value}
-            class="flex flex-col p-6 rounded-lg border cursor-pointer hover:bg-accent peer-checked:border-primary peer-checked:bg-accent"
-          >
-            <div class="flex items-center gap-3 mb-3">
-              <Icon size={18} class="text-primary" />
-              <span class="font-medium">
-                {modo.label}
-              </span>
-            </div>
-            <span class="text-caption text-left">
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Label
+                for={modo.value}
+                class="flex items-center justify-start p-4 h-12 w-fit rounded-lg border-transparent cursor-pointer hover:bg-accent transition-all duration-200 {$modoVisualizacao ===
+                modo.value
+                  ? 'bg-accent/80 border-border'
+                  : $modoVisualizacao && $modoVisualizacao !== modo.value
+                    ? 'opacity-40'
+                    : ''}"
+              >
+                <Icon
+                  size={18}
+                  class="mr-3 flex-shrink-0 transition-colors duration-200 {$modoVisualizacao ===
+                  modo.value
+                    ? 'text-primary'
+                    : $modoVisualizacao && $modoVisualizacao !== modo.value
+                      ? 'text-white/60'
+                      : 'text-primary'}"
+                />
+                <span
+                  class="font-medium text-sm text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
+                  $modoVisualizacao !== modo.value
+                    ? 'text-white/60'
+                    : 'text-foreground'}"
+                >
+                  {modo.label}
+                </span>
+              </Label>
+            </Tooltip.Trigger>
+            <Tooltip.Content
+              side="top"
+              align="center"
+              sideOffset={8}
+              class="bg-accent text-accent-foreground font-medium text-sm max-w-xs text-center"
+            >
               {modo.description}
-            </span>
-          </Label>
+            </Tooltip.Content>
+          </Tooltip.Root>
         </div>
       {/each}
     </RadioGroup>
@@ -107,13 +127,11 @@
 
   <!-- Seletor de Carteira -->
   <div class="space-y-4">
-    <Label class="text-label">Carteira</Label>
     <SeletorCarteira />
   </div>
 
   <!-- Campos de Data -->
   <div class="space-y-4">
-    <Label class="text-label">Período de Consulta</Label>
     <SeletorData />
   </div>
 

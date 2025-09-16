@@ -307,6 +307,41 @@
   .btn-minimal:hover {
     color: var(--foreground);
   }
+
+  /* Calendar Component Customizations */
+  /* Reduce calendar day cell sizes */
+  [data-calendar] {
+    --cell-size: 2rem; /* Reduced from default 2.5rem */
+  }
+
+  /* Calendar day button styling */
+  [data-calendar] button[data-calendar-day] {
+    height: 2rem;
+    width: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Calendar day text font weight */
+  [data-calendar] button[data-calendar-day] span {
+    font-weight: 500; /* Ensure font-weight 500 */
+  }
+
+  /* Selected day styling */
+  [data-calendar] button[data-calendar-day][data-selected] {
+    font-weight: 600; /* Font-weight 600 for selected dates */
+  }
+
+  /* Today indicator styling */
+  [data-calendar] button[data-calendar-day][data-today] {
+    font-weight: 500; /* Font-weight 500 for today */
+  }
+
+  /* Outside month days */
+  [data-calendar] button[data-calendar-day][data-outside-month] {
+    font-weight: 400;
+    opacity: 0.5; /* Lighter weight for outside month */
+  }
 }
 
 /* Sonner toast customization */

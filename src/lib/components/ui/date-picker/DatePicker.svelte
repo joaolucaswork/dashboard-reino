@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
+  import { parseDate, getLocalTimeZone } from "@internationalized/date";
   import { Calendar } from "$lib/components/ui/calendar";
   import { Button } from "$lib/components/ui/button";
   import {
@@ -7,7 +7,7 @@
     PopoverContent,
     PopoverTrigger,
   } from "$lib/components/ui/popover";
-  import { Calendar as CalendarIcon } from "@lucide/svelte";
+  import { ChevronDown } from "@lucide/svelte";
   import { cn } from "$lib/utils.js";
 
   // Props
@@ -50,14 +50,6 @@
     }
   }
 
-  // Handle today button
-  function selectToday() {
-    const todayDate = today(getLocalTimeZone());
-    value = todayDate.toString();
-    calendarValue = todayDate;
-    open = false;
-  }
-
   // Watch for calendar value changes
   $effect(() => {
     if (calendarValue) {
@@ -82,34 +74,30 @@
 
 <Popover bind:open>
   <PopoverTrigger>
-    <div
-      role="button"
-      tabindex={disabled ? -1 : 0}
+    <Button
+      variant="outline"
       class={cn(
-        "flex h-12 w-full items-center justify-start rounded-md border border-input bg-card px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 text-left",
-        !value && "text-muted-foreground font-normal",
-        value && "font-medium",
+        "w-full justify-between font-medium",
+        !value && "text-muted-foreground font-medium",
+        value && "font-semibold",
         error && "border-destructive",
         disabled && "cursor-not-allowed opacity-50",
         className
       )}
+      {disabled}
       {...restProps}
     >
-      <CalendarIcon class="mr-3 h-4 w-4" />
       {value ? formatDate(value) : placeholder}
-    </div>
+      <ChevronDown class="h-4 w-4" />
+    </Button>
   </PopoverTrigger>
-  <PopoverContent class="w-auto p-0" align="start">
-    <div class="p-3 border-b">
-      <Button variant="outline" size="sm" class="w-full" onclick={selectToday}>
-        Hoje
-      </Button>
-    </div>
+  <PopoverContent class="w-auto overflow-hidden p-0" align="start">
     <Calendar
       bind:value={calendarValue}
       locale="pt-BR"
       initialFocus
       type="single"
+      captionLayout="dropdown"
     />
   </PopoverContent>
 </Popover>
