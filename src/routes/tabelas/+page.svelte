@@ -48,7 +48,7 @@
 
   <!-- Formulário de Consulta -->
   <Card class="mb-8">
-    <CardContent class="pt-6">
+    <CardContent class="pt-1">
       <FormularioConsulta />
     </CardContent>
   </Card>
