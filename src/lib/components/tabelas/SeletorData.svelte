@@ -62,7 +62,7 @@
 </script>
 
 <div class="space-y-6">
-  <!-- Data Final com botões de apoio -->
+  <!-- Data Final -->
   <div class="space-y-3">
     <!-- Label -->
     <Label for="data-final" class="text-label flex items-center gap-2">
@@ -72,7 +72,7 @@
     </Label>
 
     <!-- Date Picker -->
-    <div class="max-w-xs">
+    <div class="w-full max-w-sm">
       <DatePicker
         bind:value={$dataFinal}
         minValue={$dataInicial}
@@ -85,34 +85,6 @@
           A data final não pode ser futura
         </p>
       {/if}
-    </div>
-
-    <!-- Botões de apoio -->
-    <div class="flex flex-wrap gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={() => definirPeriodo("hoje")}
-        class="text-xs"
-      >
-        Hoje
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={() => definirPeriodo("ultimos30")}
-        class="text-xs"
-      >
-        Últimos 30 dias
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={() => definirPeriodo("anoAtual")}
-        class="text-xs"
-      >
-        Ano atual
-      </Button>
     </div>
   </div>
 

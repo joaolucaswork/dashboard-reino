@@ -5,12 +5,13 @@
   let { children } = $props();
 
   // Mapeamento dos parâmetros de URL para os modos de visualização
+  // TEMPORARILY DISABLED: relatorio, movimentacoes, analise - only consolidado and asset_allocation are active
   const modoMapping = {
-    relatorio: "relatorio",
-    consolidado: "consolidado",
-    movimentacoes: "movimentacoes",
-    analise: "analise",
-    asset_allocation: "asset_allocation",
+    relatorio: "relatorio", // DISABLED
+    consolidado: "consolidado", // ACTIVE
+    movimentacoes: "movimentacoes", // DISABLED
+    analise: "analise", // DISABLED
+    asset_allocation: "asset_allocation", // ACTIVE
   };
 
   // Função para atualizar o modo baseado nos parâmetros de URL

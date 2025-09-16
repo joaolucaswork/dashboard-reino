@@ -40,25 +40,4 @@
       emptyMessage="Nenhuma carteira encontrada."
     />
   </div>
-
-  <!-- Exibição da carteira selecionada (apenas quando há seleção) -->
-  {#if $carteiraAtual}
-    <div
-      class="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg"
-    >
-      <div
-        class="w-8 h-8 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
-      >
-        <span class="text-xs font-medium text-primary">
-          {obterIniciais($carteiraAtual)}
-        </span>
-      </div>
-      <div class="flex-1">
-        <span class="text-label">
-          {formatarNomeCarteira($carteiraAtual)}
-        </span>
-      </div>
-      <Badge variant="secondary" class="text-xs">Ativa</Badge>
-    </div>
-  {/if}
 </div>

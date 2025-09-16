@@ -4,7 +4,8 @@ import { getMockDataByMode } from "$lib/mocks/tabelas.js";
 import { toast, showToast } from "$lib/utils/toast.js";
 
 // Estados principais do formulário
-export const modoVisualizacao = writable("relatorio");
+// TEMPORARILY CHANGED DEFAULT - was "relatorio", changed to active mode
+export const modoVisualizacao = writable("consolidado");
 export const carteiraAtual = writable("");
 export const dataFinal = writable("");
 export const dataInicial = writable("");

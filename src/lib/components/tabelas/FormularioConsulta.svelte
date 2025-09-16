@@ -14,6 +14,7 @@
   import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { RadioGroup, RadioGroupItem } from "$lib/components/ui/radio-group";
+  import { Badge } from "$lib/components/ui/badge";
   import * as Tooltip from "$lib/components/ui/tooltip";
   import {
     FileText,
@@ -23,32 +24,53 @@
     Target,
   } from "@lucide/svelte";
 
+  import { carteiraAtual } from "$lib/stores/tabelas.js";
+
+  // Função para formatar nome da carteira
+  function formatarNomeCarteira(nome) {
+    return nome.replace(/_/g, " ");
+  }
+
+  // Função para obter iniciais da carteira
+  function obterIniciais(nome) {
+    return nome
+      .replace(/_/g, " ")
+      .split(" ")
+      .map((palavra) => palavra[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
   // Opções de modo de visualização
   const modos = [
-    {
-      value: "relatorio",
-      label: "Relatório",
-      description: "Dados agrupados por instituição financeira",
-      icon: FileText,
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   value: "relatorio",
+    //   label: "Relatório",
+    //   description: "Dados agrupados por instituição financeira",
+    //   icon: FileText,
+    // },
     {
       value: "consolidado",
       label: "Posição Consolidada",
       description: "Visão hierárquica por banco, categoria e tipo",
       icon: ChartBar,
     },
-    {
-      value: "movimentacoes",
-      label: "Movimentações",
-      description: "Histórico de transações e operações",
-      icon: ArrowRightLeft,
-    },
-    {
-      value: "analise",
-      label: "Análises",
-      description: "Gráficos de performance e comparativos",
-      icon: TrendingUp,
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   value: "movimentacoes",
+    //   label: "Movimentações",
+    //   description: "Histórico de transações e operações",
+    //   icon: ArrowRightLeft,
+    // },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   value: "analise",
+    //   label: "Análises",
+    //   description: "Gráficos de performance e comparativos",
+    //   icon: TrendingUp,
+    // },
     {
       value: "asset_allocation",
       label: "Asset Allocation",
@@ -136,26 +158,42 @@
     </RadioGroup>
   </div>
 
-  <!-- Seletor de Carteira -->
-  <div class="space-y-4">
-    <SeletorCarteira />
+  <!-- Linha com Seletor de Carteira e Data Final -->
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Seletor de Carteira -->
+    <div class="w-fit min-w-0">
+      <SeletorCarteira />
+    </div>
+
+    <!-- Data Final -->
+    <div class="w-fit min-w-0">
+      <SeletorData />
+    </div>
   </div>
 
-  <!-- Campos de Data -->
-  <div class="space-y-4">
-    <SeletorData />
-  </div>
-
-  <!-- Opções Condicionais -->
-  {#if $camposVisiveis.banco || $camposVisiveis.operacao || $camposVisiveis.perfil}
-    <div class="space-y-4">
-      <Label class="text-label">Opções Adicionais</Label>
-      <SeletorOpcoes />
+  <!-- Banner da carteira selecionada -->
+  {#if $carteiraAtual}
+    <div
+      class="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg"
+    >
+      <div
+        class="w-8 h-8 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
+      >
+        <span class="text-xs font-medium text-primary">
+          {obterIniciais($carteiraAtual)}
+        </span>
+      </div>
+      <div class="flex-1">
+        <span class="text-label">
+          {formatarNomeCarteira($carteiraAtual)}
+        </span>
+      </div>
+      <Badge variant="secondary" class="text-xs">Ativa</Badge>
     </div>
   {/if}
 
   <!-- Botão de Consulta -->
-  <div class="flex justify-center pt-6">
+  <div class="flex justify-start">
     <Button
       type="submit"
       disabled={!$formularioValido || $loadingState}
@@ -173,4 +211,12 @@
       {/if}
     </Button>
   </div>
+
+  <!-- Opções Condicionais -->
+  {#if $camposVisiveis.banco || $camposVisiveis.operacao || $camposVisiveis.perfil}
+    <div class="space-y-4">
+      <Label class="text-label">Opções Adicionais</Label>
+      <SeletorOpcoes />
+    </div>
+  {/if}
 </form>

@@ -24,6 +24,8 @@
     type FolderConfig,
   } from "$lib/components/ui/dynamic-folder-preview/index.js";
   import { ReinoLogo } from "$lib/components/ui/reino-logo/index.js";
+  import ConsolidatedBreadcrumb from "$lib/components/navigation/ConsolidatedBreadcrumb.svelte";
+  import { page } from "$app/stores";
 
   let { children } = $props();
 
@@ -32,6 +34,21 @@
 
   // Interactive thumbnail state management
   let expandedSections = $state(new Set<"integrations" | "tables">());
+
+  // Breadcrumb state management
+  let showBreadcrumb = $state(false);
+  let breadcrumbPath = $state([]);
+
+  // Check if we're on the consolidated tables page
+  $effect(() => {
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      // Temporariamente mostrar sempre na página de tabelas para teste
+      showBreadcrumb = currentPath === "/tabelas";
+      // TODO: Voltar para: searchParams.get("modo") === "consolidado"
+    }
+  });
 
   // Integrations with their respective colors
   const integrations = [
@@ -63,13 +80,14 @@
 
   // Tables menu items from the design
   const tableMenuItems = [
-    {
-      title: "Relatório",
-      href: "/tabelas?modo=relatorio",
-      icon: FileText,
-      shortTitle: "REL",
-      description: "Dados agrupados por instituição financeira",
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   title: "Relatório",
+    //   href: "/tabelas?modo=relatorio",
+    //   icon: FileText,
+    //   shortTitle: "REL",
+    //   description: "Dados agrupados por instituição financeira",
+    // },
     {
       title: "Posição Consolidada",
       href: "/tabelas?modo=consolidado",
@@ -77,20 +95,22 @@
       shortTitle: "POS",
       description: "Visão hierárquica por banco, categoria e tipo",
     },
-    {
-      title: "Movimentações",
-      href: "/tabelas?modo=movimentacoes",
-      icon: RefreshCw,
-      shortTitle: "MOV",
-      description: "Histórico de transações e operações",
-    },
-    {
-      title: "Análises",
-      href: "/tabelas?modo=analise",
-      icon: TrendingUp,
-      shortTitle: "ANA",
-      description: "Gráficos de performance e comparativos",
-    },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   title: "Movimentações",
+    //   href: "/tabelas?modo=movimentacoes",
+    //   icon: RefreshCw,
+    //   shortTitle: "MOV",
+    //   description: "Histórico de transações e operações",
+    // },
+    // TEMPORARILY DISABLED - Uncomment to restore
+    // {
+    //   title: "Análises",
+    //   href: "/tabelas?modo=analise",
+    //   icon: TrendingUp,
+    //   shortTitle: "ANA",
+    //   description: "Gráficos de performance e comparativos",
+    // },
     {
       title: "Asset Allocation",
       href: "/tabelas?modo=asset_allocation",
@@ -230,25 +250,6 @@
             >
               <ReinoLogo size={20} class="text-white/90" />
             </a>
-
-            <!-- Home icon below logo -->
-            <Tooltip.Root>
-              <Tooltip.Trigger
-                class="p-2 hover:bg-white/10 rounded-md transition-colors"
-                aria-label="Home"
-                onclick={() => goto("/")}
-              >
-                <House size={20} class="text-white/90" />
-              </Tooltip.Trigger>
-              <Tooltip.Content
-                side="right"
-                align="center"
-                sideOffset={8}
-                class="tooltip-standard"
-              >
-                Home
-              </Tooltip.Content>
-            </Tooltip.Root>
           </div>
         </div>
 
@@ -266,7 +267,9 @@
                   class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Integrações
-                  <Folder size={14} class="text-white/30" />
+                  <div class="p-2">
+                    <Folder size={14} class="text-white/30" />
+                  </div>
                 </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   <div
@@ -494,7 +497,9 @@
                   class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Tabelas
-                  <Folder size={14} class="text-white/30" />
+                  <div class="p-2">
+                    <Folder size={14} class="text-white/30" />
+                  </div>
                 </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   <div
@@ -639,9 +644,24 @@
         </div>
       </header>
 
+      <!-- Conditional Breadcrumb for Consolidated Tables -->
+      {#if showBreadcrumb}
+        <ConsolidatedBreadcrumb
+          {breadcrumbPath}
+          onNavigate={(action, ...params) => {
+            // Handle breadcrumb navigation
+            console.log("Breadcrumb navigation:", action, params);
+          }}
+        />
+      {/if}
+
       <!-- Main Content Area -->
       <main class="flex-1 overflow-auto bg-background">
-        <div class="p-8" bind:this={mainContentElement} use:pageTransition>
+        <div
+          class="px-6 py-8"
+          bind:this={mainContentElement}
+          use:pageTransition
+        >
           {@render children?.()}
         </div>
       </main>
