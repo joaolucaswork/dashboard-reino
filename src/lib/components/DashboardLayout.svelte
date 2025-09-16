@@ -250,25 +250,6 @@
             >
               <ReinoLogo size={20} class="text-white/90" />
             </a>
-
-            <!-- Home icon below logo -->
-            <Tooltip.Root>
-              <Tooltip.Trigger
-                class="p-2 hover:bg-white/10 rounded-md transition-colors"
-                aria-label="Home"
-                onclick={() => goto("/")}
-              >
-                <House size={20} class="text-white/90" />
-              </Tooltip.Trigger>
-              <Tooltip.Content
-                side="right"
-                align="center"
-                sideOffset={8}
-                class="tooltip-standard"
-              >
-                Home
-              </Tooltip.Content>
-            </Tooltip.Root>
           </div>
         </div>
 
@@ -286,7 +267,9 @@
                   class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Integrações
-                  <Folder size={14} class="text-white/30" />
+                  <div class="p-2">
+                    <Folder size={14} class="text-white/30" />
+                  </div>
                 </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   <div
@@ -514,7 +497,9 @@
                   class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Tabelas
-                  <Folder size={14} class="text-white/30" />
+                  <div class="p-2">
+                    <Folder size={14} class="text-white/30" />
+                  </div>
                 </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   <div
