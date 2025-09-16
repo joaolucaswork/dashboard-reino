@@ -2,6 +2,7 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
+  import { formatTableCellValue } from "$lib/utils/formatters.js";
 
   let {
     data = [],
@@ -85,7 +86,12 @@
     if (column.cell && typeof column.cell === "function") {
       return column.cell({ row: { getValue: (key) => row[key] } });
     }
-    return row[column.accessorKey] || "";
+
+    // Obter valor da célula
+    const value = row[column.accessorKey];
+
+    // Aplicar formatação seguindo a lógica do template HTML
+    return formatTableCellValue(value, column.accessorKey);
   }
 
   function renderHeader(column) {
