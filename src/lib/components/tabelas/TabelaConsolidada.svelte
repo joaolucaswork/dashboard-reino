@@ -6,6 +6,14 @@
     CardTitle,
   } from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
+  import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+  } from "$lib/components/ui/breadcrumb";
   import TabelaFinanceira from "./TabelaFinanceira.svelte";
   import { formatCurrency } from "$lib/components/ui/data-table/index.js";
   import { Plus, Minus } from "@lucide/svelte";
@@ -86,11 +94,121 @@
     if (!hasAnyExpanded) return "opacity-100";
     return expandedTipos.has(tipoKey) ? "opacity-100" : "opacity-50";
   }
+
+  // Funções para navegação por breadcrumb
+  /** @typedef {Object} BreadcrumbItem
+   * @property {string} label
+   * @property {string} level
+   * @property {string} [key]
+   */
+
+  /** @returns {BreadcrumbItem[]} */
+  function getBreadcrumbPath() {
+    /** @type {BreadcrumbItem[]} */
+    const path = [{ label: "Posição Consolidada", level: "root" }];
+
+    // Adicionar banco expandido
+    const expandedBanco = Array.from(expandedBancos)[0];
+    if (expandedBanco) {
+      path.push({ label: expandedBanco, level: "banco", key: expandedBanco });
+
+      // Adicionar categoria expandida dentro do banco
+      const expandedCategoria = Array.from(expandedCategorias).find((key) =>
+        key.startsWith(`${expandedBanco}-`)
+      );
+      if (expandedCategoria) {
+        const categoria = expandedCategoria.split("-").slice(1).join("-");
+        path.push({
+          label: categoria,
+          level: "categoria",
+          key: expandedCategoria,
+        });
+
+        // Adicionar tipo expandido dentro da categoria
+        const expandedTipo = Array.from(expandedTipos).find((key) =>
+          key.startsWith(`${expandedCategoria}-`)
+        );
+        if (expandedTipo) {
+          const tipo = expandedTipo.split("-").slice(2).join("-");
+          path.push({ label: tipo, level: "tipo", key: expandedTipo });
+        }
+      }
+    }
+
+    return path;
+  }
+
+  function navigateToBreadcrumb(/** @type {BreadcrumbItem} */ breadcrumbItem) {
+    if (breadcrumbItem.level === "root") {
+      // Colapsar tudo
+      expandedBancos.clear();
+      expandedCategorias.clear();
+      expandedTipos.clear();
+      expandedBancos = new Set(expandedBancos);
+      expandedCategorias = new Set(expandedCategorias);
+      expandedTipos = new Set(expandedTipos);
+    } else if (breadcrumbItem.level === "banco") {
+      // Manter apenas o banco, colapsar categorias e tipos
+      expandedCategorias.clear();
+      expandedTipos.clear();
+      expandedCategorias = new Set(expandedCategorias);
+      expandedTipos = new Set(expandedTipos);
+    } else if (breadcrumbItem.level === "categoria") {
+      // Manter banco e categoria, colapsar tipos
+      expandedTipos.clear();
+      expandedTipos = new Set(expandedTipos);
+    }
+  }
+
+  // Funções para sticky positioning
+  function getStickyClasses(
+    /** @type {string} */ level,
+    /** @type {string} */ key
+  ) {
+    if (level === "banco" && expandedBancos.has(key)) {
+      return "sticky top-0 z-30";
+    } else if (
+      level === "categoria" &&
+      expandedCategorias.has(key.split("-").slice(0, 2).join("-"))
+    ) {
+      const banco = key.split("-")[0];
+      if (expandedBancos.has(banco)) {
+        return "sticky top-[72px] z-20"; // Altura do cabeçalho do banco
+      }
+    } else if (level === "tipo" && expandedTipos.has(key)) {
+      const [banco, categoria] = key.split("-");
+      const categoriaKey = `${banco}-${categoria}`;
+      if (expandedBancos.has(banco) && expandedCategorias.has(categoriaKey)) {
+        return "sticky top-[144px] z-10"; // Altura do banco + categoria
+      }
+    }
+    return "";
+  }
 </script>
 
 <Card>
   <CardHeader>
-    <!-- Cabeçalho simplificado sem título e informações -->
+    <!-- Breadcrumb de Navegação -->
+    <Breadcrumb>
+      <BreadcrumbList>
+        {#each getBreadcrumbPath() as breadcrumbItem, index}
+          {#if index > 0}
+            <BreadcrumbSeparator />
+          {/if}
+          <BreadcrumbItem>
+            {#if index === getBreadcrumbPath().length - 1}
+              <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+            {:else}
+              <BreadcrumbLink
+                onclick={() => navigateToBreadcrumb(breadcrumbItem)}
+              >
+                {breadcrumbItem.label}
+              </BreadcrumbLink>
+            {/if}
+          </BreadcrumbItem>
+        {/each}
+      </BreadcrumbList>
+    </Breadcrumb>
   </CardHeader>
   <CardContent class="space-y-4">
     {#if data?.agrupados}
@@ -99,12 +217,12 @@
         <div
           class="border rounded-lg overflow-hidden transition-opacity duration-300 {getBancoOpacity(
             banco
-          )}"
+          )} {getStickyClasses('banco', banco)}"
         >
           <!-- Cabeçalho do Banco -->
           <Button
             variant="ghost"
-            class="w-full justify-between p-4 h-auto text-left hover:bg-muted/50"
+            class="w-full justify-between p-4 h-auto text-left hover:bg-muted/50 bg-background"
             onclick={() => toggleBanco(banco)}
           >
             <div class="flex items-center gap-3">
@@ -136,12 +254,12 @@
                     class="border rounded-md overflow-hidden bg-background transition-opacity duration-300 {getCategoriaOpacity(
                       banco,
                       categoria
-                    )}"
+                    )} {getStickyClasses('categoria', `${banco}-${categoria}`)}"
                   >
                     <!-- Cabeçalho da Categoria -->
                     <Button
                       variant="ghost"
-                      class="w-full justify-between p-3 h-auto text-left hover:bg-muted/30"
+                      class="w-full justify-between p-3 h-auto text-left hover:bg-muted/30 bg-background"
                       onclick={() => toggleCategoria(`${banco}-${categoria}`)}
                     >
                       <div class="flex items-center gap-2">
@@ -171,12 +289,15 @@
                                 banco,
                                 categoria,
                                 tipo
+                              )} {getStickyClasses(
+                                'tipo',
+                                `${banco}-${categoria}-${tipo}`
                               )}"
                             >
                               <!-- Cabeçalho do Tipo -->
                               <Button
                                 variant="ghost"
-                                class="w-full justify-between p-2 h-auto text-left hover:bg-muted/20"
+                                class="w-full justify-between p-2 h-auto text-left hover:bg-muted/20 bg-background"
                                 onclick={() =>
                                   toggleTipo(`${banco}-${categoria}-${tipo}`)}
                               >
@@ -244,3 +365,26 @@
     {/if}
   </CardContent>
 </Card>
+
+<style>
+  /* Melhorias para sticky positioning */
+  :global(.sticky) {
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Garantir que elementos sticky tenham um fundo sólido */
+  :global(.sticky .bg-background) {
+    background: hsl(var(--background)) !important;
+  }
+
+  /* Melhorar a transição dos elementos sticky */
+  :global([class*="sticky"]) {
+    transition: all 200ms ease-in-out;
+  }
+
+  /* Adicionar sombra sutil aos elementos sticky para melhor separação visual */
+  :global(.sticky) {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+</style>
