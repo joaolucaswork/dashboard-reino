@@ -16,7 +16,7 @@
 /* Monospace 821 BT Font Import for Financial Data */
 @font-face {
   font-family: "Monospace 821 BT";
-  src: url("../Monospace 821 BT.woff2") format("woff2");
+  src: url("fonts/Monospace 821 BT.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
