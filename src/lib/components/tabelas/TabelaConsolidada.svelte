@@ -23,6 +23,7 @@
     formatarNomeCarteira,
     obterIniciais,
   } from "$lib/utils/formatters.js";
+  import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
   import {
     dataFinal,
     carteiraAtual,
@@ -816,11 +817,15 @@
                 <div class="flex items-center gap-2">
                   <span class="font-semibold text-base">{banco}</span>
                   <Badge variant="outline" class="text-sm">
-                    {countAssetsInBank(categorias)} produto(s)
+                    {@html wrapNumbersWithFont(
+                      `${countAssetsInBank(categorias)} produto(s)`
+                    )}
                   </Badge>
                 </div>
                 <div class="text-caption">
-                  Total: {formatCurrency(categorias._total_banco || 0)}
+                  {@html wrapNumbersWithFont(
+                    `Total: ${formatCurrency(categorias._total_banco || 0)}`
+                  )}
                 </div>
               </div>
             </div>
@@ -860,12 +865,14 @@
                               >{categoria}</span
                             >
                             <Badge variant="outline" class="text-sm">
-                              {countAssetsInCategory(conteudo)} tipo(s)
+                              {@html wrapNumbersWithFont(
+                                `${countAssetsInCategory(conteudo)} tipo(s)`
+                              )}
                             </Badge>
                           </div>
                           <div class="text-caption">
-                            Total: {formatCurrency(
-                              conteudo._total_categoria || 0
+                            {@html wrapNumbersWithFont(
+                              `Total: ${formatCurrency(conteudo._total_categoria || 0)}`
                             )}
                           </div>
                         </div>
@@ -911,12 +918,14 @@
                                         >{tipo}</span
                                       >
                                       <Badge variant="outline" class="text-sm">
-                                        {countAssetsInType(grupo)} item(s)
+                                        {@html wrapNumbersWithFont(
+                                          `${countAssetsInType(grupo)} item(s)`
+                                        )}
                                       </Badge>
                                     </div>
                                     <div class="text-sm text-muted-foreground">
-                                      Total: {formatCurrency(
-                                        grupo._total_tipo || 0
+                                      {@html wrapNumbersWithFont(
+                                        `Total: ${formatCurrency(grupo._total_tipo || 0)}`
                                       )}
                                     </div>
                                   </div>

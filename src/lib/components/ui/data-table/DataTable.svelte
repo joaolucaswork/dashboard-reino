@@ -3,6 +3,7 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { formatTableCellValue } from "$lib/utils/formatters.js";
+  import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
 
   let {
     data = [],
@@ -91,7 +92,10 @@
     const value = row[column.accessorKey];
 
     // Aplicar formatação seguindo a lógica do template HTML
-    return formatTableCellValue(value, column.accessorKey);
+    const formattedValue = formatTableCellValue(value, column.accessorKey);
+
+    // Aplicar fonte monospace apenas aos números
+    return wrapNumbersWithFont(formattedValue);
   }
 
   function renderHeader(column) {
@@ -141,7 +145,7 @@
         {#each paginatedData as row, index (index)}
           <Table.Row>
             {#each columns as column}
-              <Table.Cell class="font-data">
+              <Table.Cell>
                 {@html renderCell(column, row)}
               </Table.Cell>
             {/each}

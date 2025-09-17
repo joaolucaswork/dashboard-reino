@@ -179,6 +179,38 @@ export function formatTableCellValue(value, columnKey = "") {
 }
 
 /**
+ * Formata valor com fonte monospace aplicada aos números
+ * @param {any} value - Valor a ser formatado
+ * @param {string} columnKey - Chave da coluna
+ * @returns {string} HTML com números formatados
+ */
+export function formatTableCellValueWithFont(value, columnKey = "") {
+  const formattedValue = formatTableCellValue(value, columnKey);
+
+  if (formattedValue === "--" || !formattedValue) {
+    return formattedValue;
+  }
+
+  // Aplica fonte monospace apenas aos números
+  return wrapNumbersWithFont(formattedValue);
+}
+
+/**
+ * Envolve números em um texto com spans que aplicam fonte monospace
+ * @param {string} text - Texto que pode conter números
+ * @returns {string} - HTML com números envolvidos em spans
+ */
+function wrapNumbersWithFont(text) {
+  if (!text || typeof text !== "string") return text;
+
+  // Regex para capturar números (incluindo decimais, percentuais, moedas)
+  const numberRegex =
+    /(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?%?|R\$\s?\d+(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+[.,]\d+|\d+)/g;
+
+  return text.replace(numberRegex, '<span class="num">$1</span>');
+}
+
+/**
  * Calcula diferença entre duas datas em dias
  * @param {string|Date} dataInicial - Data inicial
  * @param {string|Date} dataFinal - Data final
