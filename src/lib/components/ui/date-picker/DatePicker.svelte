@@ -93,7 +93,7 @@
 <Popover bind:open>
   <PopoverTrigger
     class={cn(
-      "w-full justify-between font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 bg-background shadow-xs hover:bg-accent hover:text-accent-foreground border h-9 px-4 py-2",
+      "w-full justify-between font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 bg-card shadow-xs hover:bg-accent hover:text-accent-foreground border border-input h-12 px-4 py-3",
       !value && "text-muted-foreground font-medium",
       value && "font-semibold",
       error && "border-destructive",

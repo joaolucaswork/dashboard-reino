@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
   import {
     modoVisualizacao,
     camposVisiveis,
     formularioValido,
     consultarDados,
     loadingState,
+    dadosConsulta,
   } from "$lib/stores/tabelas.js";
 
   import SeletorCarteira from "./SeletorCarteira.svelte";
@@ -14,33 +15,8 @@
   import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { RadioGroup, RadioGroupItem } from "$lib/components/ui/radio-group";
-  import { Badge } from "$lib/components/ui/badge";
   import * as Tooltip from "$lib/components/ui/tooltip";
-  import {
-    FileText,
-    ChartBar,
-    ArrowRightLeft,
-    TrendingUp,
-    Target,
-  } from "@lucide/svelte";
-
-  import { carteiraAtual } from "$lib/stores/tabelas.js";
-
-  // Função para formatar nome da carteira
-  function formatarNomeCarteira(nome) {
-    return nome.replace(/_/g, " ");
-  }
-
-  // Função para obter iniciais da carteira
-  function obterIniciais(nome) {
-    return nome
-      .replace(/_/g, " ")
-      .split(" ")
-      .map((palavra) => palavra[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  }
+  import { ChartBar, Target, Search } from "@lucide/svelte";
 
   // Opções de modo de visualização
   const modos = [
@@ -161,7 +137,7 @@
   <!-- Linha com Seletor de Carteira e Data Final -->
   <div class="flex flex-col md:flex-row gap-6">
     <!-- Seletor de Carteira -->
-    <div class="w-fit min-w-0">
+    <div class="w-80 min-w-0">
       <SeletorCarteira />
     </div>
 
@@ -171,33 +147,13 @@
     </div>
   </div>
 
-  <!-- Banner da carteira selecionada -->
-  {#if $carteiraAtual}
-    <div
-      class="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg"
-    >
-      <div
-        class="w-8 h-8 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
-      >
-        <span class="text-xs font-medium text-primary">
-          {obterIniciais($carteiraAtual)}
-        </span>
-      </div>
-      <div class="flex-1">
-        <span class="text-label">
-          {formatarNomeCarteira($carteiraAtual)}
-        </span>
-      </div>
-      <Badge variant="secondary" class="text-xs">Ativa</Badge>
-    </div>
-  {/if}
-
   <!-- Botão de Consulta -->
   <div class="flex justify-start">
     <Button
       type="submit"
       disabled={!$formularioValido || $loadingState}
-      class="px-8 py-2 min-w-[200px]"
+      class="px-8 py-2 min-w-[200px] relative"
+      variant={$dadosConsulta ? "secondary" : "default"}
     >
       {#if $loadingState}
         <div class="flex items-center gap-2">
@@ -206,8 +162,13 @@
           ></div>
           Consultando...
         </div>
+      {:else if $dadosConsulta}
+        Atualizar Dados
       {:else}
-        Consultar Dados
+        <div class="flex items-center gap-2">
+          <Search class="h-4 w-4" />
+          Consultar Dados
+        </div>
       {/if}
     </Button>
   </div>

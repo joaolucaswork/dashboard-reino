@@ -60,7 +60,7 @@
 </script>
 
 <Popover bind:open>
-  <PopoverTrigger>
+  <PopoverTrigger class="w-full">
     <div
       bind:this={triggerRef}
       role="combobox"
@@ -79,7 +79,7 @@
       <ChevronsUpDown class="ml-3 h-4 w-4 shrink-0 opacity-50" />
     </div>
   </PopoverTrigger>
-  <PopoverContent class="w-full p-0" align="start">
+  <PopoverContent class="w-80 p-0" align="start">
     <Command>
       <CommandInput placeholder={searchPlaceholder} class="h-9" />
       <CommandList>
