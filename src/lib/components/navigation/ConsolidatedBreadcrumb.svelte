@@ -10,52 +10,104 @@
   import * as Popover from "$lib/components/ui/popover";
   import * as Command from "$lib/components/ui/command";
   import { ChevronDown, Check } from "@lucide/svelte";
+  import { goto } from "$app/navigation";
+  import { dadosConsulta } from "$lib/stores/tabelas.js";
 
   let { breadcrumbPath = [], onNavigate = null } = $props();
-
-  // Breadcrumb padrão para teste
-  $effect(() => {
-    if (breadcrumbPath.length === 0) {
-      breadcrumbPath = [
-        { label: "Posição Consolidada", level: "root" },
-        { label: "Itaú Unibanco", level: "banco", key: "Itaú Unibanco" },
-        { label: "Renda Fixa", level: "categoria", banco: "Itaú Unibanco" },
-        {
-          label: "CDB",
-          level: "tipo",
-          banco: "Itaú Unibanco",
-          categoria: "Renda Fixa",
-        },
-      ];
-    }
-  });
 
   // Estados para controle dos popovers
   let openBancoPopover = $state(false);
   let openCategoriaPopover = $state(false);
   let openTipoPopover = $state(false);
 
-  // Função para navegar via breadcrumb
+  // Função para navegar via breadcrumb - usando SPA navigation
   function handleNavigate(action, ...params) {
+    console.log('Breadcrumb navigation:', action, params);
+    
     if (onNavigate) {
       onNavigate(action, ...params);
+    } else {
+      // Navegação padrão usando SPA routing
+      let targetUrl = '/tabelas?modo=consolidado';
+      
+      if (action === 'root') {
+        // Volta para a view consolidada sem filtros específicos
+        goto(targetUrl);
+      } else if (action === 'banco') {
+        // Navegar para um banco específico - pode ser implementado com query params
+        const banco = params[0];
+        targetUrl += `&banco=${encodeURIComponent(banco)}`;
+        goto(targetUrl);
+      } else if (action === 'categoria') {
+        // Navegar para banco + categoria
+        const [banco, categoria] = params;
+        targetUrl += `&banco=${encodeURIComponent(banco)}&categoria=${encodeURIComponent(categoria)}`;
+        goto(targetUrl);
+      } else if (action === 'tipo') {
+        // Navegar para banco + categoria + tipo
+        const [banco, categoria, tipo] = params;
+        targetUrl += `&banco=${encodeURIComponent(banco)}&categoria=${encodeURIComponent(categoria)}&tipo=${encodeURIComponent(tipo)}`;
+        goto(targetUrl);
+      }
     }
   }
 
-  // Funções para obter opções dos dropdowns
+  // Funções para obter opções dos dropdowns baseadas nos dados atuais
   function getBancoOptions() {
-    // Esta função será implementada baseada nos dados disponíveis
-    return [];
+    if (!$dadosConsulta?.agrupados) return [];
+    
+    return Object.keys($dadosConsulta.agrupados).map((banco) => ({
+      value: banco,
+      label: banco,
+    }));
   }
 
   function getCategoriaOptions(banco) {
-    // Esta função será implementada baseada nos dados disponíveis
-    return [];
+    if (!$dadosConsulta?.agrupados?.[banco]) return [];
+    
+    return Object.keys($dadosConsulta.agrupados[banco])
+      .filter((key) => key !== "_total_banco")
+      .map((categoria) => ({
+        value: categoria,
+        label: categoria,
+      }));
   }
 
   function getTipoOptions(banco, categoria) {
-    // Esta função será implementada baseada nos dados disponíveis
-    return [];
+    if (!$dadosConsulta?.agrupados?.[banco]?.[categoria]) return [];
+    
+    return Object.keys($dadosConsulta.agrupados[banco][categoria])
+      .filter((key) => key !== "_total_categoria")
+      .map((tipo) => ({
+        value: tipo,
+        label: tipo,
+      }));
+  }
+
+  // Funções de navegação para comboboxes
+  function navigateToBanco(novoBanco) {
+    handleNavigate('banco', novoBanco);
+  }
+
+  function navigateToCategoria(novaCategoria) {
+    // Precisa do banco atual do breadcrumb
+    const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || 
+                      breadcrumbPath.find(item => item.level === 'banco')?.label;
+    if (bancoAtual) {
+      handleNavigate('categoria', bancoAtual, novaCategoria);
+    }
+  }
+
+  function navigateToTipo(novoTipo) {
+    // Precisa do banco e categoria atuais do breadcrumb
+    const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || 
+                      breadcrumbPath.find(item => item.level === 'banco')?.label;
+    const categoriaAtual = breadcrumbPath.find(item => item.level === 'categoria')?.key || 
+                          breadcrumbPath.find(item => item.level === 'categoria')?.label;
+    
+    if (bancoAtual && categoriaAtual) {
+      handleNavigate('tipo', bancoAtual, categoriaAtual, novoTipo);
+    }
   }
 </script>
 
@@ -95,13 +147,13 @@
                           <Command.Item
                             value={option.value}
                             onSelect={() => {
-                              handleNavigate("banco", option.value);
+                              navigateToBanco(option.value);
                               openBancoPopover = false;
                             }}
                             class="flex items-center justify-between"
                           >
                             <span>{option.label}</span>
-                            {#if breadcrumbItem.key === option.value}
+                            {#if breadcrumbItem.key === option.value || breadcrumbItem.label === option.value}
                               <Check class="h-4 w-4" />
                             {/if}
                           </Command.Item>
@@ -116,7 +168,8 @@
               <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
             {:else if breadcrumbItem.level === "categoria"}
               <!-- Categoria com/sem dropdown -->
-              {#if getCategoriaOptions(breadcrumbItem.banco).length > 1}
+              {@const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || breadcrumbPath.find(item => item.level === 'banco')?.label}
+              {#if bancoAtual && getCategoriaOptions(bancoAtual).length > 1}
                 <Popover.Root bind:open={openCategoriaPopover}>
                   <Popover.Trigger
                     class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
@@ -135,21 +188,17 @@
                           >Nenhuma categoria encontrada.</Command.Empty
                         >
                         <Command.Group>
-                          {#each getCategoriaOptions(breadcrumbItem.banco) as option}
+                          {#each getCategoriaOptions(bancoAtual) as option}
                             <Command.Item
                               value={option.value}
                               onSelect={() => {
-                                handleNavigate(
-                                  "categoria",
-                                  breadcrumbItem.banco,
-                                  option.value
-                                );
+                                navigateToCategoria(option.value);
                                 openCategoriaPopover = false;
                               }}
                               class="flex items-center justify-between"
                             >
                               <span>{option.label}</span>
-                              {#if breadcrumbItem.label === option.value}
+                              {#if breadcrumbItem.label === option.value || breadcrumbItem.key === option.value}
                                 <Check class="h-4 w-4" />
                               {/if}
                             </Command.Item>
@@ -164,7 +213,9 @@
               {/if}
             {:else if breadcrumbItem.level === "tipo"}
               <!-- Tipo com/sem dropdown -->
-              {#if getTipoOptions(breadcrumbItem.banco, breadcrumbItem.categoria).length > 1}
+              {@const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || breadcrumbPath.find(item => item.level === 'banco')?.label}
+              {@const categoriaAtual = breadcrumbPath.find(item => item.level === 'categoria')?.key || breadcrumbPath.find(item => item.level === 'categoria')?.label}
+              {#if bancoAtual && categoriaAtual && getTipoOptions(bancoAtual, categoriaAtual).length > 1}
                 <Popover.Root bind:open={openTipoPopover}>
                   <Popover.Trigger
                     class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
@@ -178,26 +229,29 @@
                       <Command.List>
                         <Command.Empty>Nenhum tipo encontrado.</Command.Empty>
                         <Command.Group>
-                          {#each getTipoOptions(breadcrumbItem.banco, breadcrumbItem.categoria) as option}
+                          {#each getTipoOptions(bancoAtual, categoriaAtual) as option}
                             <Command.Item
                               value={option.value}
                               onSelect={() => {
-                                handleNavigate(
-                                  "tipo",
-                                  breadcrumbItem.banco,
-                                  breadcrumbItem.categoria,
-                                  option.value
-                                );
+                                navigateToTipo(option.value);
                                 openTipoPopover = false;
                               }}
                               class="flex items-center justify-between"
                             >
                               <span>{option.label}</span>
-                              {#if breadcrumbItem.label === option.value}
+                              {#if breadcrumbItem.label === option.value || breadcrumbItem.key === option.value}
                                 <Check class="h-4 w-4" />
                               {/if}
                             </Command.Item>
                           {/each}
+                        </Command.Group>
+                      </Command.List>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
+              {:else}
+                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+              {/if}
                         </Command.Group>
                       </Command.List>
                     </Command.Root>
