@@ -1,12 +1,36 @@
 <script>
-  import { Card, CardContent } from "$lib/components/ui/card";
+  import { Card, CardContent, CardHeader } from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
+  import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+  } from "$lib/components/ui/breadcrumb";
+  import * as Popover from "$lib/components/ui/popover";
+  import * as Command from "$lib/components/ui/command";
+  import { ChevronDown, Check, RefreshCw } from "@lucide/svelte";
 
   import TabelaFinanceiraEnhanced from "./TabelaFinanceiraEnhanced.svelte";
   import { formatCurrency } from "$lib/components/ui/data-table/index.js";
   import { Plus, Minus } from "@lucide/svelte";
   import { getBancoCorHex } from "$lib/data/bancos.js";
-  import { Badge } from "$lib/components/ui/badge/index.ts";
+  import { Badge } from "$lib/components/ui/badge/index.js";
+  import { DatePicker } from "$lib/components/ui/date-picker";
+  import {
+    formatarNomeCarteira,
+    obterIniciais,
+  } from "$lib/utils/formatters.js";
+  import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
+  import {
+    dataFinal,
+    carteiraAtual,
+    consultarDados,
+    loadingState,
+  } from "$lib/stores/tabelas.js";
+  import { mockCarteiras } from "$lib/mocks/tabelas.js";
 
   let { data } = $props();
 
@@ -14,6 +38,12 @@
   let expandedBancos = $state(new Set());
   let expandedCategorias = $state(new Set());
   let expandedTipos = $state(new Set());
+
+  // Estados para controle dos popovers
+  let openUsuarioPopover = $state(false);
+  let openBancoPopover = $state(false);
+  let openCategoriaPopover = $state(false);
+  let openTipoPopover = $state(false);
 
   function toggleBanco(/** @type {string} */ banco) {
     if (expandedBancos.has(banco)) {
@@ -412,10 +442,26 @@
     expandedTipos = new Set(expandedTipos);
   }
 
-  // Estados para controlar popovers
-  let openBancoPopover = $state(false);
-  let openCategoriaPopover = $state(false);
-  let openTipoPopover = $state(false);
+  // Função para obter opções de carteiras
+  function getCarteiraOptions() {
+    return mockCarteiras
+      .map((carteira) => ({
+        value: carteira,
+        label: formatarNomeCarteira(carteira),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+  }
+
+  // Função para obter data atual no formato YYYY-MM-DD
+  function getDataAtual() {
+    return new Date().toISOString().split("T")[0];
+  }
+
+  // Função para navegar para outra carteira
+  function navigateToCarteira(/** @type {string} */ novaCarteira) {
+    carteiraAtual.set(novaCarteira);
+    // Aqui poderia disparar uma nova consulta se necessário
+  }
 
   // Função para obter contexto atual da navegação
   function getCurrentNavigationContext() {
@@ -468,7 +514,279 @@
   }
 </script>
 
-<Card>
+<Card class="border-0">
+  <CardHeader
+    separator={false}
+    class="sticky top-0 z-40 bg-background flex items-center justify-between py-4 border-0"
+  >
+    <!-- Container para usuário e breadcrumb lado a lado -->
+    <div class="flex items-center justify-between w-full">
+      <div class="flex items-center">
+        <!-- Informações do Usuário com Combobox -->
+        {#if $carteiraAtual}
+          <div
+            class="flex items-center mr-4 bg-muted/60 rounded-lg px-3 py-2 border border-muted/40"
+          >
+            <Popover.Root bind:open={openUsuarioPopover}>
+              <Popover.Trigger
+                class="flex items-center gap-2 hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+              >
+                <!-- Avatar do usuário -->
+                <div
+                  class="w-8 h-8 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
+                >
+                  <span class="text-sm font-medium text-primary">
+                    {obterIniciais(formatarNomeCarteira($carteiraAtual))}
+                  </span>
+                </div>
+
+                <!-- Nome do usuário -->
+                <span class="text-base font-medium text-foreground">
+                  {formatarNomeCarteira($carteiraAtual)}
+                </span>
+
+                <ChevronDown class="h-3 w-3 text-muted-foreground" />
+              </Popover.Trigger>
+              <Popover.Content class="w-64 p-0" align="start">
+                <Command.Root>
+                  <Command.Input placeholder="Buscar carteira..." class="h-9" />
+                  <Command.List>
+                    <Command.Empty>Nenhuma carteira encontrada.</Command.Empty>
+                    <Command.Group>
+                      {#each getCarteiraOptions() as option}
+                        <Command.Item
+                          value={option.value}
+                          onSelect={() => {
+                            navigateToCarteira(option.value);
+                            openUsuarioPopover = false;
+                          }}
+                          class="flex items-center justify-between"
+                        >
+                          <div class="flex items-center gap-2">
+                            <!-- Avatar da opção -->
+                            <div
+                              class="w-6 h-6 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
+                            >
+                              <span class="text-sm font-medium text-primary">
+                                {obterIniciais(option.label)}
+                              </span>
+                            </div>
+                            <span class="font-medium">{option.label}</span>
+                          </div>
+                          {#if $carteiraAtual === option.value}
+                            <Check class="h-4 w-4" />
+                          {/if}
+                        </Command.Item>
+                      {/each}
+                    </Command.Group>
+                  </Command.List>
+                </Command.Root>
+              </Popover.Content>
+            </Popover.Root>
+          </div>
+        {/if}
+
+        <!-- Breadcrumb de Navegação Interativo -->
+        <Breadcrumb>
+          <BreadcrumbList>
+            {#each getBreadcrumbPath() as breadcrumbItem, index}
+              {#if index > 0}
+                <BreadcrumbSeparator />
+              {/if}
+              <BreadcrumbItem>
+                <!-- Item clicável para abrir combobox -->
+                {#if breadcrumbItem.level === "root"}
+                  <!-- Apenas o root mantém navegação regressiva -->
+                  <BreadcrumbLink
+                    onclick={() => navigateToBreadcrumb(breadcrumbItem)}
+                    class="text-base font-medium"
+                  >
+                    {breadcrumbItem.label}
+                  </BreadcrumbLink>
+                {:else if breadcrumbItem.level === "banco" && getBancoOptions().length > 1}
+                  <Popover.Root bind:open={openBancoPopover}>
+                    <Popover.Trigger
+                      class="flex items-center gap-1 font-semibold text-base text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                    >
+                      <span class="font-medium">{breadcrumbItem.label}</span>
+                      <ChevronDown class="h-3 w-3 text-muted-foreground" />
+                    </Popover.Trigger>
+                    <Popover.Content class="w-64 p-0" align="start">
+                      <Command.Root>
+                        <Command.Input
+                          placeholder="Buscar banco..."
+                          class="h-9"
+                        />
+                        <Command.List>
+                          <Command.Empty>Nenhum banco encontrado.</Command.Empty
+                          >
+                          <Command.Group>
+                            {#each getBancoOptions() as option}
+                              <Command.Item
+                                value={option.value}
+                                onSelect={() => {
+                                  navigateToBanco(option.value);
+                                  openBancoPopover = false;
+                                }}
+                                class="flex items-center justify-between"
+                              >
+                                <span class="font-medium">{option.label}</span>
+                                {#if breadcrumbItem.key === option.value}
+                                  <Check class="h-4 w-4" />
+                                {/if}
+                              </Command.Item>
+                            {/each}
+                          </Command.Group>
+                        </Command.List>
+                      </Command.Root>
+                    </Popover.Content>
+                  </Popover.Root>
+                {:else if breadcrumbItem.level === "banco"}
+                  <!-- Banco sem dropdown (apenas uma opção) -->
+                  <BreadcrumbPage class="text-base"
+                    >{breadcrumbItem.label}</BreadcrumbPage
+                  >
+                {:else if breadcrumbItem.level === "categoria"}
+                  {@const bancoAtual = Array.from(expandedBancos)[0]}
+                  {#if bancoAtual && getCategoriaOptions(bancoAtual).length > 1}
+                    <Popover.Root bind:open={openCategoriaPopover}>
+                      <Popover.Trigger
+                        class="flex items-center gap-1 font-semibold text-base text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                      >
+                        <span class="font-medium">{breadcrumbItem.label}</span>
+                        <ChevronDown class="h-3 w-3 text-muted-foreground" />
+                      </Popover.Trigger>
+                      <Popover.Content class="w-64 p-0" align="start">
+                        <Command.Root>
+                          <Command.Input
+                            placeholder="Buscar categoria..."
+                            class="h-9"
+                          />
+                          <Command.List>
+                            <Command.Empty
+                              >Nenhuma categoria encontrada.</Command.Empty
+                            >
+                            <Command.Group>
+                              {#each getCategoriaOptions(bancoAtual) as option}
+                                <Command.Item
+                                  value={option.value}
+                                  onSelect={() => {
+                                    navigateToCategoria(option.value);
+                                    openCategoriaPopover = false;
+                                  }}
+                                  class="flex items-center justify-between"
+                                >
+                                  <span class="font-medium">{option.label}</span
+                                  >
+                                  {#if breadcrumbItem.label === option.value}
+                                    <Check class="h-4 w-4" />
+                                  {/if}
+                                </Command.Item>
+                              {/each}
+                            </Command.Group>
+                          </Command.List>
+                        </Command.Root>
+                      </Popover.Content>
+                    </Popover.Root>
+                  {:else}
+                    <!-- Categoria sem dropdown (apenas uma opção) -->
+                    <BreadcrumbPage class="text-base"
+                      >{breadcrumbItem.label}</BreadcrumbPage
+                    >
+                  {/if}
+                {:else if breadcrumbItem.level === "tipo"}
+                  {@const bancoAtual = Array.from(expandedBancos)[0]}
+                  {@const categoriaAtual = Array.from(expandedCategorias)[0]}
+                  {#if bancoAtual && categoriaAtual}
+                    {@const categoria = categoriaAtual
+                      .split("-")
+                      .slice(1)
+                      .join("-")}
+                    {#if getTipoOptions(bancoAtual, categoria).length > 1}
+                      <Popover.Root bind:open={openTipoPopover}>
+                        <Popover.Trigger
+                          class="flex items-center gap-1 font-semibold text-base text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                        >
+                          <span class="font-medium">{breadcrumbItem.label}</span
+                          >
+                          <ChevronDown class="h-3 w-3 text-muted-foreground" />
+                        </Popover.Trigger>
+                        <Popover.Content class="w-64 p-0" align="start">
+                          <Command.Root>
+                            <Command.Input
+                              placeholder="Buscar tipo..."
+                              class="h-9"
+                            />
+                            <Command.List>
+                              <Command.Empty
+                                >Nenhum tipo encontrado.</Command.Empty
+                              >
+                              <Command.Group>
+                                {#each getTipoOptions(bancoAtual, categoria) as option}
+                                  <Command.Item
+                                    value={option.value}
+                                    onSelect={() => {
+                                      navigateToTipo(option.value);
+                                      openTipoPopover = false;
+                                    }}
+                                    class="flex items-center justify-between"
+                                  >
+                                    <span class="font-medium"
+                                      >{option.label}</span
+                                    >
+                                    {#if breadcrumbItem.label === option.value}
+                                      <Check class="h-4 w-4" />
+                                    {/if}
+                                  </Command.Item>
+                                {/each}
+                              </Command.Group>
+                            </Command.List>
+                          </Command.Root>
+                        </Popover.Content>
+                      </Popover.Root>
+                    {:else}
+                      <!-- Tipo sem dropdown (apenas uma opção) -->
+                      <BreadcrumbPage class="text-base"
+                        >{breadcrumbItem.label}</BreadcrumbPage
+                      >
+                    {/if}
+                  {:else}
+                    <!-- Tipo sem dropdown (sem dados) -->
+                    <BreadcrumbPage class="text-base"
+                      >{breadcrumbItem.label}</BreadcrumbPage
+                    >
+                  {/if}
+                {/if}
+              </BreadcrumbItem>
+            {/each}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <!-- Data de Referência com Botão de Refresh -->
+      {#if $dataFinal}
+        <div class="flex items-center gap-3">
+          <div class="bg-muted/60 rounded-lg px-3 py-2 border border-muted/40">
+            <DatePicker
+              bind:value={$dataFinal}
+              maxValue={getDataAtual()}
+              placeholder="Selecione a data"
+              class="border-0 bg-transparent p-0 h-auto"
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onclick={consultarDados}
+            disabled={$loadingState}
+            class="h-8 w-8 p-0"
+          >
+            <RefreshCw class="h-4 w-4 {$loadingState ? 'animate-spin' : ''}" />
+          </Button>
+        </div>
+      {/if}
+    </div>
+  </CardHeader>
   <CardContent class="space-y-4 px-0">
     {#if data?.agrupados}
       <!-- Accordion por Bancos -->
@@ -497,13 +815,17 @@
               ></div>
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <span class="font-semibold">{banco}</span>
-                  <Badge variant="outline" class="text-xs">
-                    {countAssetsInBank(categorias)} produto(s)
+                  <span class="font-semibold text-base">{banco}</span>
+                  <Badge variant="outline" class="text-sm">
+                    {@html wrapNumbersWithFont(
+                      `${countAssetsInBank(categorias)} produto(s)`
+                    )}
                   </Badge>
                 </div>
                 <div class="text-caption">
-                  Total: {formatCurrency(categorias._total_banco || 0)}
+                  {@html wrapNumbersWithFont(
+                    `Total: ${formatCurrency(categorias._total_banco || 0)}`
+                  )}
                 </div>
               </div>
             </div>
@@ -539,14 +861,18 @@
                       <div class="flex items-center gap-2">
                         <div class="flex-1">
                           <div class="flex items-center gap-2">
-                            <span class="font-medium">{categoria}</span>
-                            <Badge variant="outline" class="text-xs">
-                              {countAssetsInCategory(conteudo)} tipo(s)
+                            <span class="font-medium text-base"
+                              >{categoria}</span
+                            >
+                            <Badge variant="outline" class="text-sm">
+                              {@html wrapNumbersWithFont(
+                                `${countAssetsInCategory(conteudo)} tipo(s)`
+                              )}
                             </Badge>
                           </div>
                           <div class="text-caption">
-                            Total: {formatCurrency(
-                              conteudo._total_categoria || 0
+                            {@html wrapNumbersWithFont(
+                              `Total: ${formatCurrency(conteudo._total_categoria || 0)}`
                             )}
                           </div>
                         </div>
@@ -588,16 +914,18 @@
                                 <div class="flex items-center gap-2">
                                   <div class="flex-1">
                                     <div class="flex items-center gap-2">
-                                      <span class="text-sm font-medium"
+                                      <span class="text-base font-medium"
                                         >{tipo}</span
                                       >
-                                      <Badge variant="outline" class="text-xs">
-                                        {countAssetsInType(grupo)} item(s)
+                                      <Badge variant="outline" class="text-sm">
+                                        {@html wrapNumbersWithFont(
+                                          `${countAssetsInType(grupo)} item(s)`
+                                        )}
                                       </Badge>
                                     </div>
-                                    <div class="text-xs text-muted-foreground">
-                                      Total: {formatCurrency(
-                                        grupo._total_tipo || 0
+                                    <div class="text-sm text-muted-foreground">
+                                      {@html wrapNumbersWithFont(
+                                        `Total: ${formatCurrency(grupo._total_tipo || 0)}`
                                       )}
                                     </div>
                                   </div>

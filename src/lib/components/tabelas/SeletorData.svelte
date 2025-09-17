@@ -8,7 +8,6 @@
   import { Label } from "$lib/components/ui/label";
   import { Button } from "$lib/components/ui/button";
   import { DatePicker } from "$lib/components/ui/date-picker";
-  import { Calendar } from "@lucide/svelte";
 
   // Função para obter data atual no formato YYYY-MM-DD
   function getDataAtual() {
@@ -61,24 +60,21 @@
   $: dataFinalValida = !$dataFinal || new Date($dataFinal) <= new Date();
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
   <!-- Data Final -->
   <div class="space-y-3">
     <!-- Label -->
-    <Label for="data-final" class="text-label flex items-center gap-2">
-      <Calendar size={14} class="text-primary" />
-      Data Final (Data de Referência)
-      <span class="text-destructive">*</span>
-    </Label>
+    <div class="text-label">Data Final (Data de Referência)</div>
 
     <!-- Date Picker -->
-    <div class="w-full max-w-sm">
+    <div class="w-full">
       <DatePicker
         bind:value={$dataFinal}
         minValue={$dataInicial}
         maxValue={getDataAtual()}
         error={!dataFinalValida}
         placeholder="Selecione a data final"
+        class="h-12"
       />
       {#if !dataFinalValida}
         <p class="text-caption text-destructive mt-1">
@@ -91,11 +87,7 @@
   <!-- Data Inicial (condicional) -->
   {#if $camposVisiveis.dataInicial}
     <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-      <Label
-        for="data-inicial"
-        class="text-label flex items-center gap-2 whitespace-nowrap"
-      >
-        <Calendar size={14} class="text-primary" />
+      <Label for="data-inicial" class="text-label whitespace-nowrap">
         Data Inicial
       </Label>
       <div class="flex-1 max-w-xs">

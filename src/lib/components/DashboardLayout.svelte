@@ -7,15 +7,12 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import {
-    TrendingUp,
     Settings,
     Menu,
     User,
     House,
     Bell,
-    FileText,
     ChartBar,
-    RefreshCw,
     Target,
     Folder,
   } from "@lucide/svelte";
@@ -24,8 +21,6 @@
     type FolderConfig,
   } from "$lib/components/ui/dynamic-folder-preview/index.js";
   import { ReinoLogo } from "$lib/components/ui/reino-logo/index.js";
-  import ConsolidatedBreadcrumb from "$lib/components/navigation/ConsolidatedBreadcrumb.svelte";
-  import { page } from "$app/stores";
 
   let { children } = $props();
 
@@ -34,21 +29,6 @@
 
   // Interactive thumbnail state management
   let expandedSections = $state(new Set<"integrations" | "tables">());
-
-  // Breadcrumb state management
-  let showBreadcrumb = $state(false);
-  let breadcrumbPath = $state([]);
-
-  // Check if we're on the consolidated tables page
-  $effect(() => {
-    if (typeof window !== "undefined") {
-      const currentPath = window.location.pathname;
-      const searchParams = new URLSearchParams(window.location.search);
-      // Temporariamente mostrar sempre na página de tabelas para teste
-      showBreadcrumb = currentPath === "/tabelas";
-      // TODO: Voltar para: searchParams.get("modo") === "consolidado"
-    }
-  });
 
   // Integrations with their respective colors
   const integrations = [
@@ -643,17 +623,6 @@
           </div>
         </div>
       </header>
-
-      <!-- Conditional Breadcrumb for Consolidated Tables -->
-      {#if showBreadcrumb}
-        <ConsolidatedBreadcrumb
-          {breadcrumbPath}
-          onNavigate={(action, ...params) => {
-            // Handle breadcrumb navigation
-            console.log("Breadcrumb navigation:", action, params);
-          }}
-        />
-      {/if}
 
       <!-- Main Content Area -->
       <main class="flex-1 overflow-auto bg-background">

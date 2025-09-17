@@ -77,27 +77,6 @@
         </CardContent>
       </Card>
     {/if}
-
-    <!-- Debug info em desenvolvimento -->
-    {#if import.meta.env.DEV}
-      <Card class="mt-4">
-        <CardContent class="pt-6 px-0">
-          <div class="px-6">
-            <details class="text-left">
-              <summary
-                class="cursor-pointer text-caption hover:text-foreground mb-4"
-              >
-                Ver dados (desenvolvimento)
-              </summary>
-              <pre
-                class="p-4 bg-muted rounded-lg text-xs overflow-auto max-h-64">
-{JSON.stringify($dadosConsulta, null, 2)}
-              </pre>
-            </details>
-          </div>
-        </CardContent>
-      </Card>
-    {/if}
   {:else}
     <!-- Estado inicial - removido o placeholder conforme solicitado -->
   {/if}

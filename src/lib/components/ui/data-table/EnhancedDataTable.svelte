@@ -7,6 +7,7 @@
   import * as Popover from "$lib/components/ui/popover/index.ts";
   import { Separator } from "$lib/components/ui/separator/index.ts";
   import { formatTableCellValue } from "$lib/utils/formatters.js";
+  import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
   import {
     MoreHorizontal,
     Download,
@@ -214,7 +215,10 @@
     }
 
     const value = row[column.accessorKey];
-    return formatTableCellValue(value, column.accessorKey);
+    const formattedValue = formatTableCellValue(value, column.accessorKey);
+
+    // Aplicar fonte monospace apenas aos números
+    return wrapNumbersWithFont(formattedValue);
   }
 
   function renderHeader(column) {
@@ -351,7 +355,7 @@
             <Table.Head>
               <div class="flex items-center space-x-2">
                 <button
-                  class="flex items-center space-x-1 hover:text-foreground transition-colors"
+                  class="flex items-center space-x-1 hover:text-foreground transition-colors font-medium"
                   onclick={() => handleSort(column.accessorKey)}
                 >
                   <span>{@html renderHeader(column)}</span>

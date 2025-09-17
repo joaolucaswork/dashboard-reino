@@ -6,10 +6,12 @@
   import { Badge } from "$lib/components/ui/badge";
 
   // Transformar carteiras em opções para o Combobox
-  const carteiraOptions = mockCarteiras.map((carteira) => ({
-    value: carteira,
-    label: carteira.replace(/_/g, " "),
-  }));
+  const carteiraOptions = mockCarteiras
+    .map((carteira) => ({
+      value: carteira,
+      label: carteira.replace(/_/g, " "),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
 
   // Formatar nome da carteira para exibição
   function formatarNomeCarteira(nome: string): string {
