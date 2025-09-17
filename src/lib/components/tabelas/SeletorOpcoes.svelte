@@ -40,7 +40,7 @@
 
       {#if $bancoSelecionado && $bancoSelecionado !== ""}
         <div class="flex items-center gap-3">
-          <Badge variant="secondary" class="text-xs">
+          <Badge variant="secondary" class="text-sm">
             {mockBancos.find((b) => b.value === $bancoSelecionado)?.label}
           </Badge>
           {#if $bancoSelecionado === "todos"}
@@ -71,7 +71,7 @@
 
       {#if $operacaoSelecionada}
         <div class="flex items-center gap-3">
-          <Badge variant="outline" class="text-xs">
+          <Badge variant="outline" class="text-sm">
             {mockOperacoes.find((o) => o.value === $operacaoSelecionada)?.label}
           </Badge>
         </div>

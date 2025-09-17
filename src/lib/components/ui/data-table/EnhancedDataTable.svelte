@@ -351,7 +351,7 @@
             <Table.Head>
               <div class="flex items-center space-x-2">
                 <button
-                  class="flex items-center space-x-1 hover:text-foreground transition-colors"
+                  class="flex items-center space-x-1 hover:text-foreground transition-colors font-medium"
                   onclick={() => handleSort(column.accessorKey)}
                 >
                   <span>{@html renderHeader(column)}</span>
@@ -395,7 +395,7 @@
 
             <!-- Data Cells -->
             {#each visibleColumns as column, colIndex}
-              <Table.Cell>
+              <Table.Cell class="font-data">
                 <div class="flex items-center space-x-2">
                   <span>{@html renderCell(column, row)}</span>
 

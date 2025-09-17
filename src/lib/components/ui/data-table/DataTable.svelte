@@ -129,9 +129,9 @@
           {#each columns as column}
             <Table.Head>
               {#if column.header}
-                {@html renderHeader(column)}
+                <span class="font-medium">{@html renderHeader(column)}</span>
               {:else}
-                {column.accessorKey}
+                <span class="font-medium">{column.accessorKey}</span>
               {/if}
             </Table.Head>
           {/each}
@@ -141,7 +141,7 @@
         {#each paginatedData as row, index (index)}
           <Table.Row>
             {#each columns as column}
-              <Table.Cell>
+              <Table.Cell class="font-data">
                 {@html renderCell(column, row)}
               </Table.Cell>
             {/each}

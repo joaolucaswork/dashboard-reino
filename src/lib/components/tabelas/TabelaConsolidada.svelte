@@ -534,13 +534,13 @@
                 <div
                   class="w-8 h-8 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
                 >
-                  <span class="text-xs font-medium text-primary">
+                  <span class="text-sm font-medium text-primary">
                     {obterIniciais(formatarNomeCarteira($carteiraAtual))}
                   </span>
                 </div>
 
                 <!-- Nome do usuário -->
-                <span class="text-sm font-medium text-foreground">
+                <span class="text-base font-medium text-foreground">
                   {formatarNomeCarteira($carteiraAtual)}
                 </span>
 
@@ -566,11 +566,11 @@
                             <div
                               class="w-6 h-6 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center"
                             >
-                              <span class="text-xs font-medium text-primary">
+                              <span class="text-sm font-medium text-primary">
                                 {obterIniciais(option.label)}
                               </span>
                             </div>
-                            <span>{option.label}</span>
+                            <span class="font-medium">{option.label}</span>
                           </div>
                           {#if $carteiraAtual === option.value}
                             <Check class="h-4 w-4" />
@@ -598,15 +598,16 @@
                   <!-- Apenas o root mantém navegação regressiva -->
                   <BreadcrumbLink
                     onclick={() => navigateToBreadcrumb(breadcrumbItem)}
+                    class="text-base font-medium"
                   >
                     {breadcrumbItem.label}
                   </BreadcrumbLink>
                 {:else if breadcrumbItem.level === "banco" && getBancoOptions().length > 1}
                   <Popover.Root bind:open={openBancoPopover}>
                     <Popover.Trigger
-                      class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                      class="flex items-center gap-1 font-semibold text-base text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
                     >
-                      <span>{breadcrumbItem.label}</span>
+                      <span class="font-medium">{breadcrumbItem.label}</span>
                       <ChevronDown class="h-3 w-3 text-muted-foreground" />
                     </Popover.Trigger>
                     <Popover.Content class="w-64 p-0" align="start">
@@ -628,7 +629,7 @@
                                 }}
                                 class="flex items-center justify-between"
                               >
-                                <span>{option.label}</span>
+                                <span class="font-medium">{option.label}</span>
                                 {#if breadcrumbItem.key === option.value}
                                   <Check class="h-4 w-4" />
                                 {/if}
@@ -641,15 +642,17 @@
                   </Popover.Root>
                 {:else if breadcrumbItem.level === "banco"}
                   <!-- Banco sem dropdown (apenas uma opção) -->
-                  <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+                  <BreadcrumbPage class="text-base"
+                    >{breadcrumbItem.label}</BreadcrumbPage
+                  >
                 {:else if breadcrumbItem.level === "categoria"}
                   {@const bancoAtual = Array.from(expandedBancos)[0]}
                   {#if bancoAtual && getCategoriaOptions(bancoAtual).length > 1}
                     <Popover.Root bind:open={openCategoriaPopover}>
                       <Popover.Trigger
-                        class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                        class="flex items-center gap-1 font-semibold text-base text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
                       >
-                        <span>{breadcrumbItem.label}</span>
+                        <span class="font-medium">{breadcrumbItem.label}</span>
                         <ChevronDown class="h-3 w-3 text-muted-foreground" />
                       </Popover.Trigger>
                       <Popover.Content class="w-64 p-0" align="start">
@@ -672,7 +675,8 @@
                                   }}
                                   class="flex items-center justify-between"
                                 >
-                                  <span>{option.label}</span>
+                                  <span class="font-medium">{option.label}</span
+                                  >
                                   {#if breadcrumbItem.label === option.value}
                                     <Check class="h-4 w-4" />
                                   {/if}
@@ -685,7 +689,9 @@
                     </Popover.Root>
                   {:else}
                     <!-- Categoria sem dropdown (apenas uma opção) -->
-                    <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+                    <BreadcrumbPage class="text-base"
+                      >{breadcrumbItem.label}</BreadcrumbPage
+                    >
                   {/if}
                 {:else if breadcrumbItem.level === "tipo"}
                   {@const bancoAtual = Array.from(expandedBancos)[0]}
@@ -698,9 +704,10 @@
                     {#if getTipoOptions(bancoAtual, categoria).length > 1}
                       <Popover.Root bind:open={openTipoPopover}>
                         <Popover.Trigger
-                          class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
+                          class="flex items-center gap-1 font-semibold text-base text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
                         >
-                          <span>{breadcrumbItem.label}</span>
+                          <span class="font-medium">{breadcrumbItem.label}</span
+                          >
                           <ChevronDown class="h-3 w-3 text-muted-foreground" />
                         </Popover.Trigger>
                         <Popover.Content class="w-64 p-0" align="start">
@@ -723,7 +730,9 @@
                                     }}
                                     class="flex items-center justify-between"
                                   >
-                                    <span>{option.label}</span>
+                                    <span class="font-medium"
+                                      >{option.label}</span
+                                    >
                                     {#if breadcrumbItem.label === option.value}
                                       <Check class="h-4 w-4" />
                                     {/if}
@@ -736,11 +745,15 @@
                       </Popover.Root>
                     {:else}
                       <!-- Tipo sem dropdown (apenas uma opção) -->
-                      <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+                      <BreadcrumbPage class="text-base"
+                        >{breadcrumbItem.label}</BreadcrumbPage
+                      >
                     {/if}
                   {:else}
                     <!-- Tipo sem dropdown (sem dados) -->
-                    <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+                    <BreadcrumbPage class="text-base"
+                      >{breadcrumbItem.label}</BreadcrumbPage
+                    >
                   {/if}
                 {/if}
               </BreadcrumbItem>
@@ -801,8 +814,8 @@
               ></div>
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <span class="font-semibold">{banco}</span>
-                  <Badge variant="outline" class="text-xs">
+                  <span class="font-semibold text-base">{banco}</span>
+                  <Badge variant="outline" class="text-sm">
                     {countAssetsInBank(categorias)} produto(s)
                   </Badge>
                 </div>
@@ -843,8 +856,10 @@
                       <div class="flex items-center gap-2">
                         <div class="flex-1">
                           <div class="flex items-center gap-2">
-                            <span class="font-medium">{categoria}</span>
-                            <Badge variant="outline" class="text-xs">
+                            <span class="font-medium text-base"
+                              >{categoria}</span
+                            >
+                            <Badge variant="outline" class="text-sm">
                               {countAssetsInCategory(conteudo)} tipo(s)
                             </Badge>
                           </div>
@@ -892,14 +907,14 @@
                                 <div class="flex items-center gap-2">
                                   <div class="flex-1">
                                     <div class="flex items-center gap-2">
-                                      <span class="text-sm font-medium"
+                                      <span class="text-base font-medium"
                                         >{tipo}</span
                                       >
-                                      <Badge variant="outline" class="text-xs">
+                                      <Badge variant="outline" class="text-sm">
                                         {countAssetsInType(grupo)} item(s)
                                       </Badge>
                                     </div>
-                                    <div class="text-xs text-muted-foreground">
+                                    <div class="text-sm text-muted-foreground">
                                       Total: {formatCurrency(
                                         grupo._total_tipo || 0
                                       )}

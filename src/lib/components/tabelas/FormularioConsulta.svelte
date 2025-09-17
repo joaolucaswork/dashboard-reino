@@ -99,7 +99,7 @@
                     : 'text-primary'}"
               />
               <span
-                class="font-medium text-sm text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
+                class="font-medium text-base text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
                 $modoVisualizacao !== modo.value
                   ? 'text-white/60'
                   : 'text-foreground'}"
@@ -113,7 +113,7 @@
                   aria-label="More information about {modo.label}"
                 >
                   <div
-                    class="w-4 h-4 rounded-full border border-current flex items-center justify-center text-xs"
+                    class="w-4 h-4 rounded-full border border-current flex items-center justify-center text-sm"
                   >
                     ?
                   </div>
@@ -122,7 +122,7 @@
                   side="top"
                   align="center"
                   sideOffset={8}
-                  class="bg-accent text-accent-foreground font-medium text-sm max-w-xs text-center"
+                  class="bg-accent text-accent-foreground font-medium text-base max-w-xs text-center"
                 >
                   {modo.description}
                 </Tooltip.Content>

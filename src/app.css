@@ -13,6 +13,15 @@
   font-display: swap;
 }
 
+/* Monospace 821 BT Font Import for Financial Data */
+@font-face {
+  font-family: "Monospace 821 BT";
+  src: url("../Monospace 821 BT.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --radius: 12px;
   /* Premium Dark Mode - Warm Investment Palette */
@@ -235,7 +244,7 @@
   }
 
   .text-label {
-    @apply text-sm font-medium text-foreground;
+    @apply text-base font-medium text-foreground;
   }
 
   /* Layout Utilities */
@@ -343,6 +352,53 @@
   [data-calendar] button[data-calendar-day][data-outside-month] {
     font-weight: 400;
     opacity: 0.5; /* Lighter weight for outside month */
+  }
+}
+
+/* Financial Data Monospace Font Utilities */
+@layer utilities {
+  .font-data {
+    font-family: "Monospace 821 BT", "Menlo", "Monaco", "Consolas",
+      "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-monospace-data {
+    font-family: "Monospace 821 BT", "Menlo", "Monaco", "Consolas",
+      "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Specific classes for different types of financial data */
+  .font-currency {
+    font-family: "Monospace 821 BT", "Menlo", "Monaco", "Consolas",
+      "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-percentage {
+    font-family: "Monospace 821 BT", "Menlo", "Monaco", "Consolas",
+      "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-quantity {
+    font-family: "Monospace 821 BT", "Menlo", "Monaco", "Consolas",
+      "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Table-specific utilities */
+  .table-data-cell {
+    font-family: "Monospace 821 BT", "Menlo", "Monaco", "Consolas",
+      "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+  }
+
+  .table-header-cell {
+    font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif !important;
+    font-weight: 500;
   }
 }
 
