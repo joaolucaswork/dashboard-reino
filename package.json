@@ -24,6 +24,7 @@
     "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.13",
+    "@types/node": "^24.5.1",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "autoprefixer": "^10.4.21",
@@ -46,6 +47,8 @@
   },
   "dependencies": {
     "@tanstack/table-core": "^8.21.3",
+    "@types/jsforce": "^1.11.5",
+    "jsforce": "^3.10.7",
     "motion": "^12.23.12",
     "svelte-sonner": "^1.0.5"
   }

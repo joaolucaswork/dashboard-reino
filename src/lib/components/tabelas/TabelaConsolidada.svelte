@@ -30,7 +30,7 @@
     consultarDados,
     loadingState,
   } from "$lib/stores/tabelas.js";
-  import { mockCarteiras } from "$lib/mocks/tabelas.js";
+  import { carteiraOptions } from "$lib/stores/carteiras.js";
 
   let { data } = $props();
 
@@ -444,12 +444,7 @@
 
   // Função para obter opções de carteiras
   function getCarteiraOptions() {
-    return mockCarteiras
-      .map((carteira) => ({
-        value: carteira,
-        label: formatarNomeCarteira(carteira),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+    return $carteiraOptions;
   }
 
   // Função para obter data atual no formato YYYY-MM-DD

@@ -5,6 +5,8 @@
   import TabelaRelatorio from "$lib/components/tabelas/TabelaRelatorio.svelte";
   import TabelaConsolidada from "$lib/components/tabelas/TabelaConsolidada.svelte";
   import TabelaMovimentacoes from "$lib/components/tabelas/TabelaMovimentacoes.svelte";
+  import TabelaCarteirasSalesforce from "$lib/components/tabelas/TabelaCarteirasSalesforce.svelte";
+  import EstatisticasSalesforce from "$lib/components/tabelas/EstatisticasSalesforce.svelte";
 
   import {
     Card,
@@ -80,4 +82,12 @@
   {:else}
     <!-- Estado inicial - removido o placeholder conforme solicitado -->
   {/if}
+
+  <!-- Tabela de Carteiras do Salesforce - sempre visível -->
+  <div class="mt-8">
+    <TabelaCarteirasSalesforce />
+  </div>
+
+  <!-- Estatísticas do Salesforce - no final da página -->
+  <EstatisticasSalesforce />
 </div>

@@ -17,6 +17,7 @@
     Timer,
     Search,
   } from "@lucide/svelte";
+  import FonteDadosConfig from "$lib/components/settings/FonteDadosConfig.svelte";
 </script>
 
 <div class="space-y-8">
@@ -30,6 +31,9 @@
 
   <!-- Settings Grid -->
   <div class="grid gap-8">
+    <!-- Configuração de Fonte de Dados -->
+    <FonteDadosConfig />
+
     <Card class="card-premium">
       <CardHeader class="p-6">
         <CardTitle class="text-subheading flex items-center gap-2">

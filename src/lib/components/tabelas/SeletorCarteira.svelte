@@ -1,45 +1,117 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { carteiraAtual } from "$lib/stores/tabelas.js";
-  import { mockCarteiras } from "$lib/mocks/tabelas.js";
+  import {
+    carteirasDetalhadas,
+    buscarCarteirasConfig,
+    carregandoCarteiras,
+    erroCarteiras,
+    atualizarCarteiras,
+  } from "$lib/stores/carteiras.js";
+  import { appConfig } from "$lib/stores/config.js";
 
-  import { Combobox } from "$lib/components/ui/combobox";
-  import { Badge } from "$lib/components/ui/badge";
+  import { GroupedCombobox } from "$lib/components/ui/combobox";
+  import { Button } from "$lib/components/ui/button";
+  import { RefreshCw } from "@lucide/svelte";
+  import { toast } from "svelte-sonner";
+  import { derived } from "svelte/store";
 
-  // Transformar carteiras em opções para o Combobox
-  const carteiraOptions = mockCarteiras
-    .map((carteira) => ({
-      value: carteira,
-      label: carteira.replace(/_/g, " "),
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+  // Transformar carteiras detalhadas em opções agrupadas
+  const carteiraOptionsGrouped = derived(carteirasDetalhadas, ($carteiras) => {
+    const result = $carteiras.map((carteira) => {
+      const pessoa = carteira.nome.split(" - ")[0] || carteira.nome;
 
-  // Formatar nome da carteira para exibição
-  function formatarNomeCarteira(nome: string): string {
-    return nome.replace(/_/g, " ");
+      return {
+        value: carteira.nome,
+        label: carteira.nome,
+        pessoa: pessoa, // Extrair nome da pessoa
+        banco: carteira.banco || "Banco não informado",
+        numeroConta: carteira.numero_conta || undefined,
+        description: `${formatarMoeda(carteira.patrimonio)}`,
+        // description: `${formatarMoeda(carteira.patrimonio)} • ${carteira.porcentagem.toFixed(1)}% • Mensalidade: ${formatarMoeda(carteira.mensalidade)}`,
+      };
+    });
+
+    return result;
+  });
+
+  // Função para formatar valores monetários
+  function formatarMoeda(valor: number): string {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(valor);
   }
 
-  // Obter iniciais da carteira para o avatar
-  function obterIniciais(nome: string): string {
-    return nome
-      .replace(/_/g, " ")
-      .split(" ")
-      .map((palavra) => palavra[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  // Carregar carteiras ao montar o componente
+  onMount(async () => {
+    const result = await buscarCarteirasConfig();
+    if (!result.success) {
+      toast.error("Erro ao carregar carteiras", {
+        description: result.error,
+      });
+    } else if ($carteirasDetalhadas.length > 0) {
+      toast.success(
+        `${$carteirasDetalhadas.length} carteiras carregadas do Salesforce`
+      );
+    }
+  });
+
+  // Função para atualizar carteiras
+  async function handleAtualizarCarteiras() {
+    const result = await atualizarCarteiras($appConfig.fonteCarteiras);
+    if (result.success) {
+      toast.success("Carteiras atualizadas com sucesso");
+    } else {
+      toast.error("Erro ao atualizar carteiras", {
+        description: result.error,
+      });
+    }
   }
 </script>
 
-<div class="space-y-4">
-  <!-- Seletor de carteira usando Combobox -->
-  <div class="space-y-3">
+<!-- Seletor de carteira simplificado -->
+<div class="space-y-3">
+  <div class="flex items-center justify-between">
     <div class="text-label">Selecionar Carteira</div>
-    <Combobox
-      bind:value={$carteiraAtual}
-      options={carteiraOptions}
-      placeholder="Selecione uma carteira"
-      searchPlaceholder="Buscar carteira..."
-      emptyMessage="Nenhuma carteira encontrada."
-    />
+
+    <!-- Botão de atualizar -->
+    <Button
+      variant="outline"
+      size="sm"
+      onclick={handleAtualizarCarteiras}
+      disabled={$carregandoCarteiras}
+      class="h-6 w-6 p-0"
+    >
+      <RefreshCw class="h-3 w-3 {$carregandoCarteiras ? 'animate-spin' : ''}" />
+    </Button>
   </div>
+
+  <GroupedCombobox
+    bind:value={$carteiraAtual}
+    options={$carteiraOptionsGrouped}
+    placeholder={$carregandoCarteiras
+      ? "Carregando carteiras..."
+      : "Selecione uma pessoa/carteira"}
+    searchPlaceholder="Buscar pessoa ou carteira..."
+    emptyMessage={$erroCarteiras
+      ? $erroCarteiras
+      : "Nenhuma carteira encontrada."}
+    disabled={$carregandoCarteiras}
+    grouped={true}
+  />
+
+  <!-- Mensagem de erro -->
+  {#if $erroCarteiras}
+    <div class="text-sm text-destructive">
+      {$erroCarteiras}
+    </div>
+  {/if}
+
+  <!-- Status de carregamento -->
+  {#if $carregandoCarteiras}
+    <div class="text-sm text-muted-foreground">Carregando carteiras...</div>
+  {/if}
 </div>

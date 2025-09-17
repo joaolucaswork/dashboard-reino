@@ -1,8 +1,18 @@
 <script>
+  import { onMount } from "svelte";
   import { page } from "$app/stores";
   import { modoVisualizacao } from "$lib/stores/tabelas.js";
+  import { carregarConfiguracoes } from "$lib/stores/config.js";
+  import { buscarCarteirasConfig } from "$lib/stores/carteiras.js";
 
   let { children } = $props();
+
+  // Carregar configurações ao montar
+  onMount(async () => {
+    carregarConfiguracoes();
+    // Carregar carteiras usando a configuração
+    await buscarCarteirasConfig();
+  });
 
   // Mapeamento dos parâmetros de URL para os modos de visualização
   // TEMPORARILY DISABLED: relatorio, movimentacoes, analise - only consolidado and asset_allocation are active
