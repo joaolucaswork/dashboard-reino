@@ -10,25 +10,27 @@
   } from "$lib/stores/carteiras.js";
   import { appConfig } from "$lib/stores/config.js";
 
-  import { GroupedCombobox } from "$lib/components/ui/combobox";
+  import { Combobox } from "$lib/components/ui/combobox";
   import { Button } from "$lib/components/ui/button";
   import { RefreshCw } from "@lucide/svelte";
   import { toast } from "svelte-sonner";
   import { derived } from "svelte/store";
 
-  // Transformar carteiras detalhadas em opções agrupadas
-  const carteiraOptionsGrouped = derived(carteirasDetalhadas, ($carteiras) => {
-    const result = $carteiras.map((carteira) => {
-      const pessoa = carteira.nome.split(" - ")[0] || carteira.nome;
+  // Props para carteiras externas (ex: Salesforce)
+  export let carteirasExternas: any[] = [];
+  export let usarCarteirasExternas = false;
 
+  // Transformar carteiras detalhadas em opções simples
+  const carteiraOptions = derived(carteirasDetalhadas, ($carteiras) => {
+    // Se deve usar carteiras externas, usar elas em vez das do store
+    const carteirasParaUsar = usarCarteirasExternas
+      ? carteirasExternas
+      : $carteiras;
+    const result = carteirasParaUsar.map((carteira) => {
       return {
         value: carteira.nome,
         label: carteira.nome,
-        pessoa: pessoa, // Extrair nome da pessoa
-        banco: carteira.banco || "Banco não informado",
-        numeroConta: carteira.numero_conta || undefined,
         description: `${formatarMoeda(carteira.patrimonio)}`,
-        // description: `${formatarMoeda(carteira.patrimonio)} • ${carteira.porcentagem.toFixed(1)}% • Mensalidade: ${formatarMoeda(carteira.mensalidade)}`,
       };
     });
 
@@ -89,18 +91,17 @@
     </Button>
   </div>
 
-  <GroupedCombobox
+  <Combobox
     bind:value={$carteiraAtual}
-    options={$carteiraOptionsGrouped}
+    options={$carteiraOptions}
     placeholder={$carregandoCarteiras
       ? "Carregando carteiras..."
-      : "Selecione uma pessoa/carteira"}
-    searchPlaceholder="Buscar pessoa ou carteira..."
+      : "Selecione uma carteira"}
+    searchPlaceholder="Buscar carteira..."
     emptyMessage={$erroCarteiras
       ? $erroCarteiras
       : "Nenhuma carteira encontrada."}
     disabled={$carregandoCarteiras}
-    grouped={true}
   />
 
   <!-- Mensagem de erro -->

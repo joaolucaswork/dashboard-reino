@@ -5,6 +5,7 @@ import jsforce from "jsforce";
 interface CarteiraDetalhada {
   id: string;
   nome: string;
+  nome_comdinheiro: string | null; // Campo específico para API Comdinheiro
   numero_conta: string | null;
   banco: string | null;
   patrimonio: number;
@@ -67,13 +68,14 @@ async function executarScriptSalesforce(): Promise<{
     await conn.login(SF_USERNAME, SF_PASSWORD + SF_SECURITY_TOKEN);
     console.log("✅ Login no Salesforce realizado com sucesso");
 
-    // Query para buscar carteiras do objeto customizado
+    // Query para buscar carteiras do objeto customizado (incluindo nomeComDinheiro__c)
     const query = `
-      SELECT Id, Name, numeroConta__c, banco__c, 
-             patrimonioComDinheiro__c, porcentagemCliente__c, 
-             mensalidadeCliente__c, LastModifiedDate
+      SELECT Id, Name, numeroConta__c, nomeBtg__c, nomeComDinheiro__c,
+             patrimonioComDinheiro__c, porcentagemCliente__c,
+             mensalidadeCliente__c, banco__c, CreatedDate, LastModifiedDate, OwnerId
       FROM carteirasComDinheiro__c
       ORDER BY LastModifiedDate DESC
+      LIMIT 100
     `;
 
     console.log("🔍 Executando query no Salesforce...");
@@ -86,11 +88,15 @@ async function executarScriptSalesforce(): Promise<{
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result.records.forEach((record: any) => {
       const nome = record.Name || "Sem nome";
-      carteiras.push(nome);
+      const nomeComDinheiro = record.nomeComDinheiro__c || null;
+
+      // Para a lista simples, usar o nome do Comdinheiro se disponível
+      carteiras.push(nomeComDinheiro || nome);
 
       carteiras_detalhadas.push({
         id: record.Id,
         nome: nome,
+        nome_comdinheiro: nomeComDinheiro,
         numero_conta: record.numeroConta__c || null,
         banco: record.banco__c || null,
         patrimonio: parseFloat(String(record.patrimonioComDinheiro__c || "0")),
