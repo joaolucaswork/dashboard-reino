@@ -47,7 +47,7 @@ npm install
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+1. Open your browser and navigate to <http://localhost:5173>
 
 ## Project Structure
 
@@ -77,10 +77,10 @@ dashboard-reino/
 
 ### Dashboard Pages
 
-- **Home**: Overview of the dashboard with quick access cards
-- **Analytics**: View script execution metrics and performance data
-- **Scripts**: Manage and execute Python scripts
-- **Settings**: Configure dashboard preferences and Python environment
+- Home: Overview of the dashboard with quick access cards
+- Analytics: View script execution metrics and performance data
+- Scripts: Manage and execute Python scripts
+- Settings: Configure dashboard preferences and Python environment
 
 ### Adding Python Scripts
 
@@ -102,14 +102,42 @@ This project follows strict SPA (Single Page Application) navigation patterns to
 
 **📖 Important**: Before implementing any navigation, read our comprehensive guidelines:
 
-- [`docs/navigation-guidelines.md`](docs/navigation-guidelines.md) - Complete navigation rules and examples
-- [`docs/navigation-quick-ref.md`](docs/navigation-quick-ref.md) - Quick reference for common patterns
-- [`docs/navigation-code-review-checklist.md`](docs/navigation-code-review-checklist.md) - Code review checklist
-- [`docs/chatbot-navigation-rules.md`](docs/chatbot-navigation-rules.md) - Rules for chatbot assistance
-- [`docs/ai-navigation-context.md`](docs/ai-navigation-context.md) - AI context and prompts
-- [`docs/ai-prompt-navigation.md`](docs/ai-prompt-navigation.md) - Ready-to-use AI prompt
-
+- [docs/navigation-guidelines.md](docs/navigation-guidelines.md) - Complete navigation rules and examples
+- [docs/navigation-quick-ref.md](docs/navigation-quick-ref.md) - Quick reference for common patterns
+- [docs/navigation-code-review-checklist.md](docs/navigation-code-review-checklist.md) - Code review checklist
+- [docs/chatbot-navigation-rules.md](docs/chatbot-navigation-rules.md) - Rules for chatbot assistance
+- [docs/ai-navigation-context.md](docs/ai-navigation-context.md) - AI context and prompts
+- [docs/ai-prompt-navigation.md](docs/ai-prompt-navigation.md) - Ready-to-use AI prompt
 **Key Rule**: Always use `goto()` from `$app/navigation` for internal routing, never `window.location.href` (except for external links).
+
+### Documentation index
+
+Domain docs and integration guides have been consolidated under `docs/`:
+
+- docs/comdinheiro/COMDINHEIRO_CARTEIRAS_CORRECOES.md
+- docs/comdinheiro/COMDINHEIRO_NATIVO_README.md
+- docs/comdinheiro/INTEGRACAO_SALESFORCE_COMDINHEIRO_COMPLETA.md
+- docs/comdinheiro/SALESFORCE_SETUP.md
+- docs/comdinheiro/OpenL-2509191439.md (source/reference material)
+- docs/comdinheiro/comdinheiro.md (manual/reference)
+- Tasks archive: docs/Tasks_2025-09-19T17-35-16.md
+
+Test scripts were grouped under `scripts/tests/` and can be run via npm scripts (see package.json).
+
+### Test scripts
+
+Run the most common test flows with npm:
+
+- Comdinheiro – List carteiras: `npm run test:comdinheiro:carteiras`
+  - File: `scripts/tests/teste_carteiras_comdinheiro.mjs`
+- Comdinheiro – Full API test: `npm run test:comdinheiro:api`
+  - File: `scripts/tests/teste_comdinheiro_completo.mjs`
+- Comdinheiro – Integration E2E: `npm run test:comdinheiro:integracao`
+  - File: `scripts/tests/teste_integracao_completa.cjs`
+- Comdinheiro – Debug credentials: `npm run test:comdinheiro:debug`
+  - File: `scripts/tests/debug_credenciais.cjs`
+- Salesforce – API connectivity: `npm run test:sf:api`
+  - File: `scripts/tests/teste_api_jsforce.cjs`
 
 ### Building for Production
 
@@ -132,11 +160,6 @@ npm run check
 ## Deployment
 
 The application can be deployed to any platform that supports Node.js applications:
-
-- **Vercel**: Zero-config deployment
-- **Netlify**: Static site hosting with serverless functions
-- **Railway**: Full-stack deployment
-- **DigitalOcean App Platform**: Container-based deployment
 
 ## Contributing
 

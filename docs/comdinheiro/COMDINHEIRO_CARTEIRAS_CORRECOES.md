@@ -3,12 +3,14 @@
 ## 📊 **Status das Implementações**
 
 ### ✅ **1. Componente Movido para Configurações**
+
 - **Arquivo**: `src/routes/settings/+page.svelte`
 - **Localização**: Seção "Configurações do Comdinheiro"
 - **Funcionalidade**: Gerenciamento de credenciais e busca de carteiras
 - **Benefício**: Centralização das configurações em local apropriado
 
 ### ✅ **2. URL da API Corrigida**
+
 - **Problema**: Usávamos `RelatorioGerencialCarteiras001.php?listar_carteiras=1` (incorreto)
 - **Solução**: Implementamos a URL correta baseada no sistema original:
 
@@ -22,6 +24,7 @@ const carteirasUrl =
 ```
 
 ### ✅ **3. Processamento de Dados Corrigido**
+
 - **Problema**: Extraíamos carteiras da `col1` (incorreto)
 - **Solução**: Extraímos da `col0` que contém `nome_portfolio`:
 
@@ -39,6 +42,7 @@ carteiras = Object.keys(tableData)
 ```
 
 ### ✅ **4. Logs Detalhados Adicionados**
+
 - **Debug completo** do fluxo de dados
 - **Logs de requisição** com credenciais mascaradas
 - **Logs de resposta** com preview dos dados
@@ -47,6 +51,7 @@ carteiras = Object.keys(tableData)
 ## 🧪 **Como Testar**
 
 ### **1. Configurar Credenciais**
+
 ```bash
 # 1. Inicie o servidor SvelteKit
 npm run dev
@@ -58,15 +63,17 @@ http://localhost:5173/settings
 ```
 
 ### **2. Executar Teste Automatizado**
+
 ```bash
 # Configure suas credenciais no arquivo de teste
-# Edite: teste_carteiras_comdinheiro.js (linhas 11-14)
+# Edite: scripts/tests/teste_carteiras_comdinheiro.mjs (linhas 11-14)
 
-# Execute o teste
-node teste_carteiras_comdinheiro.js
+# Execute o teste (via npm script)
+npm run test:comdinheiro:carteiras
 ```
 
 ### **3. Verificar Logs**
+
 ```bash
 # Monitore os logs do servidor para debug
 # Os logs mostrarão:
@@ -79,6 +86,7 @@ node teste_carteiras_comdinheiro.js
 ## 📋 **Estrutura de Dados Descoberta**
 
 ### **Resposta da API Comdinheiro (Carteiras)**
+
 ```json
 {
   "tables": {
@@ -96,6 +104,7 @@ node teste_carteiras_comdinheiro.js
 ```
 
 ### **Mapeamento de Colunas**
+
 - **col0**: `nome_portfolio` (nome da carteira)
 - **col1**: `saldo_bruto` (saldo da carteira)
 - **col2**: `instituicao_financeira` (banco/corretora)
@@ -103,6 +112,7 @@ node teste_carteiras_comdinheiro.js
 ## 🔄 **Próximos Passos**
 
 ### **1. Implementar Posição Consolidada**
+
 - **Ferramenta**: `RelatorioGerencialCarteiras001.php`
 - **Parâmetros**: `variaveis=instituicao_financeira+ativo+desc+quant+saldo_bruto+tipo_ativo+saldo_liquido`
 - **Estrutura**:
@@ -112,11 +122,13 @@ node teste_carteiras_comdinheiro.js
   - `col6`: tipo_ativo
 
 ### **2. Implementar Outras Consultas**
+
 - **Movimentações**: `ComprasVendas002.php`
 - **Análises**: `ExtratoCarteira022.php`
 - **Asset Allocation**: `asset_allocation_comdinheiro()`
 
 ### **3. Integração com Tabelas**
+
 - Adicionar opção de usar carteiras do Comdinheiro na página `/tabelas`
 - Implementar cache inteligente
 - Sincronização com Salesforce
@@ -124,21 +136,25 @@ node teste_carteiras_comdinheiro.js
 ## 🎯 **Benefícios das Correções**
 
 ### **✅ Funcionalidade Restaurada**
+
 - Busca de carteiras agora funciona corretamente
 - Baseada na implementação original comprovada
 - Compatível com a API real do Comdinheiro
 
 ### **✅ Melhor Experiência do Usuário**
+
 - Configurações centralizadas em `/settings`
 - Interface moderna com shadcn-svelte
 - Feedback visual e tratamento de erros
 
 ### **✅ Debugging Avançado**
+
 - Logs detalhados para troubleshooting
 - Mascaramento de credenciais sensíveis
 - Rastreamento completo do fluxo de dados
 
 ### **✅ Arquitetura Limpa**
+
 - Separação clara de responsabilidades
 - Store dedicado para estado das carteiras
 - TypeScript para tipagem robusta

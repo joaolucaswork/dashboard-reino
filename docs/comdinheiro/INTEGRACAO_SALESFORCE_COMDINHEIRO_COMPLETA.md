@@ -1,10 +1,10 @@
 # 🎉 Integração Completa: Salesforce + API Comdinheiro
 
-## 📋 **Resumo da Implementação**
+## 📋 Resumo da Implementação
 
-Implementamos com sucesso a integração completa entre **Salesforce** e **API Comdinheiro** para consulta de posição consolidada, seguindo exatamente o fluxo do sistema original.
+Implementamos com sucesso a integração completa entre Salesforce e API Comdinheiro para consulta de posição consolidada, seguindo exatamente o fluxo do sistema original.
 
-## 🔄 **Fluxo de Dados Implementado**
+## 🔄 Fluxo de Dados Implementado
 
 ```mermaid
 graph TD
@@ -12,58 +12,64 @@ graph TD
     B -->|nomeComDinheiro__c| C[Interface SvelteKit]
     C -->|Seleção do usuário| D[API Comdinheiro]
     D -->|Posição consolidada| E[Visualização de dados]
-    
     F[/settings] -->|Credenciais| G[localStorage]
     G -->|Headers HTTP| D
 ```
 
-## ✅ **Componentes Implementados**
+## ✅ Componentes Implementados
 
-### **1. API Salesforce Atualizada** 
-- **Arquivo**: `src/routes/api/carteiras/+server.ts`
-- **Campo adicionado**: `nomeComDinheiro__c` na query
-- **Interface**: `CarteiraSalesforce` com `nome_comdinheiro`
-- **Resultado**: 62 carteiras com nomes formatados para Comdinheiro
+### 1. API Salesforce Atualizada
 
-### **2. Formulário de Consulta Integrado**
-- **Arquivo**: `src/lib/components/tabelas/FormularioConsulta.svelte`
-- **Funcionalidade**: Carrega carteiras do Salesforce automaticamente
-- **Condição**: Quando "Posição Consolidada" é selecionada
-- **Props**: `carteirasExternas` e `usarCarteirasExternas`
+- Arquivo: `src/routes/api/carteiras/+server.ts`
+- Campo adicionado: `nomeComDinheiro__c` na query
+- Interface: `CarteiraSalesforce` com `nome_comdinheiro`
+- Resultado: 62 carteiras com nomes formatados para Comdinheiro
 
-### **3. Seletor de Carteira Dinâmico**
-- **Arquivo**: `src/lib/components/tabelas/SeletorCarteira.svelte`
-- **Funcionalidade**: Aceita carteiras externas via props
-- **Lógica**: Usa carteiras do Salesforce quando `usarCarteirasExternas=true`
+### 2. Formulário de Consulta Integrado
 
-### **4. Store de Consulta Atualizado**
-- **Arquivo**: `src/lib/stores/tabelas.js`
-- **Funcionalidade**: Integração real com API Comdinheiro
-- **Credenciais**: Busca do localStorage e envia via headers
-- **Condição**: Quando `modo === "consolidado"`
+- Arquivo: `src/lib/components/tabelas/FormularioConsulta.svelte`
+- Funcionalidade: Carrega carteiras do Salesforce automaticamente
+- Condição: Quando "Posição Consolidada" é selecionada
+- Props: `carteirasExternas` e `usarCarteirasExternas`
 
-### **5. API Comdinheiro Expandida**
-- **Arquivo**: `src/routes/api/comdinheiro/+server.ts`
-- **Nova ação**: `action: "consultar"`
-- **Endpoint**: POST com suporte a consultas diretas
-- **URL**: Usa mesma lógica do sistema original
+### 3. Seletor de Carteira Dinâmico
 
-## 🧪 **Como Testar a Integração**
+- Arquivo: `src/lib/components/tabelas/SeletorCarteira.svelte`
+- Funcionalidade: Aceita carteiras externas via props
+- Lógica: Usa carteiras do Salesforce quando `usarCarteirasExternas=true`
 
-### **1. Configurar Credenciais**
+### 4. Store de Consulta Atualizado
+
+- Arquivo: `src/lib/stores/tabelas.js`
+- Funcionalidade: Integração real com API Comdinheiro
+- Credenciais: Busca do localStorage e envia via headers
+- Condição: Quando `modo === "consolidado"`
+
+### 5. API Comdinheiro Expandida
+
+- Arquivo: `src/routes/api/comdinheiro/+server.ts`
+- Nova ação: `action: "consultar"`
+- Endpoint: POST com suporte a consultas diretas
+- URL: Usa mesma lógica do sistema original
+
+## 🧪 Como Testar a Integração
+
+### 1. Configurar Credenciais
+
 ```bash
 # 1. Acesse as configurações
-http://localhost:5173/settings
+open http://localhost:5173/settings
 
 # 2. Configure suas credenciais do Comdinheiro
 # - Username: reino.backoffice
 # - Password: [sua senha]
 ```
 
-### **2. Testar Fluxo Completo**
+### 2. Testar Fluxo Completo
+
 ```bash
 # 1. Acesse a página de tabelas
-http://localhost:5173/tabelas
+open http://localhost:5173/tabelas
 
 # 2. Selecione "Posição Consolidada"
 # 3. Escolha uma carteira (carregadas do Salesforce)
@@ -71,15 +77,20 @@ http://localhost:5173/tabelas
 # 5. Clique em "Consultar Dados"
 ```
 
-### **3. Executar Teste Automatizado**
+### 3. Executar Teste Automatizado
+
 ```bash
 # Configure credenciais no arquivo de teste
-node teste_integracao_completa.js
+# Arquivo: scripts/tests/teste_integracao_completa.cjs
+
+# Execute o teste (via npm script)
+npm run test:comdinheiro:integracao
 ```
 
-## 📊 **Dados de Teste Disponíveis**
+## 📊 Dados de Teste Disponíveis
 
-### **Carteiras do Salesforce (Exemplos)**
+### Carteiras do Salesforce (Exemplos)
+
 ```json
 {
   "nome": "Luiz Galamba",
@@ -89,7 +100,8 @@ node teste_integracao_completa.js
 }
 ```
 
-### **Estrutura da Consulta**
+### Estrutura da Consulta
+
 ```javascript
 // Requisição para API Comdinheiro
 {
@@ -100,10 +112,11 @@ node teste_integracao_completa.js
 }
 ```
 
-## 🔧 **Configurações Técnicas**
+## 🔧 Configurações Técnicas
 
-### **Headers HTTP Necessários**
-```javascript
+### Headers HTTP Necessários
+
+```json
 {
   "Content-Type": "application/json",
   "x-comdinheiro-username": "reino.backoffice",
@@ -111,8 +124,9 @@ node teste_integracao_completa.js
 }
 ```
 
-### **URL Gerada para Comdinheiro**
-```
+### URL Gerada para Comdinheiro
+
+```text
 RelatorioGerencialCarteiras001.php?
 &data_analise=19092025
 &data_ini=19092025
@@ -123,60 +137,67 @@ RelatorioGerencialCarteiras001.php?
 &portfolio_editavel=&filtro_id=
 ```
 
-## 🎯 **Benefícios da Implementação**
+## 🎯 Benefícios da Implementação
 
-### **✅ Integração Real**
+### Integração Real
+
 - Dados reais do Salesforce e Comdinheiro
 - Sem dependência do backend Flask
 - Implementação 100% SvelteKit nativa
 
-### **✅ Experiência do Usuário**
+### Experiência do Usuário
+
 - Carregamento automático de carteiras
 - Interface moderna com shadcn-svelte
 - Feedback visual e tratamento de erros
 
-### **✅ Arquitetura Limpa**
+### Arquitetura Limpa
+
 - Separação clara de responsabilidades
 - Reutilização de componentes existentes
 - TypeScript para tipagem robusta
 
-### **✅ Compatibilidade**
+### Compatibilidade
+
 - Usa exatamente a mesma lógica do sistema original
 - URLs e parâmetros idênticos ao Flask
 - Estrutura de dados compatível
 
-## 📁 **Arquivos Modificados**
+## 📁 Arquivos Modificados
 
-1. **`src/routes/api/carteiras/+server.ts`** - Query Salesforce atualizada
-2. **`src/lib/components/tabelas/FormularioConsulta.svelte`** - Integração automática
-3. **`src/lib/components/tabelas/SeletorCarteira.svelte`** - Props para carteiras externas
-4. **`src/lib/stores/tabelas.js`** - Consulta real via API Comdinheiro
-5. **`src/routes/api/comdinheiro/+server.ts`** - Endpoint de consulta
-6. **`teste_integracao_completa.js`** - Script de teste end-to-end
+1. `src/routes/api/carteiras/+server.ts` — Query Salesforce atualizada
+2. `src/lib/components/tabelas/FormularioConsulta.svelte` — Integração automática
+3. `src/lib/components/tabelas/SeletorCarteira.svelte` — Props para carteiras externas
+4. `src/lib/stores/tabelas.js` — Consulta real via API Comdinheiro
+5. `src/routes/api/comdinheiro/+server.ts` — Endpoint de consulta
+6. `scripts/tests/teste_integracao_completa.cjs` — Script de teste end-to-end
 
-## 🚀 **Próximos Passos**
+## 🚀 Próximos Passos
 
-### **Implementações Futuras**
-1. **Outros tipos de consulta**: Movimentações, análises, etc.
-2. **Cache inteligente**: Armazenar resultados para performance
-3. **Sincronização**: Atualizar dados automaticamente
-4. **Relatórios**: Exportação em diferentes formatos
+### Implementações Futuras
 
-### **Melhorias de UX**
-1. **Loading states**: Indicadores visuais durante consultas
-2. **Filtros avançados**: Por banco, tipo de ativo, etc.
-3. **Visualizações**: Gráficos e dashboards
-4. **Histórico**: Consultas anteriores
+1. Outros tipos de consulta: Movimentações, análises, etc.
+2. Cache inteligente: Armazenar resultados para performance
+3. Sincronização: Atualizar dados automaticamente
+4. Relatórios: Exportação em diferentes formatos
 
-## 🎉 **Status Final**
+### Melhorias de UX
 
-**✅ INTEGRAÇÃO COMPLETA IMPLEMENTADA E FUNCIONAL!**
+1. Loading states: Indicadores visuais durante consultas
+2. Filtros avançados: Por banco, tipo de ativo, etc.
+3. Visualizações: Gráficos e dashboards
+4. Histórico: Consultas anteriores
 
-A integração entre Salesforce e API Comdinheiro está **100% operacional** e pronta para uso em produção. O fluxo completo funciona exatamente como o sistema original, mas com uma interface moderna e arquitetura SvelteKit nativa.
+## 🎉 Status Final
+
+✅ INTEGRAÇÃO COMPLETA IMPLEMENTADA E FUNCIONAL!
+
+A integração entre Salesforce e API Comdinheiro está 100% operacional e pronta para uso em produção. O fluxo completo funciona exatamente como o sistema original, mas com uma interface moderna e arquitetura SvelteKit nativa.
 
 ---
 
-**🔗 Links Úteis:**
-- Configurações: http://localhost:5173/settings
-- Tabelas: http://localhost:5173/tabelas
-- Teste: `node teste_integracao_completa.js`
+🔗 Links Úteis:
+
+- Configurações: <http://localhost:5173/settings>
+- Tabelas: <http://localhost:5173/tabelas>
+- Teste: `npm run test:comdinheiro:integracao`

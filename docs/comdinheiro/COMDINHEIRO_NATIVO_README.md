@@ -7,18 +7,21 @@ Esta é uma implementação **SvelteKit pura** da API do Comdinheiro, **sem depe
 ## 🎯 **Características Principais**
 
 ### **🔥 Performance Superior**
+
 - ✅ **Zero latência** - Sem proxies ou middlewares
 - ✅ **Requisições diretas** para API Comdinheiro
 - ✅ **Timeout otimizado** (30s) para consultas
 - ✅ **Processamento eficiente** de dados JSON/XML
 
 ### **💎 Interface Moderna**
+
 - ✅ **shadcn-svelte** components
 - ✅ **Apple-style minimalism** design
 - ✅ **Responsive** e acessível
 - ✅ **Dark mode** nativo
 
 ### **🛠️ Funcionalidades Avançadas**
+
 - ✅ **53+ ferramentas** Comdinheiro disponíveis
 - ✅ **Geração de código** (JavaScript, Python, PHP)
 - ✅ **Visualização inteligente** de dados
@@ -26,6 +29,7 @@ Esta é uma implementação **SvelteKit pura** da API do Comdinheiro, **sem depe
 - ✅ **Validação robusta** de parâmetros
 
 ### **🔒 Segurança e Confiabilidade**
+
 - ✅ **TypeScript** para tipagem forte
 - ✅ **Validação runtime** de dados
 - ✅ **Tratamento de erros** avançado
@@ -49,6 +53,7 @@ src/
 ## 🚀 **Como Usar**
 
 ### **1. Acesso Rápido**
+
 ```
 http://localhost:5173/comdinheiro
 ```
@@ -56,6 +61,7 @@ http://localhost:5173/comdinheiro
 ### **2. API Endpoints**
 
 #### **Executar Consulta**
+
 ```http
 POST /api/comdinheiro
 Content-Type: application/json
@@ -69,16 +75,19 @@ Content-Type: application/json
 ```
 
 #### **Listar Ferramentas**
+
 ```http
 GET /api/comdinheiro?action=ferramentas
 ```
 
 #### **Gerar Código**
+
 ```http
 GET /api/comdinheiro?action=gerar-codigo&username=...&password=...&url=...&format=JSON3&language=JavaScript
 ```
 
 ### **3. Interface Visual**
+
 1. Configure suas credenciais Comdinheiro
 2. Selecione uma ferramenta disponível
 3. Configure a URL da consulta
@@ -87,12 +96,16 @@ GET /api/comdinheiro?action=gerar-codigo&username=...&password=...&url=...&forma
 
 ## 🧪 **Testes**
 
-Execute o script de teste completo:
+Execute o teste completo via npm script:
+
 ```bash
-node teste_comdinheiro_completo.js
+npm run test:comdinheiro:api
 ```
 
+Arquivo de teste: `scripts/tests/teste_comdinheiro_completo.mjs`
+
 **Testes incluem:**
+
 - ✅ Listagem de ferramentas
 - ✅ Geração de código
 - ✅ Consultas reais (com credenciais)
@@ -134,16 +147,19 @@ A implementação suporta **53+ ferramentas** do Comdinheiro, incluindo:
 ## 🔧 **Configuração de Desenvolvimento**
 
 1. **Instalar dependências:**
+
    ```bash
    npm install
    ```
 
 2. **Iniciar servidor de desenvolvimento:**
+
    ```bash
    npm run dev
    ```
 
 3. **Acessar interface:**
+
    ```
    http://localhost:5173/comdinheiro
    ```

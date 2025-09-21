@@ -13,7 +13,12 @@
     "lint": "eslint . --ext .js,.ts,.svelte",
     "lint:fix": "eslint . --ext .js,.ts,.svelte --fix",
     "lint:ui-patterns": "node scripts/check-ui-patterns.js",
-    "check:all": "npm run check && npm run lint && npm run lint:ui-patterns"
+    "check:all": "npm run check && npm run lint && npm run lint:ui-patterns",
+    "test:sf:api": "node scripts/tests/teste_api_jsforce.cjs",
+    "test:comdinheiro:carteiras": "node scripts/tests/teste_carteiras_comdinheiro.mjs",
+    "test:comdinheiro:api": "node scripts/tests/teste_comdinheiro_completo.mjs",
+    "test:comdinheiro:integracao": "node scripts/tests/teste_integracao_completa.cjs",
+    "test:comdinheiro:debug": "node scripts/tests/debug_credenciais.cjs"
   },
   "devDependencies": {
     "@internationalized/date": "^3.9.0",

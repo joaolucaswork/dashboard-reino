@@ -22,28 +22,28 @@
 
   // Função para navegar via breadcrumb - usando SPA navigation
   function handleNavigate(action, ...params) {
-    console.log('Breadcrumb navigation:', action, params);
-    
+    console.log("Breadcrumb navigation:", action, params);
+
     if (onNavigate) {
       onNavigate(action, ...params);
     } else {
       // Navegação padrão usando SPA routing
-      let targetUrl = '/tabelas?modo=consolidado';
-      
-      if (action === 'root') {
+      let targetUrl = "/tabelas?modo=consolidado";
+
+      if (action === "root") {
         // Volta para a view consolidada sem filtros específicos
         goto(targetUrl);
-      } else if (action === 'banco') {
+      } else if (action === "banco") {
         // Navegar para um banco específico - pode ser implementado com query params
         const banco = params[0];
         targetUrl += `&banco=${encodeURIComponent(banco)}`;
         goto(targetUrl);
-      } else if (action === 'categoria') {
+      } else if (action === "categoria") {
         // Navegar para banco + categoria
         const [banco, categoria] = params;
         targetUrl += `&banco=${encodeURIComponent(banco)}&categoria=${encodeURIComponent(categoria)}`;
         goto(targetUrl);
-      } else if (action === 'tipo') {
+      } else if (action === "tipo") {
         // Navegar para banco + categoria + tipo
         const [banco, categoria, tipo] = params;
         targetUrl += `&banco=${encodeURIComponent(banco)}&categoria=${encodeURIComponent(categoria)}&tipo=${encodeURIComponent(tipo)}`;
@@ -55,7 +55,7 @@
   // Funções para obter opções dos dropdowns baseadas nos dados atuais
   function getBancoOptions() {
     if (!$dadosConsulta?.agrupados) return [];
-    
+
     return Object.keys($dadosConsulta.agrupados).map((banco) => ({
       value: banco,
       label: banco,
@@ -64,7 +64,7 @@
 
   function getCategoriaOptions(banco) {
     if (!$dadosConsulta?.agrupados?.[banco]) return [];
-    
+
     return Object.keys($dadosConsulta.agrupados[banco])
       .filter((key) => key !== "_total_banco")
       .map((categoria) => ({
@@ -75,7 +75,7 @@
 
   function getTipoOptions(banco, categoria) {
     if (!$dadosConsulta?.agrupados?.[banco]?.[categoria]) return [];
-    
+
     return Object.keys($dadosConsulta.agrupados[banco][categoria])
       .filter((key) => key !== "_total_categoria")
       .map((tipo) => ({
@@ -86,27 +86,30 @@
 
   // Funções de navegação para comboboxes
   function navigateToBanco(novoBanco) {
-    handleNavigate('banco', novoBanco);
+    handleNavigate("banco", novoBanco);
   }
 
   function navigateToCategoria(novaCategoria) {
     // Precisa do banco atual do breadcrumb
-    const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || 
-                      breadcrumbPath.find(item => item.level === 'banco')?.label;
+    const bancoAtual =
+      breadcrumbPath.find((item) => item.level === "banco")?.key ||
+      breadcrumbPath.find((item) => item.level === "banco")?.label;
     if (bancoAtual) {
-      handleNavigate('categoria', bancoAtual, novaCategoria);
+      handleNavigate("categoria", bancoAtual, novaCategoria);
     }
   }
 
   function navigateToTipo(novoTipo) {
     // Precisa do banco e categoria atuais do breadcrumb
-    const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || 
-                      breadcrumbPath.find(item => item.level === 'banco')?.label;
-    const categoriaAtual = breadcrumbPath.find(item => item.level === 'categoria')?.key || 
-                          breadcrumbPath.find(item => item.level === 'categoria')?.label;
-    
+    const bancoAtual =
+      breadcrumbPath.find((item) => item.level === "banco")?.key ||
+      breadcrumbPath.find((item) => item.level === "banco")?.label;
+    const categoriaAtual =
+      breadcrumbPath.find((item) => item.level === "categoria")?.key ||
+      breadcrumbPath.find((item) => item.level === "categoria")?.label;
+
     if (bancoAtual && categoriaAtual) {
-      handleNavigate('tipo', bancoAtual, categoriaAtual, novoTipo);
+      handleNavigate("tipo", bancoAtual, categoriaAtual, novoTipo);
     }
   }
 </script>
@@ -168,7 +171,9 @@
               <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
             {:else if breadcrumbItem.level === "categoria"}
               <!-- Categoria com/sem dropdown -->
-              {@const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || breadcrumbPath.find(item => item.level === 'banco')?.label}
+              {@const bancoAtual =
+                breadcrumbPath.find((item) => item.level === "banco")?.key ||
+                breadcrumbPath.find((item) => item.level === "banco")?.label}
               {#if bancoAtual && getCategoriaOptions(bancoAtual).length > 1}
                 <Popover.Root bind:open={openCategoriaPopover}>
                   <Popover.Trigger
@@ -213,8 +218,14 @@
               {/if}
             {:else if breadcrumbItem.level === "tipo"}
               <!-- Tipo com/sem dropdown -->
-              {@const bancoAtual = breadcrumbPath.find(item => item.level === 'banco')?.key || breadcrumbPath.find(item => item.level === 'banco')?.label}
-              {@const categoriaAtual = breadcrumbPath.find(item => item.level === 'categoria')?.key || breadcrumbPath.find(item => item.level === 'categoria')?.label}
+              {@const bancoAtual =
+                breadcrumbPath.find((item) => item.level === "banco")?.key ||
+                breadcrumbPath.find((item) => item.level === "banco")?.label}
+              {@const categoriaAtual =
+                breadcrumbPath.find((item) => item.level === "categoria")
+                  ?.key ||
+                breadcrumbPath.find((item) => item.level === "categoria")
+                  ?.label}
               {#if bancoAtual && categoriaAtual && getTipoOptions(bancoAtual, categoriaAtual).length > 1}
                 <Popover.Root bind:open={openTipoPopover}>
                   <Popover.Trigger
@@ -244,14 +255,6 @@
                               {/if}
                             </Command.Item>
                           {/each}
-                        </Command.Group>
-                      </Command.List>
-                    </Command.Root>
-                  </Popover.Content>
-                </Popover.Root>
-              {:else}
-                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
-              {/if}
                         </Command.Group>
                       </Command.List>
                     </Command.Root>

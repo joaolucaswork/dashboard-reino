@@ -74,8 +74,7 @@ coverage/
 # Yarn Integrity file
 .yarn-integrity
 
-# Python specific (para scripts/app_base)
-scripts/app_base/
+# Python specific
 __pycache__/
 *.pyc
 *.pyo
@@ -90,11 +89,29 @@ pip-delete-this-directory.txt
 .coverage
 .pytest_cache/
 
+# Python artifacts inside optional Flask backend (keep code versioned, ignore local artifacts)
+scripts/app_base/.env
+scripts/app_base/.venv/
+scripts/app_base/venv/
+scripts/app_base/env/
+scripts/app_base/__pycache__/
+scripts/app_base/*.pyc
+scripts/app_base/*.pyo
+scripts/app_base/*.pyd
+scripts/app_base/.Python
+scripts/app_base/.pytest_cache/
+scripts/app_base/.coverage
+scripts/app_base/instance/
+
 # Temporary files
 *.tmp
 *.temp
 .tmp/
 .temp/
+
+# Developer tooling (optional)
+.envrc
+.tool-versions
 
 # Package manager lock files (keep package-lock.json but ignore others if needed)
 # yarn.lock
