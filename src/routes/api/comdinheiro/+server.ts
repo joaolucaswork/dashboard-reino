@@ -82,9 +82,12 @@ export const POST: RequestHandler = async ({ request }) => {
       const dataFormatada = `${dia}${mes}${ano}`;
 
       if (view_type === "consolidado") {
-        // Usar exatamente a mesma URL do sistema Python documentado
+        // URL simples baseada no Postman
         const carteiraEncoded = encodeURIComponent(carteira);
-        url = `RelatorioGerencialCarteiras001.php?&data_analise=${dataFormatada}&nome_portfolio=${carteiraEncoded}&variaveis=instituicao_financeira+ativo+desc+quant+saldo_bruto+tipo_ativo+saldo_liquido&filtro=all&ativo=&filtro_IF=todos`;
+        const [ano, mes, dia] = data_final.split("-");
+        const dataFormatada = `${dia}${mes}${ano}`;
+
+        url = `PosicaoConsolidada001.php?&nome_portfolio=${carteiraEncoded}&data_ini=${dataFormatada}&data_fim=${dataFormatada}&classe=TIPO&layout=1&exibir_day_trade_data_ini=0&exibicao=default&num_casas=2&ord_classe=alfc&ord_ativo=alfc&opcao_tabela=ativos&valores=0&estilo_pdf=pb0001&numeracao_pdf=2&format=JSON3`;
       } else {
         return json(
           { success: false, error: "Tipo de visualização não suportado" },
@@ -104,12 +107,11 @@ export const POST: RequestHandler = async ({ request }) => {
       console.log("📋 URL corrigida baseada na documentação:", url);
 
       // Fazer requisição para a API do Comdinheiro usando POST (como as outras chamadas)
-      // Preparar dados para envio via form data
+      // Preparar dados para envio via form data usando EndPoint001.php
       const formData = new URLSearchParams();
       formData.append("username", username);
       formData.append("password", password);
       formData.append("URL", url);
-      formData.append("format", "JSON3");
 
       console.log("📤 Dados da consulta:", {
         username: username.substring(0, 3) + "***",
