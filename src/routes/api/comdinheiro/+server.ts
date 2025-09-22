@@ -103,24 +103,27 @@ export const POST: RequestHandler = async ({ request }) => {
         fullUrl: url,
       });
 
-      // Fazer requisição para a API do Comdinheiro usando GET
-      // Construir URL completa com parâmetros
-      const fullUrl = `${COMDINHEIRO_API_ENDPOINT}?username=${encodeURIComponent(
-        username
-      )}&password=${encodeURIComponent(password)}&URL=${encodeURIComponent(
-        url
-      )}&format=JSON3`;
+      // Fazer requisição para a API do Comdinheiro usando POST (como as outras chamadas)
+      // Preparar dados para envio via form data
+      const formData = new URLSearchParams();
+      formData.append("username", username);
+      formData.append("password", password);
+      formData.append("URL", url);
+      formData.append("format", "JSON3");
 
-      console.log(
-        "🌐 URL completa da requisição:",
-        fullUrl.substring(0, 200) + "..."
-      );
+      console.log("📤 Dados da consulta:", {
+        username: username.substring(0, 3) + "***",
+        URL: url.substring(0, 100) + "...",
+        format: "JSON3",
+      });
 
-      const response = await fetch(fullUrl, {
-        method: "GET",
+      const response = await fetch(COMDINHEIRO_API_ENDPOINT, {
+        method: "POST",
         headers: {
-          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "Reino-Dashboard/1.0",
         },
+        body: formData,
       });
 
       const responseText = await response.text();
@@ -132,7 +135,23 @@ export const POST: RequestHandler = async ({ request }) => {
           headers: Object.fromEntries(response.headers.entries()),
           responsePreview: responseText.substring(0, 500),
         });
-        throw new Error(`Erro na API Comdinheiro: ${response.status}`);
+
+        // Handle specific error cases
+        if (response.status === 401) {
+          return json(
+            {
+              success: false,
+              error:
+                "Credenciais do Comdinheiro inválidas ou expiradas. Verifique suas credenciais em /settings",
+              details: "Erro de autenticação (401 Unauthorized)",
+            },
+            { status: 401 }
+          );
+        }
+
+        throw new Error(
+          `Erro na API Comdinheiro: ${response.status} - ${response.statusText}`
+        );
       }
 
       console.log("📥 Resposta bruta da API Comdinheiro:", {
