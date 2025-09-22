@@ -20,7 +20,36 @@
     TableHeader,
     TableRow,
   } from "$lib/components/ui/table";
+  import { Pagination } from "$lib/components/ui/pagination";
   import { Building2, Calendar } from "@lucide/svelte";
+
+  // Pagination state
+  let currentPage = $state(0);
+  let pageSize = $state(3); // Default to 3 records per page as requested
+  let pageSizeOptions = [3, 5, 10, 20, 50];
+
+  // Computed values for pagination
+  let totalItems = $derived($carteirasOrdenadas.length);
+  let paginatedCarteiras = $derived(
+    $carteirasOrdenadas.slice(
+      currentPage * pageSize,
+      (currentPage + 1) * pageSize
+    )
+  );
+
+  // Pagination handlers
+  function handlePageChange(page: number) {
+    currentPage = page;
+  }
+
+  function handlePageSizeChange(newPageSize: number) {
+    pageSize = newPageSize;
+    // Adjust current page if necessary
+    const newTotalPages = Math.ceil(totalItems / newPageSize);
+    if (currentPage >= newTotalPages) {
+      currentPage = Math.max(0, newTotalPages - 1);
+    }
+  }
 
   // Função para formatar porcentagem
   function formatarPorcentagem(valor: number): string {
@@ -67,7 +96,7 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            {#each $carteirasOrdenadas as carteira (carteira.id)}
+            {#each paginatedCarteiras as carteira (carteira.id)}
               <TableRow class="hover:bg-muted/50">
                 <TableCell class="font-medium">
                   <div class="flex flex-col">
@@ -148,6 +177,20 @@
           </TableBody>
         </Table>
       </div>
+
+      <!-- Pagination Controls -->
+      <Pagination
+        {currentPage}
+        {totalItems}
+        {pageSize}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        {pageSizeOptions}
+        showPageSizeSelector={true}
+        showFirstLast={true}
+        maxVisiblePages={5}
+        className="border-t pt-4"
+      />
     </CardContent>
   </Card>
 {:else}
