@@ -82,11 +82,9 @@ export const POST: RequestHandler = async ({ request }) => {
       const dataFormatada = `${dia}${mes}${ano}`;
 
       if (view_type === "consolidado") {
-        // Usar a mesma URL do sistema original para posição consolidada
-        // Codificar o nome da carteira para URL
+        // Usar exatamente a mesma URL do sistema Python documentado
         const carteiraEncoded = encodeURIComponent(carteira);
-        // Adicionar parâmetros obrigatórios que podem estar faltando
-        url = `RelatorioGerencialCarteiras001.php?ep=1&data_analise=${dataFormatada}&data_ini=&nome_portfolio=${carteiraEncoded}&variaveis=instituicao_financeira+ativo+desc+quant+saldo_bruto+tipo_ativo+saldo_liquido&filtro=all&ativo=&filtro_IF=todos&relat_alias=&layout=0&layoutB=0&num_casas=&enviar_email=0&portfolio_editavel=&filtro_id=&flag_export=JSON3`;
+        url = `RelatorioGerencialCarteiras001.php?&data_analise=${dataFormatada}&nome_portfolio=${carteiraEncoded}&variaveis=instituicao_financeira+ativo+desc+quant+saldo_bruto+tipo_ativo+saldo_liquido&filtro=all&ativo=&filtro_IF=todos`;
       } else {
         return json(
           { success: false, error: "Tipo de visualização não suportado" },
@@ -102,6 +100,8 @@ export const POST: RequestHandler = async ({ request }) => {
         url: url.substring(0, 100) + "...",
         fullUrl: url,
       });
+
+      console.log("📋 URL corrigida baseada na documentação:", url);
 
       // Fazer requisição para a API do Comdinheiro usando POST (como as outras chamadas)
       // Preparar dados para envio via form data
@@ -214,6 +214,12 @@ export const POST: RequestHandler = async ({ request }) => {
           : Object.keys(data.tables || {}).length,
         dataKeys: Object.keys(data),
       });
+
+      // Log detalhado da estrutura completa para debug
+      console.log(
+        "🔍 Estrutura completa da resposta:",
+        JSON.stringify(data, null, 2)
+      );
 
       return json({ success: true, data });
     }

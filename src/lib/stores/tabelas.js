@@ -7,6 +7,7 @@ import { toast, showToast } from "$lib/utils/toast.js";
 // TEMPORARILY CHANGED DEFAULT - was "relatorio", changed to active mode
 export const modoVisualizacao = writable("consolidado");
 export const carteiraAtual = writable("");
+export const carteiraComdinheiroAtual = writable(""); // Nome técnico para API Comdinheiro
 export const dataFinal = writable("");
 export const dataInicial = writable("");
 export const bancoSelecionado = writable("");
@@ -75,6 +76,7 @@ export const formularioValido = derived(
 export function resetFormulario() {
   modoVisualizacao.set("relatorio");
   carteiraAtual.set("");
+  carteiraComdinheiroAtual.set("");
   dataFinal.set("");
   dataInicial.set("");
   bancoSelecionado.set("");
@@ -94,11 +96,19 @@ export async function consultarDados() {
 
   try {
     // Obter valores atuais dos stores
-    let modo, carteira, dataFinalVal, dataInicialVal, banco, operacao, perfil;
+    let modo,
+      carteira,
+      carteiraComdinheiro,
+      dataFinalVal,
+      dataInicialVal,
+      banco,
+      operacao,
+      perfil;
 
     const unsubscribers = [
       modoVisualizacao.subscribe((v) => (modo = v)),
       carteiraAtual.subscribe((v) => (carteira = v)),
+      carteiraComdinheiroAtual.subscribe((v) => (carteiraComdinheiro = v)),
       dataFinal.subscribe((v) => (dataFinalVal = v)),
       dataInicial.subscribe((v) => (dataInicialVal = v)),
       bancoSelecionado.subscribe((v) => (banco = v)),
@@ -147,6 +157,15 @@ export async function consultarDados() {
         hasPassword: !!password,
       });
 
+      // Usar o nome técnico da carteira para a API Comdinheiro
+      const nomeCarteiraParaAPI = carteiraComdinheiro || carteira;
+
+      console.log("🎯 Mapeamento de carteiras:", {
+        nomeExibicao: carteira,
+        nomeComdinheiro: carteiraComdinheiro,
+        nomeUsadoNaAPI: nomeCarteiraParaAPI,
+      });
+
       // Buscar dados da API Comdinheiro
       const response = await fetch("/api/comdinheiro", {
         method: "POST",
@@ -157,7 +176,7 @@ export async function consultarDados() {
         },
         body: JSON.stringify({
           action: "consultar",
-          carteira: carteira,
+          carteira: nomeCarteiraParaAPI,
           data_final: dataFinalVal,
           view_type: "consolidado",
           banco: banco || "",
@@ -201,7 +220,7 @@ export async function consultarDados() {
     toast.dismiss(loadingToastId);
     showToast.dataLoaded();
 
-    return mockData;
+    return resultData;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Erro ao consultar dados";

@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { carteiraAtual } from "$lib/stores/tabelas.js";
+  import {
+    carteiraAtual,
+    carteiraComdinheiroAtual,
+  } from "$lib/stores/tabelas.js";
   import {
     carteirasDetalhadas,
     buscarCarteirasConfig,
@@ -28,14 +31,33 @@
       : $carteiras;
     const result = carteirasParaUsar.map((carteira) => {
       return {
-        value: carteira.nome,
-        label: carteira.nome,
+        value: carteira.nome, // Nome de exibição (usado como value para o combobox)
+        label: carteira.nome, // Nome de exibição (mostrado ao usuário)
         description: `${formatarMoeda(carteira.patrimonio)}`,
+        nomeComdinheiro: carteira.nome_comdinheiro, // Nome técnico para API
       };
     });
 
     return result;
   });
+
+  // Reactive statement para atualizar o nome técnico quando a carteira muda
+  $: if ($carteiraAtual) {
+    // Encontrar a carteira selecionada para obter o nome técnico
+    const carteiraSelecionada = $carteiraOptions.find(
+      (option) => option.value === $carteiraAtual
+    );
+
+    // Atualizar a store do nome técnico
+    const nomeComdinheiro =
+      carteiraSelecionada?.nomeComdinheiro || $carteiraAtual;
+    carteiraComdinheiroAtual.set(nomeComdinheiro);
+
+    console.log("🎯 Carteira selecionada:", {
+      nomeExibicao: $carteiraAtual,
+      nomeComdinheiro,
+    });
+  }
 
   // Função para formatar valores monetários
   function formatarMoeda(valor: number): string {

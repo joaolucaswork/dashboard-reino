@@ -90,6 +90,13 @@ async function executarScriptSalesforce(): Promise<{
       const nome = record.Name || "Sem nome";
       const nomeComDinheiro = record.nomeComDinheiro__c || null;
 
+      // Log para debug do mapeamento
+      console.log("🔍 Processando carteira:", {
+        nome,
+        nomeComDinheiro,
+        hasNomeComDinheiro: !!nomeComDinheiro,
+      });
+
       // Para a lista simples, usar o nome do Comdinheiro se disponível
       carteiras.push(nomeComDinheiro || nome);
 
