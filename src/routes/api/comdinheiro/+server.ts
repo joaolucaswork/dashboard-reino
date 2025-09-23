@@ -12,10 +12,17 @@ interface ComdinheirRequest {
 
 interface ComdinheiroResponse {
   success: boolean;
-  data?: any;
+  data?: Record<string, any>;
   error?: string;
   format?: string;
   url?: string;
+}
+
+interface PythonWrapperResult {
+  success: boolean;
+  data?: Record<string, any>;
+  error?: string;
+  type?: string;
 }
 
 // Endpoint da API do Comdinheiro
@@ -43,7 +50,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
     // Verificar se é uma consulta direta ou uma requisição tradicional
     if (body.action === "consultar") {
-      // Nova funcionalidade: consulta posição consolidada
+      // ✨ NEW: Use simplified Comdinheiro module via Python wrapper
       const { carteira, data_final, view_type } = body;
 
       if (!carteira || !data_final) {
@@ -61,7 +68,6 @@ export const POST: RequestHandler = async ({ request }) => {
         hasUsername: !!username,
         hasPassword: !!password,
         usernamePreview: username ? username.substring(0, 3) + "***" : "null",
-        allHeaders: Object.fromEntries(request.headers.entries()),
       });
 
       if (!username || !password) {
@@ -75,155 +81,119 @@ export const POST: RequestHandler = async ({ request }) => {
         );
       }
 
-      // Construir URL baseada no view_type (usando lógica do sistema original)
-      let url: string;
-      // Formatar data para DDMMYYYY (formato esperado pelo Comdinheiro)
-      const [ano, mes, dia] = data_final.split("-");
-      const dataFormatada = `${dia}${mes}${ano}`;
-
-      if (view_type === "consolidado") {
-        // URL simples baseada no Postman
-        const carteiraEncoded = encodeURIComponent(carteira);
-        const [ano, mes, dia] = data_final.split("-");
-        const dataFormatada = `${dia}${mes}${ano}`;
-
-        url = `PosicaoConsolidada001.php?&nome_portfolio=${carteiraEncoded}&data_ini=${dataFormatada}&data_fim=${dataFormatada}&classe=TIPO&layout=1&exibir_day_trade_data_ini=0&exibicao=default&num_casas=2&ord_classe=alfc&ord_ativo=alfc&opcao_tabela=ativos&valores=0&estilo_pdf=pb0001&numeracao_pdf=2&format=JSON3`;
-      } else {
-        return json(
-          { success: false, error: "Tipo de visualização não suportado" },
-          { status: 400 }
-        );
-      }
-
-      console.log("🔍 Consultando Comdinheiro:", {
+      console.log("🔍 Consultando via novo módulo Comdinheiro:", {
         carteira,
         data_final,
-        view_type,
-        dataFormatada,
-        url: url.substring(0, 100) + "...",
-        fullUrl: url,
+        view_type: view_type || "consolidado",
       });
 
-      console.log("📋 URL corrigida baseada na documentação:", url);
+      // ✨ Use the new simplified Python module via wrapper script
+      const { spawn } = await import("child_process");
+      const path = await import("path");
+      const { fileURLToPath } = await import("url");
 
-      // Fazer requisição para a API do Comdinheiro usando POST (como as outras chamadas)
-      // Preparar dados para envio via form data usando EndPoint001.php
-      const formData = new URLSearchParams();
-      formData.append("username", username);
-      formData.append("password", password);
-      formData.append("URL", url);
+      // Get current file directory to locate the Python script
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const projectRoot = path.resolve(__dirname, "../../../..");
+      const pythonScript = path.join(
+        projectRoot,
+        "scripts",
+        "comdinheiro_api_wrapper.py"
+      );
 
-      console.log("📤 Dados da consulta:", {
-        username: username.substring(0, 3) + "***",
-        URL: url.substring(0, 100) + "...",
-        format: "JSON3",
-      });
+      // Prepare request data for Python script
+      const requestData = {
+        action: "get_portfolio_data",
+        portfolio: carteira,
+        end_date: data_final,
+        view_type: view_type || "consolidado",
+        username,
+        password,
+      };
 
-      const response = await fetch(COMDINHEIRO_API_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": "Reino-Dashboard/1.0",
-        },
-        body: formData,
-      });
+      try {
+        const result = await new Promise<PythonWrapperResult>(
+          (resolve, reject) => {
+            const pythonProcess = spawn("python3", [
+              pythonScript,
+              JSON.stringify(requestData),
+            ]);
 
-      const responseText = await response.text();
+            let stdout = "";
+            let stderr = "";
 
-      if (!response.ok) {
-        console.error("❌ Erro HTTP da API Comdinheiro:", {
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers.entries()),
-          responsePreview: responseText.substring(0, 500),
+            pythonProcess.stdout.on("data", (data) => {
+              stdout += data.toString();
+            });
+
+            pythonProcess.stderr.on("data", (data) => {
+              stderr += data.toString();
+            });
+
+            pythonProcess.on("close", (code) => {
+              if (code !== 0) {
+                reject(
+                  new Error(`Python script failed with code ${code}: ${stderr}`)
+                );
+                return;
+              }
+
+              try {
+                const result = JSON.parse(stdout);
+                resolve(result);
+              } catch (error) {
+                reject(
+                  new Error(`Failed to parse Python script output: ${error}`)
+                );
+              }
+            });
+
+            pythonProcess.on("error", (error) => {
+              reject(new Error(`Failed to start Python script: ${error}`));
+            });
+
+            // Set timeout
+            setTimeout(() => {
+              pythonProcess.kill();
+              reject(new Error("Python script timeout"));
+            }, 30000);
+          }
+        );
+
+        console.log("✅ Resposta do novo módulo Comdinheiro:", {
+          success: result.success,
+          hasData: !!result.data,
+          error: result.error || null,
         });
 
-        // Handle specific error cases
-        if (response.status === 401) {
+        if (!result.success) {
           return json(
             {
               success: false,
-              error:
-                "Credenciais do Comdinheiro inválidas ou expiradas. Verifique suas credenciais em /settings",
-              details: "Erro de autenticação (401 Unauthorized)",
+              error: result.error || "Erro ao consultar dados do Comdinheiro",
             },
-            { status: 401 }
+            { status: 400 }
           );
         }
 
-        throw new Error(
-          `Erro na API Comdinheiro: ${response.status} - ${response.statusText}`
-        );
-      }
+        return json({ success: true, data: result.data });
+      } catch (pythonError) {
+        console.error("❌ Erro ao executar módulo Python:", pythonError);
 
-      console.log("📥 Resposta bruta da API Comdinheiro:", {
-        status: response.status,
-        contentType: response.headers.get("content-type"),
-        responseLength: responseText.length,
-        responsePreview: responseText.substring(0, 500),
-      });
-
-      // Verificar se a resposta é HTML (indica erro ou página web)
-      if (
-        responseText.trim().startsWith("<!DOCTYPE") ||
-        responseText.trim().startsWith("<html")
-      ) {
-        console.error(
-          "❌ API retornou HTML em vez de JSON - carteira não encontrada:"
-        );
-        console.error(
-          "📄 Resposta HTML (primeiros 500 chars):",
-          responseText.substring(0, 500)
-        );
-
+        // Fallback: If Python wrapper fails, provide helpful error message
         return json(
           {
             success: false,
-            error: `A carteira "${carteira}" não foi encontrada no sistema Comdinheiro ou não possui dados para a data ${data_final}. Verifique se o nome da carteira está correto.`,
+            error: "Erro interno do servidor ao processar consulta Comdinheiro",
             details:
-              "A API retornou uma página HTML em vez de dados JSON, indicando que a consulta não encontrou resultados válidos.",
-          },
-          { status: 404 }
-        );
-      }
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("❌ Erro ao parsear JSON:", parseError);
-        console.error("📄 Resposta completa:", responseText);
-
-        return json(
-          {
-            success: false,
-            error: "Erro ao processar resposta da API Comdinheiro",
-            details: `Resposta inválida: ${
-              parseError instanceof Error
-                ? parseError.message
-                : "Erro desconhecido"
-            }`,
+              pythonError instanceof Error
+                ? pythonError.message
+                : "Erro desconhecido",
           },
           { status: 500 }
         );
       }
-
-      console.log("📥 Dados parseados da API Comdinheiro:", {
-        hasTables: !!data.tables,
-        tablesType: Array.isArray(data.tables) ? "array" : "object",
-        tablesLength: Array.isArray(data.tables)
-          ? data.tables.length
-          : Object.keys(data.tables || {}).length,
-        dataKeys: Object.keys(data),
-      });
-
-      // Log detalhado da estrutura completa para debug
-      console.log(
-        "🔍 Estrutura completa da resposta:",
-        JSON.stringify(data, null, 2)
-      );
-
-      return json({ success: true, data });
     }
 
     // Funcionalidade original: requisição direta

@@ -70,7 +70,7 @@ class ComdinheiroAPI:
             # Remove None values and empty strings
             clean_params = {k: v for k, v in params.items() if v is not None and v != ''}
             if clean_params:
-                url += f"&{urlencode(clean_params)}"
+                url += f"?{urlencode(clean_params)}"
                 
         return url
     
