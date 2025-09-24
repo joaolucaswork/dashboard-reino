@@ -11,7 +11,7 @@ Tel +55 11 4133- 4900**
   - Informações de Entrada
   - Código Gerado
   - Exemplo de Consulta
-  - Teste de Requisição API – Postman..............................................................................................................................
+  - Teste de Requisição API
   - O que Fazer em Caso de Problemas?
   - Avisos Importantes
 
@@ -28,7 +28,7 @@ O guia tem como objetivo orientar os usuários a realizar importações de dados
 ferramenta que, ao final, gera um código de requisição para ser incorporado ao código do cliente, de modo que, ao
 ser executado, o código retornará as informações referentes à ferramenta de dados escolhida e seus parâmetros
 definidos na URL da consulta. Além de toda a explicação sobre como utilizar a ferramenta, há, também, uma
-demonstração de como testar uma requisição via Postman.
+demonstração de como testar uma requisição via cliente HTTP.
 
 ### Ferramenta de Importação API
 
@@ -105,27 +105,26 @@ ustes&num_casas=2&enviar_email=0&ordem_legenda=1&cabecalho_excel=modo1&classes_a
 cum=rent_acum&minY=&maxY=&deltaY=&preco_nd_ant=0&base_num_indice=100&flag_num_indice=0&eixo_x=Data&startX=0&max_list
 _size=20&line_width=2&titulo_grafico=&legenda_eixoy=&tipo_grafico=line&script=&tooltip=unica&flag_export=XML
 
-### Teste de Requisição API – Postman
+### Teste de Requisição API
 
-Uma forma de testar os parâmetros de uma consulta é utilizando o Postman. Por meio dele, é possível montar uma
-requisição e verificar qual o retorno dela, validando assim os parâmetros inseridos, como, por exemplo, a URL que o
-usuário deseja utilizar, o formato de resposta da consulta, entre outros.
+Para testar os parâmetros de uma consulta, você pode usar qualquer cliente HTTP (como curl, Insomnia, ou ferramentas similares) para montar uma requisição e verificar o retorno, validando assim os parâmetros inseridos, como a URL, o formato de resposta da consulta, entre outros.
 
 **Comdinheiro
 Tel +55 11 4133- 4900**
 
-Ao acessar o Postman e iniciar uma nova requisição, devemos preenchê-la da seguinte maneira:
+Para fazer uma requisição de teste, configure da seguinte maneira:
 
-Método (selecionar opção): **POST**
-Endereço (adicionar): <https://www.comdinheiro.com.br/Clientes/API/EndPoint001.php?code=import_data>
-Body (aba em que os parâmetros serão passados)
-Codificação (selecionar opção): **x-www-form-urlencoded**
-Key (inserir as chaves na coluna): **username** , **password** , **URL** e **format**
-Value (inserir os valores na coluna): **usuário e senha** (de quem estiver montando a requisição), **URL** (qualquer URL de
-ferramenta compatível com API), **formato** (JSON, JSON2, JSON3, XML e XML2 – escolher uma das opções)
+Método: **POST**
+Endereço: <https://www.comdinheiro.com.br/Clientes/API/EndPoint001.php?code=import_data>
+Body: **x-www-form-urlencoded**
+Parâmetros necessários:
 
-Após passar todos os parâmetros, a consulta estará pronta, restando apenas clicar no botão “Send” para processar a
-requisição. O resultado da requisição pode ser acompanhado logo abaixo do quadro em que a requisição é montada.
+- **username**: seu usuário
+- **password**: sua senha
+- **URL**: qualquer URL de ferramenta compatível com API
+- **format**: formato desejado (JSON, JSON2, JSON3, XML e XML2)
+
+Após configurar todos os parâmetros, a consulta estará pronta para ser executada.
 
 ### O que Fazer em Caso de Problemas?
 
