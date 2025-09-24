@@ -17,9 +17,16 @@
     Timer,
     Search,
     Database,
+    Eye,
+    Circle,
+    ImageIcon,
   } from "@lucide/svelte";
   import FonteDadosConfig from "$lib/components/settings/FonteDadosConfig.svelte";
   import SeletorCarteiraComdinheiro from "$lib/components/tabelas/SeletorCarteiraComdinheiro.svelte";
+  import {
+    bankDisplayMode,
+    type BankDisplayMode,
+  } from "$lib/stores/bankDisplay";
 </script>
 
 <div class="space-y-8">
@@ -128,6 +135,38 @@
             <Moon size={14} />
             Escuro
           </Button>
+        </div>
+        <div
+          class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
+        >
+          <div class="space-y-1">
+            <p class="text-label">Exibição de Bancos</p>
+            <p class="text-caption">
+              Escolha como os bancos são mostrados nas tabelas
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <Button
+              variant={$bankDisplayMode === "logo" ? "default" : "outline"}
+              size="sm"
+              class="flex items-center gap-2"
+              onclick={() => bankDisplayMode.setMode("logo")}
+            >
+              <ImageIcon size={14} />
+              Logo
+            </Button>
+            <Button
+              variant={$bankDisplayMode === "colored-dot"
+                ? "default"
+                : "outline"}
+              size="sm"
+              class="flex items-center gap-2"
+              onclick={() => bankDisplayMode.setMode("colored-dot")}
+            >
+              <Circle size={14} />
+              Cor
+            </Button>
+          </div>
         </div>
         <div
           class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"
