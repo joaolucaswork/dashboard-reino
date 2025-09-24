@@ -175,11 +175,9 @@ export async function consultarDados() {
           "x-comdinheiro-password": password,
         },
         body: JSON.stringify({
-          action: "consultar",
+          action: "posicao_consolidada",
           carteira: nomeCarteiraParaAPI,
           data_final: dataFinalVal,
-          view_type: "consolidado",
-          banco: banco || "",
         }),
       });
 

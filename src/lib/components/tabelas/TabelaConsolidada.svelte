@@ -783,7 +783,15 @@
     </div>
   </CardHeader>
   <CardContent class="space-y-4 px-0">
-    {#if data?.agrupados}
+    {#if data?.mensagem}
+      <!-- Mensagem quando não há dados -->
+      <div class="text-center py-8">
+        <p class="text-body">{data.mensagem}</p>
+        <p class="text-caption mt-2">
+          Tente selecionar uma carteira diferente ou uma data mais recente.
+        </p>
+      </div>
+    {:else if data?.agrupados && Object.keys(data.agrupados).length > 0}
       <!-- Accordion por Bancos -->
       {#each Object.entries(data.agrupados) as [banco, categorias]}
         <div
@@ -971,13 +979,21 @@
           {/if}
         </div>
       {/each}
-    {:else}
+    {:else if data && !data.mensagem}
       <!-- Fallback para dados em formato de tabela simples -->
       <TabelaFinanceiraEnhanced
         {data}
         mode="consolidado"
         title="Dados Consolidados"
       />
+    {:else}
+      <!-- Estado vazio quando não há dados -->
+      <div class="text-center py-12">
+        <p class="text-body mb-2">Nenhum dado disponível</p>
+        <p class="text-caption">
+          Selecione uma carteira e data para visualizar os dados consolidados.
+        </p>
+      </div>
     {/if}
   </CardContent>
 </Card>

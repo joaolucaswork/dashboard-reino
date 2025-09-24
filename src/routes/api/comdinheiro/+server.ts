@@ -48,6 +48,159 @@ export const POST: RequestHandler = async ({ request }) => {
   try {
     const body = await request.json();
 
+    // Verificar se é uma consulta de posição consolidada
+    if (body.action === "posicao_consolidada") {
+      const { carteira, data_final } = body;
+
+      if (!carteira || !data_final) {
+        return json(
+          { success: false, error: "Carteira e data final são obrigatórias" },
+          { status: 400 }
+        );
+      }
+
+      // Buscar credenciais do localStorage (serão enviadas pelo frontend)
+      let username = request.headers.get("x-comdinheiro-username");
+      let password = request.headers.get("x-comdinheiro-password");
+
+      // TEMPORÁRIO: Usar credenciais fixas se não encontrar no header
+      if (!username || !password) {
+        console.log("⚠️ Usando credenciais fixas temporárias");
+        // Tentar primeiro com as credenciais fornecidas
+        username = "reino.capital";
+        password = "Reino123@";
+
+        console.log("🔑 Testando credenciais:", {
+          username: username,
+          passwordLength: password.length,
+          passwordStart: password.substring(0, 3) + "***",
+        });
+      }
+
+      if (!username || !password) {
+        return json(
+          {
+            success: false,
+            error: "Credenciais do ComDinheiro não encontradas",
+          },
+          { status: 401 }
+        );
+      }
+
+      console.log("🔑 Consultando posição consolidada:", {
+        carteira: carteira.substring(0, 10) + "...",
+        data_final,
+        usernamePreview: username.substring(0, 3) + "***",
+      });
+
+      try {
+        // Construir URL específica para posição consolidada (baseado na aplicação anterior)
+        const dataFormatada = formatDateForComdinheiro(data_final);
+        const url = buildConsolidadoUrl(carteira, dataFormatada);
+
+        console.log("📅 Formatação de data:", {
+          dataOriginal: data_final,
+          dataFormatada: dataFormatada,
+          carteira: carteira,
+        });
+
+        console.log("🔗 URL construída:", url.substring(0, 100) + "...");
+        console.log("🔗 URL completa:", url);
+
+        // Fazer requisição para API do ComDinheiro
+        const payload = {
+          username,
+          password,
+          URL: url,
+          format: "JSON3",
+        };
+
+        console.log("📤 Enviando requisição para ComDinheiro:", {
+          endpoint: COMDINHEIRO_API_ENDPOINT,
+          username: username.substring(0, 3) + "***",
+          hasPassword: !!password,
+          url: url.substring(0, 100) + "...",
+          format: payload.format,
+        });
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        const response = await fetch(COMDINHEIRO_API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(payload),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        console.log("📥 Resposta da API:", {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+        });
+
+        if (!response.ok) {
+          // Tentar ler o corpo da resposta para mais detalhes do erro
+          let errorBody = "";
+          try {
+            errorBody = await response.text();
+            console.log("❌ Corpo da resposta de erro:", errorBody);
+          } catch (e) {
+            console.log("❌ Não foi possível ler o corpo da resposta de erro");
+          }
+
+          throw new Error(
+            `HTTP error! status: ${response.status} - ${
+              response.statusText
+            }. Body: ${errorBody.substring(0, 200)}`
+          );
+        }
+
+        const responseText = await response.text();
+        console.log(
+          "📥 Resposta bruta da API:",
+          responseText.substring(0, 200) + "..."
+        );
+
+        let dados;
+        try {
+          dados = JSON.parse(responseText);
+          console.log("📊 Estrutura dos dados recebidos:", {
+            hasMetadata: !!dados.meta,
+            hasTables: !!dados.tables,
+            keys: Object.keys(dados),
+            metaKeys: dados.meta ? Object.keys(dados.meta) : null,
+          });
+        } catch (parseError) {
+          console.error("❌ Erro ao fazer parse do JSON:", parseError);
+          throw new Error("Resposta inválida da API ComDinheiro");
+        }
+
+        // Processar dados no formato consolidado (baseado na aplicação anterior)
+        const resultado = processarDadosConsolidados(
+          dados,
+          carteira,
+          data_final
+        );
+
+        console.log("✅ Dados processados com sucesso");
+        return json({ success: true, data: resultado });
+      } catch (error) {
+        console.error("❌ Erro ao consultar posição consolidada:", error);
+        return json(
+          {
+            success: false,
+            error: error instanceof Error ? error.message : "Erro desconhecido",
+          },
+          { status: 500 }
+        );
+      }
+    }
+
     // Verificar se é uma consulta direta ou uma requisição tradicional
     if (body.action === "consultar") {
       // ✨ NEW: Use simplified Comdinheiro module via Python wrapper
@@ -562,6 +715,249 @@ export const GET: RequestHandler = async ({ url }) => {
     { status: 400 }
   );
 };
+
+// Funções auxiliares para posição consolidada
+
+/**
+ * Formatar data para o formato esperado pela API ComDinheiro (DDMMYYYY)
+ */
+function formatDateForComdinheiro(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear());
+    return `${day}${month}${year}`;
+  } catch (error) {
+    console.error("Erro ao formatar data:", error);
+    throw new Error("Data inválida");
+  }
+}
+
+/**
+ * Construir URL para consulta de posição consolidada
+ * Baseado na aplicação anterior: RelatorioGerencialCarteiras001.php
+ */
+function buildConsolidadoUrl(carteira: string, dataFormatada: string): string {
+  const params = new URLSearchParams({
+    data_analise: dataFormatada,
+    data_ini: dataFormatada,
+    nome_portfolio: carteira,
+    variaveis:
+      "instituicao_financeira+ativo+desc+quant+saldo_bruto+tipo_ativo+saldo_liquido",
+    filtro: "all",
+    ativo: "",
+    filtro_IF: "todos",
+    relat_alias: "",
+    layout: "0",
+    layoutB: "0",
+    num_casas: "",
+    enviar_email: "0",
+    portfolio_editavel: "",
+    filtro_id: "",
+  });
+
+  return `RelatorioGerencialCarteiras001.php?&${params.toString()}`;
+}
+
+/**
+ * Processar dados consolidados no formato da aplicação anterior
+ * Estrutura: agrupamento por banco -> tipo de ativo -> linhas
+ */
+function processarDadosConsolidados(
+  dados: any,
+  carteira: string,
+  dataFinal: string
+): any {
+  console.log("🔍 Analisando estrutura dos dados:", {
+    temTables: !!dados.tables,
+    temTab0: !!(dados.tables && dados.tables.tab0),
+    chavesPrincipais: Object.keys(dados),
+    estruturaCompleta: dados,
+  });
+
+  // Verificar diferentes estruturas possíveis
+  let tab0;
+  if (dados.tables && dados.tables.tab0) {
+    tab0 = dados.tables.tab0;
+  } else if (dados.tab0) {
+    tab0 = dados.tab0;
+  } else if (dados.data && dados.data.tab0) {
+    tab0 = dados.data.tab0;
+  } else if (
+    dados.tables &&
+    Array.isArray(dados.tables) &&
+    dados.tables.length === 0
+  ) {
+    // API retornou tables como array vazio - sem dados para essa consulta
+    console.log("⚠️ Nenhum dado encontrado para a carteira/data especificada");
+    return {
+      agrupados: {},
+      cabecalho: null,
+      carteira,
+      data_final: dataFinal,
+      total_geral: "0,00",
+      mensagem: "Nenhum dado encontrado para a carteira e data especificadas",
+    };
+  } else {
+    console.error("❌ Estrutura de dados não reconhecida:", dados);
+    throw new Error(
+      "Estrutura de dados não reconhecida. Esperado: tables.tab0, tab0, ou data.tab0"
+    );
+  }
+
+  console.log("📋 Dados da tabela encontrados:", {
+    numeroLinhas: Object.keys(tab0).length,
+    primeiraChave: Object.keys(tab0)[0],
+    estruturaLinha: tab0[Object.keys(tab0)[0]],
+  });
+  let totalGeralFloat = 0.0;
+  const agrupados: any = {};
+
+  // Processar cada linha dos dados (baseado na aplicação anterior)
+  for (const [key, row] of Object.entries(tab0)) {
+    if (key === "lin0") continue; // Pular cabeçalho
+
+    const rowData = row as any;
+    const banco = (rowData.col0 || "Sem Banco").toString().trim();
+    const ativo = (rowData.col1 || "").toString().trim();
+    const descricao = (rowData.col2 || "").toString().trim();
+    const quantidade =
+      parseFloat(
+        String(rowData.col3 || "0")
+          .replace(/\./g, "")
+          .replace(",", ".")
+      ) || 0;
+    const saldoBruto =
+      parseFloat(
+        String(rowData.col4 || "0")
+          .replace(/\./g, "")
+          .replace(",", ".")
+      ) || 0;
+    const tipoAtivo = (rowData.col5 || "Sem Tipo")
+      .toString()
+      .trim()
+      .toLowerCase();
+    const saldoLiquido =
+      parseFloat(
+        String(rowData.col6 || "0")
+          .replace(/\./g, "")
+          .replace(",", ".")
+      ) || 0;
+
+    // Inicializar banco se não existir
+    if (!agrupados[banco]) {
+      agrupados[banco] = { _total_banco: 0.0 };
+    }
+
+    // Inicializar tipo de ativo se não existir
+    if (!agrupados[banco][tipoAtivo]) {
+      agrupados[banco][tipoAtivo] = {
+        linhas: [],
+        total_saldo: 0.0,
+        _total_tipo: 0.0,
+      };
+    }
+
+    // Criar cópia da linha com valores processados
+    const linhaCopy = {
+      ...rowData,
+      col0: banco,
+      col1: ativo,
+      col2: descricao,
+      col3: quantidade,
+      col4: saldoBruto,
+      col5: tipoAtivo,
+      col6: saldoLiquido,
+    };
+
+    // Adicionar linha e atualizar totais
+    agrupados[banco][tipoAtivo].linhas.push(linhaCopy);
+    agrupados[banco][tipoAtivo].total_saldo += saldoBruto;
+    agrupados[banco][tipoAtivo]._total_tipo += saldoBruto;
+
+    // Somar ao total do banco (exceto CAIXAB como na aplicação anterior)
+    if (tipoAtivo.toUpperCase() !== "CAIXAB") {
+      agrupados[banco]._total_banco += saldoBruto;
+      totalGeralFloat += saldoBruto;
+    }
+  }
+
+  // Aplicar reestruturação por categorias (simplificada)
+  const agrupadosReestruturados = reestruturarAgrupamento(agrupados);
+
+  // Formatar total geral no padrão brasileiro
+  const totalGeral = new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(totalGeralFloat);
+
+  return {
+    agrupados: agrupadosReestruturados,
+    cabecalho: tab0.lin0,
+    carteira,
+    data_final: dataFinal,
+    total_geral: totalGeral,
+  };
+}
+
+/**
+ * Reestruturar agrupamento por categorias (compatível com o componente existente)
+ */
+function reestruturarAgrupamento(agrupados: any): any {
+  const reestruturado: any = {};
+
+  for (const [banco, tipos] of Object.entries(agrupados)) {
+    // Manter a estrutura esperada pelo componente
+    reestruturado[banco] = {
+      _total_banco: (tipos as any)._total_banco,
+    };
+
+    // Agrupar tipos de ativo em categorias diretamente no nível do banco
+    for (const [tipo, dados] of Object.entries(tipos)) {
+      if (tipo === "_total_banco") continue;
+
+      const categoria = categorizarTipoAtivo(tipo);
+
+      if (!reestruturado[banco][categoria]) {
+        reestruturado[banco][categoria] = {
+          _total_categoria: 0.0,
+        };
+      }
+
+      // Adicionar o tipo diretamente na categoria
+      reestruturado[banco][categoria][tipo] = dados;
+      reestruturado[banco][categoria]._total_categoria += (
+        dados as any
+      ).total_saldo;
+    }
+  }
+
+  return reestruturado;
+}
+
+/**
+ * Categorizar tipo de ativo (simplificado)
+ */
+function categorizarTipoAtivo(tipo: string): string {
+  const tipoLower = tipo.toLowerCase();
+
+  if (tipoLower.includes("acao") || tipoLower.includes("stock")) {
+    return "Ações";
+  } else if (tipoLower.includes("fundo") || tipoLower.includes("fund")) {
+    return "Fundos";
+  } else if (
+    tipoLower.includes("renda") ||
+    tipoLower.includes("debenture") ||
+    tipoLower.includes("cdb")
+  ) {
+    return "Renda Fixa";
+  } else if (tipoLower.includes("caixa") || tipoLower.includes("cash")) {
+    return "Caixa";
+  } else {
+    return "Outros";
+  }
+}
 
 // Função para gerar código em diferentes linguagens
 function gerarCodigo(

@@ -10,8 +10,7 @@
   // Carregar configurações ao montar
   onMount(async () => {
     carregarConfiguracoes();
-    // Carregar carteiras usando a configuração
-    await buscarCarteirasConfig();
+    // Carteiras serão carregadas pelo componente SeletorCarteira
   });
 
   // Mapeamento dos parâmetros de URL para os modos de visualização

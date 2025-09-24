@@ -63,11 +63,13 @@ export async function buscarCarteirasConfig(): Promise<CarteirasResponse> {
 
   let fonte: "salesforce" | "database" = "database";
 
-  // Obter fonte atual da configuração
-  appConfig.subscribe((config) => {
+  // Obter fonte atual da configuração de forma síncrona
+  const unsubscribe = appConfig.subscribe((config) => {
     fonte = config.fonteCarteiras;
-  })();
+  });
+  unsubscribe(); // Limpar subscription imediatamente
 
+  console.log("🔍 Buscando carteiras com fonte:", fonte);
   return await buscarCarteiras(fonte);
 }
 
@@ -140,18 +142,27 @@ export async function buscarCarteiras(
     };
   }
 
+  console.log("🔄 Iniciando busca de carteiras:", { source });
   carregandoCarteiras.set(true);
   erroCarteiras.set(null);
 
   try {
     const url = `/api/carteiras?source=${source}`;
+    console.log("📡 Fazendo requisição para:", url);
     const response = await fetch(url);
+
+    console.log("📥 Resposta recebida:", {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data: CarteirasResponse = await response.json();
+    console.log("📊 Dados recebidos:", data);
 
     if (data.success) {
       carteirasDisponiveis.set(data.carteiras);

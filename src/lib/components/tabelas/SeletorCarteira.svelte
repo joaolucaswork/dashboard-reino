@@ -71,15 +71,39 @@
 
   // Carregar carteiras ao montar o componente
   onMount(async () => {
-    const result = await buscarCarteirasConfig();
-    if (!result.success) {
-      toast.error("Erro ao carregar carteiras", {
-        description: result.error,
-      });
-    } else if ($carteirasDetalhadas.length > 0) {
-      toast.success(
-        `${$carteirasDetalhadas.length} carteiras carregadas do Salesforce`
-      );
+    console.log("🚀 Iniciando carregamento automático de carteiras...");
+
+    // Verificar se já existem carteiras carregadas
+    if ($carteirasDetalhadas.length > 0) {
+      console.log("✅ Carteiras já carregadas:", $carteirasDetalhadas.length);
+      return;
+    }
+
+    try {
+      const result = await buscarCarteirasConfig();
+      console.log("📊 Resultado do carregamento:", result);
+
+      if (!result.success) {
+        console.error("❌ Erro ao carregar carteiras:", result.error);
+        toast.error("Erro ao carregar carteiras", {
+          description: result.error,
+        });
+      } else {
+        console.log("✅ Carteiras carregadas com sucesso:", {
+          total: result.carteiras?.length || 0,
+          detalhadas: $carteirasDetalhadas.length,
+          source: result.source,
+        });
+
+        if ($carteirasDetalhadas.length > 0) {
+          toast.success(
+            `${$carteirasDetalhadas.length} carteiras carregadas do ${result.source === "salesforce" ? "Salesforce" : "banco local"}`
+          );
+        }
+      }
+    } catch (error) {
+      console.error("❌ Erro inesperado ao carregar carteiras:", error);
+      toast.error("Erro inesperado ao carregar carteiras");
     }
   });
 

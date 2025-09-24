@@ -82,8 +82,8 @@
     <!-- Estado inicial - removido o placeholder conforme solicitado -->
   {/if}
 
-  <!-- Tabela de Carteiras do Salesforce - sempre visível -->
-  <div class="mt-8">
+  <!-- Tabela de Carteiras do Salesforce - comentada temporariamente -->
+  <!-- <div class="mt-8">
     <TabelaCarteirasSalesforce />
-  </div>
+  </div> -->
 </div>
