@@ -16,7 +16,10 @@
     Moon,
     Timer,
     Search,
+    Database,
   } from "@lucide/svelte";
+  import FonteDadosConfig from "$lib/components/settings/FonteDadosConfig.svelte";
+  import SeletorCarteiraComdinheiro from "$lib/components/tabelas/SeletorCarteiraComdinheiro.svelte";
 </script>
 
 <div class="space-y-8">
@@ -30,6 +33,25 @@
 
   <!-- Settings Grid -->
   <div class="grid gap-8">
+    <!-- Configuração de Fonte de Dados -->
+    <FonteDadosConfig />
+
+    <!-- Configurações do Comdinheiro -->
+    <Card class="card-premium">
+      <CardHeader class="p-6">
+        <CardTitle class="text-subheading flex items-center gap-2">
+          <Database size={20} class="text-primary" />
+          Configurações do Comdinheiro
+        </CardTitle>
+        <CardDescription class="text-caption mt-2">
+          Configure suas credenciais e gerencie carteiras do Comdinheiro
+        </CardDescription>
+      </CardHeader>
+      <CardContent class="p-6 pt-0">
+        <SeletorCarteiraComdinheiro />
+      </CardContent>
+    </Card>
+
     <Card class="card-premium">
       <CardHeader class="p-6">
         <CardTitle class="text-subheading flex items-center gap-2">

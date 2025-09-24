@@ -15,6 +15,7 @@
     ChartBar,
     Target,
     Folder,
+    Database,
   } from "@lucide/svelte";
   import {
     DynamicFolderPreview,
@@ -567,6 +568,27 @@
                     class="tooltip-standard"
                   >
                     Notificações
+                  </Tooltip.Content>
+                </Tooltip.Root>
+                <Tooltip.Root>
+                  <Tooltip.Trigger
+                    class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                    onclick={() => goto("/comdinheiro")}
+                    aria-label="API Comdinheiro"
+                  >
+                    <Database
+                      size={18}
+                      class="text-white/60 hover:text-white/80"
+                    />
+                  </Tooltip.Trigger>
+                  <Tooltip.Content
+                    side="right"
+                    align="center"
+                    sideOffset={8}
+                    hidden={sidebarOpen}
+                    class="tooltip-standard"
+                  >
+                    API Comdinheiro
                   </Tooltip.Content>
                 </Tooltip.Root>
                 <Tooltip.Root>

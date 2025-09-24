@@ -17,6 +17,56 @@
   import { RadioGroup, RadioGroupItem } from "$lib/components/ui/radio-group";
   import * as Tooltip from "$lib/components/ui/tooltip";
   import { ChartBar, Target, Search } from "@lucide/svelte";
+  import { onMount } from "svelte";
+  import { toast } from "svelte-sonner";
+
+  // Interface para carteiras do Salesforce
+  interface CarteiraSalesforce {
+    id: string;
+    nome: string;
+    nome_comdinheiro: string | null;
+    numero_conta: string | null;
+    banco: string | null;
+    patrimonio: number;
+    porcentagem: number;
+    mensalidade: number;
+    data_modificacao: string;
+    fonte: string;
+  }
+
+  // Estado para carteiras do Salesforce
+  let carteirasSalesforce: CarteiraSalesforce[] = [];
+  let loadingCarteiras = false;
+
+  // Função para buscar carteiras do Salesforce
+  async function buscarCarteirasSalesforce() {
+    if (carteirasSalesforce.length > 0) return; // Já carregadas
+
+    loadingCarteiras = true;
+    try {
+      const response = await fetch("/api/carteiras?source=salesforce");
+      const data = await response.json();
+
+      if (data.success && data.carteiras_detalhadas) {
+        carteirasSalesforce = data.carteiras_detalhadas;
+        console.log(
+          `✅ ${carteirasSalesforce.length} carteiras carregadas do Salesforce`
+        );
+      } else {
+        throw new Error(data.error || "Erro ao buscar carteiras");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao buscar carteiras do Salesforce:", error);
+      toast.error("Erro ao carregar carteiras do Salesforce");
+    } finally {
+      loadingCarteiras = false;
+    }
+  }
+
+  // Carregar carteiras quando componente for montado
+  onMount(() => {
+    buscarCarteirasSalesforce();
+  });
 
   // Opções de modo de visualização
   const modos = [
@@ -56,7 +106,8 @@
   ];
 
   // Função para submeter o formulário
-  async function handleSubmit() {
+  async function handleSubmit(event: Event) {
+    event.preventDefault();
     if (!$formularioValido) return;
 
     try {
@@ -67,7 +118,7 @@
   }
 </script>
 
-<form on:submit|preventDefault={handleSubmit} class="space-y-8">
+<form onsubmit={handleSubmit} class="space-y-8">
   <!-- Seleção do Modo de Visualização -->
   <div class="space-y-4">
     <RadioGroup bind:value={$modoVisualizacao} class="flex flex-wrap gap-4">
@@ -138,7 +189,15 @@
   <div class="flex flex-col md:flex-row gap-6">
     <!-- Seletor de Carteira -->
     <div class="w-80 min-w-0">
-      <SeletorCarteira />
+      <SeletorCarteira
+        carteirasExternas={carteirasSalesforce}
+        usarCarteirasExternas={$modoVisualizacao === "consolidado"}
+      />
+      {#if loadingCarteiras && $modoVisualizacao === "consolidado"}
+        <p class="text-sm text-muted-foreground mt-2">
+          Carregando carteiras do Salesforce...
+        </p>
+      {/if}
     </div>
 
     <!-- Data Final -->
