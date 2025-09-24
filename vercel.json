@@ -1,0 +1,18 @@
+{
+  "framework": "sveltekit",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".svelte-kit/output",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "functions": {
+    "src/routes/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
+}
