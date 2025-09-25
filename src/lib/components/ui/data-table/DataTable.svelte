@@ -127,7 +127,7 @@
 
   <!-- Table -->
   <div class="rounded-lg border border-border/50 overflow-hidden shadow-sm">
-    <Table.Root class="w-full">
+    <Table.Root class="w-full table-auto">
       <Table.Header>
         <Table.Row>
           {#each columns as column}
@@ -146,7 +146,7 @@
           {@const isEvenRow = index % 2 === 0}
           {@const rowClasses = [
             "transition-colors",
-            isEvenRow ? "bg-background" : "bg-muted/20",
+            isEvenRow ? "bg-background" : "bg-muted/50",
             "hover:bg-[#2b251e]",
           ].join(" ")}
 

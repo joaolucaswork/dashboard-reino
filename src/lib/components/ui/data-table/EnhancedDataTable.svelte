@@ -251,13 +251,13 @@
 
   function getColumnWidthClass(column) {
     if (isDescriptionColumn(column)) {
-      return "w-64 max-w-64 min-w-48"; // Fixed width for description with proper spacing
+      return "min-w-48 max-w-64"; // Minimum width with controlled maximum for descriptions
     } else if (isQuantityColumn(column)) {
-      return "w-24 max-w-24 min-w-20"; // Compact width for quantity
+      return "min-w-20"; // Minimum width, allows expansion for longer quantities
     } else if (isBalanceColumn(column)) {
-      return "w-32 max-w-32 min-w-28"; // Consistent width for balance columns
+      return "min-w-28"; // Minimum width, allows expansion for larger amounts
     }
-    return ""; // Default width for other columns
+    return "min-w-24"; // Default minimum width for other columns
   }
 
   function truncateText(text, maxLength = 30) {
@@ -436,7 +436,7 @@
 
   <!-- Enhanced Table -->
   <div class="rounded-lg border border-border/50 overflow-hidden shadow-sm">
-    <Table.Root class="w-full">
+    <Table.Root class="w-full table-auto">
       <Table.Header>
         <Table.Row>
           <!-- Selection Header -->
@@ -507,7 +507,7 @@
               ? "bg-[#2b251e]"
               : isEvenRow
                 ? "bg-background"
-                : "bg-muted/20",
+                : "bg-muted/50",
             "hover:bg-[#2b251e]",
           ].join(" ")}
 
@@ -566,9 +566,13 @@
                       </div>
                     {/if}
                   {:else}
-                    <span class="font-mono"
-                      >{@html renderCell(column, row)}</span
+                    {@const isNumericColumn =
+                      isQuantityColumn(column) || isBalanceColumn(column)}
+                    <div
+                      class={`${isNumericColumn ? "text-right font-mono" : "text-left"} whitespace-nowrap`}
                     >
+                      {@html renderCell(column, row)}
+                    </div>
                   {/if}
 
                   <!-- Badge for first column if enabled -->

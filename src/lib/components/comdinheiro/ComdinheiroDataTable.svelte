@@ -242,7 +242,7 @@
     <CardContent>
       {#if processedData.length > 0}
         <div class="overflow-x-auto">
-          <table class="w-full border-collapse border border-border">
+          <table class="w-full table-auto border-collapse border border-border">
             <thead>
               <tr class="bg-muted">
                 {#each columns as column}
@@ -257,7 +257,7 @@
                 {@const isEvenRow = index % 2 === 0}
                 {@const rowClasses = [
                   "transition-colors",
-                  isEvenRow ? "bg-background" : "bg-muted/20",
+                  isEvenRow ? "bg-background" : "bg-muted/50",
                   "hover:bg-[#2b251e]",
                 ].join(" ")}
 
