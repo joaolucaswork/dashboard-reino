@@ -576,7 +576,8 @@
                   {/if}
 
                   <!-- Badge for first column if enabled -->
-                  {#if colIndex === 0 && enableBadges}
+                  <!-- COMMENTED OUT: Badge removed from Quantidade column as requested -->
+                  <!-- {#if colIndex === 0 && enableBadges}
                     {@const badge = getBadgeForRow(row)}
                     {#if badge}
                       <Badge
@@ -586,7 +587,7 @@
                         {badge.text}
                       </Badge>
                     {/if}
-                  {/if}
+                  {/if} -->
                 </div>
               </Table.Cell>
             {/each}
