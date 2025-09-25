@@ -23,13 +23,22 @@
   export let carteirasExternas: any[] = [];
   export let usarCarteirasExternas = false;
 
-  // Transformar carteiras detalhadas em opções simples
-  const carteiraOptions = derived(carteirasDetalhadas, ($carteiras) => {
+  // Transformar carteiras detalhadas em opções simples - usando reactive statement para reagir às props
+  let carteiraOptions: Array<{
+    value: string;
+    label: string;
+    description: string;
+    nomeComdinheiro: string | null;
+  }> = [];
+
+  // Reactive statement que atualiza as opções quando qualquer dependência muda
+  $: {
     // Se deve usar carteiras externas, usar elas em vez das do store
     const carteirasParaUsar = usarCarteirasExternas
       ? carteirasExternas
-      : $carteiras;
-    const result = carteirasParaUsar.map((carteira) => {
+      : $carteirasDetalhadas;
+
+    carteiraOptions = carteirasParaUsar.map((carteira) => {
       return {
         value: carteira.nome, // Nome de exibição (usado como value para o combobox)
         label: carteira.nome, // Nome de exibição (mostrado ao usuário)
@@ -38,14 +47,20 @@
       };
     });
 
-    return result;
-  });
+    console.log("🔄 carteiraOptions atualizadas:", {
+      usarCarteirasExternas,
+      carteirasExternas: carteirasExternas.length,
+      carteirasDetalhadas: $carteirasDetalhadas.length,
+      opcoes: carteiraOptions.length,
+    });
+  }
 
   // Reactive statement para atualizar o nome técnico quando a carteira muda
   $: if ($carteiraAtual) {
     // Encontrar a carteira selecionada para obter o nome técnico
-    const carteiraSelecionada = $carteiraOptions.find(
-      (option) => option.value === $carteiraAtual
+    const carteiraSelecionada = carteiraOptions.find(
+      (option: { value: string; nomeComdinheiro: string | null }) =>
+        option.value === $carteiraAtual
     );
 
     // Atualizar a store do nome técnico
@@ -94,12 +109,6 @@
           detalhadas: $carteirasDetalhadas.length,
           source: result.source,
         });
-
-        if ($carteirasDetalhadas.length > 0) {
-          toast.success(
-            `${$carteirasDetalhadas.length} carteiras carregadas do ${result.source === "salesforce" ? "Salesforce" : "banco local"}`
-          );
-        }
       }
     } catch (error) {
       console.error("❌ Erro inesperado ao carregar carteiras:", error);
@@ -139,10 +148,10 @@
 
   <Combobox
     bind:value={$carteiraAtual}
-    options={$carteiraOptions}
+    options={carteiraOptions}
     placeholder={$carregandoCarteiras
       ? "Carregando carteiras..."
-      : "Selecione uma carteira"}
+      : `${carteiraOptions.length} carteiras disponíveis`}
     searchPlaceholder="Buscar carteira..."
     emptyMessage={$erroCarteiras
       ? $erroCarteiras

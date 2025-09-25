@@ -19,6 +19,7 @@
   import { ChartBar, Target, Search } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
+  import SalesforceIcon from "$lib/components/icons/SalesforceIcon.svelte";
 
   // Interface para carteiras do Salesforce
   interface CarteiraSalesforce {
@@ -52,6 +53,11 @@
         console.log(
           `✅ ${carteirasSalesforce.length} carteiras carregadas do Salesforce`
         );
+        // Notificação simples com apenas o texto principal
+        toast.success(`${carteirasSalesforce.length} carteiras carregadas`, {
+          duration: 4000,
+          icon: SalesforceIcon,
+        });
       } else {
         throw new Error(data.error || "Erro ao buscar carteiras");
       }
