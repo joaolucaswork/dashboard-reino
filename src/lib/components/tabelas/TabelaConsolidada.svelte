@@ -32,6 +32,7 @@
     loadingState,
   } from "$lib/stores/tabelas.js";
   import { carteiraOptions } from "$lib/stores/carteiras.js";
+  import AssetTypeIndicator from "$lib/components/ui/AssetTypeIndicator.svelte";
 
   let { data } = $props();
 
@@ -48,28 +49,90 @@
 
   function toggleBanco(/** @type {string} */ banco) {
     if (expandedBancos.has(banco)) {
+      // Fechando banco: fechar todos os dropdowns filhos (cascata)
       expandedBancos.delete(banco);
+
+      // Fechar todas as categorias deste banco
+      const categoriasToRemove = Array.from(expandedCategorias).filter((key) =>
+        key.startsWith(`${banco}-`)
+      );
+      categoriasToRemove.forEach((key) => expandedCategorias.delete(key));
+
+      // Fechar todos os tipos deste banco
+      const tiposToRemove = Array.from(expandedTipos).filter((key) =>
+        key.startsWith(`${banco}-`)
+      );
+      tiposToRemove.forEach((key) => expandedTipos.delete(key));
     } else {
+      // Abrindo banco: comportamento mutuamente exclusivo
+      expandedBancos.clear(); // Fechar todos os outros bancos
       expandedBancos.add(banco);
+
+      // Fechar todas as categorias e tipos de outros bancos
+      expandedCategorias.clear();
+      expandedTipos.clear();
     }
+
+    // Atualizar estados
     expandedBancos = new Set(expandedBancos);
+    expandedCategorias = new Set(expandedCategorias);
+    expandedTipos = new Set(expandedTipos);
   }
 
   function toggleCategoria(/** @type {string} */ categoriaKey) {
+    const [banco] = categoriaKey.split("-");
+
     if (expandedCategorias.has(categoriaKey)) {
+      // Fechando categoria: fechar todos os tipos filhos
       expandedCategorias.delete(categoriaKey);
+
+      // Fechar todos os tipos desta categoria
+      const tiposToRemove = Array.from(expandedTipos).filter((key) =>
+        key.startsWith(`${categoriaKey}-`)
+      );
+      tiposToRemove.forEach((key) => expandedTipos.delete(key));
     } else {
+      // Abrindo categoria: comportamento mutuamente exclusivo dentro do banco
+      // Fechar outras categorias do mesmo banco
+      const categoriasToRemove = Array.from(expandedCategorias).filter(
+        (key) => key.startsWith(`${banco}-`) && key !== categoriaKey
+      );
+      categoriasToRemove.forEach((key) => {
+        expandedCategorias.delete(key);
+        // Fechar tipos das categorias que estão sendo fechadas
+        const tiposToRemove = Array.from(expandedTipos).filter((tipoKey) =>
+          tipoKey.startsWith(`${key}-`)
+        );
+        tiposToRemove.forEach((tipoKey) => expandedTipos.delete(tipoKey));
+      });
+
       expandedCategorias.add(categoriaKey);
     }
+
+    // Atualizar estados
     expandedCategorias = new Set(expandedCategorias);
+    expandedTipos = new Set(expandedTipos);
   }
 
   function toggleTipo(/** @type {string} */ tipoKey) {
+    const keyParts = tipoKey.split("-");
+    const banco = keyParts[0];
+    const categoria = keyParts[1];
+    const categoriaKey = `${banco}-${categoria}`;
+
     if (expandedTipos.has(tipoKey)) {
       expandedTipos.delete(tipoKey);
     } else {
+      // Comportamento mutuamente exclusivo dentro da categoria
+      // Fechar outros tipos da mesma categoria
+      const tiposToRemove = Array.from(expandedTipos).filter(
+        (key) => key.startsWith(`${categoriaKey}-`) && key !== tipoKey
+      );
+      tiposToRemove.forEach((key) => expandedTipos.delete(key));
+
       expandedTipos.add(tipoKey);
     }
+
     expandedTipos = new Set(expandedTipos);
   }
 
@@ -815,7 +878,11 @@
 
           <!-- Conteúdo do Banco -->
           {#if expandedBancos.has(banco)}
-            <div class="border-t bg-muted/20 p-4 space-y-3">
+            <div
+              class="border-t bg-muted/20 p-4 space-y-3 transition-all duration-300 ease-in-out"
+              role="region"
+              aria-label="Conteúdo do banco {banco}"
+            >
               {#each Object.entries(categorias) as [categoria, conteudo]}
                 {#if categoria !== "_total_banco"}
                   <div
@@ -828,12 +895,21 @@
                     <!-- Cabeçalho da Categoria -->
                     <Button
                       variant="ghost"
-                      class="w-full justify-between p-3 h-auto text-left hover:bg-hover-active {expandedCategorias.has(
+                      class="w-full justify-between p-3 h-auto text-left hover:bg-hover-active transition-all duration-200 ease-in-out {expandedCategorias.has(
                         `${banco}-${categoria}`
                       )
                         ? 'bg-hover-active'
                         : 'bg-background'}"
                       onclick={() => toggleCategoria(`${banco}-${categoria}`)}
+                      aria-expanded={expandedCategorias.has(
+                        `${banco}-${categoria}`
+                      )}
+                      aria-controls="categoria-content-{banco}-{categoria}"
+                      aria-label="Categoria {categoria} - {expandedCategorias.has(
+                        `${banco}-${categoria}`
+                      )
+                        ? 'Expandida'
+                        : 'Recolhida'}"
                     >
                       <div class="flex items-center gap-2">
                         <div class="flex-1">
@@ -863,7 +939,12 @@
 
                     <!-- Conteúdo da Categoria -->
                     {#if expandedCategorias.has(`${banco}-${categoria}`)}
-                      <div class="border-t bg-muted/10 p-3 space-y-2">
+                      <div
+                        id="categoria-content-{banco}-{categoria}"
+                        class="border-t bg-muted/10 p-3 space-y-2 transition-all duration-300 ease-in-out"
+                        role="region"
+                        aria-label="Tipos da categoria {categoria}"
+                      >
                         {#each Object.entries(conteudo) as [tipo, grupo]}
                           {#if tipo !== "_total_categoria"}
                             <div
@@ -880,20 +961,32 @@
                               <!-- Cabeçalho do Tipo -->
                               <Button
                                 variant="ghost"
-                                class="w-full justify-between p-2 h-auto text-left hover:bg-hover-active {expandedTipos.has(
+                                class="w-full justify-between p-2 h-auto text-left hover:bg-hover-active transition-all duration-200 ease-in-out {expandedTipos.has(
                                   `${banco}-${categoria}-${tipo}`
                                 )
                                   ? 'bg-hover-active'
                                   : 'bg-background'}"
                                 onclick={() =>
                                   toggleTipo(`${banco}-${categoria}-${tipo}`)}
+                                aria-expanded={expandedTipos.has(
+                                  `${banco}-${categoria}-${tipo}`
+                                )}
+                                aria-controls="tipo-content-{banco}-{categoria}-{tipo}"
+                                aria-label="Tipo {tipo} - {expandedTipos.has(
+                                  `${banco}-${categoria}-${tipo}`
+                                )
+                                  ? 'Expandido'
+                                  : 'Recolhido'}"
                               >
                                 <div class="flex items-center gap-2">
                                   <div class="flex-1">
                                     <div class="flex items-center gap-2">
-                                      <span class="text-base font-medium"
-                                        >{tipo}</span
-                                      >
+                                      <AssetTypeIndicator
+                                        assetType={tipo}
+                                        context="main"
+                                        showColorIndicator={true}
+                                        className="text-base font-medium"
+                                      />
                                       <Badge variant="outline" class="text-sm">
                                         {@html wrapNumbersWithFont(
                                           `${countAssetsInType(grupo)} item(s)`
@@ -916,7 +1009,12 @@
 
                               <!-- Tabela de Ativos -->
                               {#if expandedTipos.has(`${banco}-${categoria}-${tipo}`) && grupo.linhas}
-                                <div class="border-t p-2">
+                                <div
+                                  id="tipo-content-{banco}-{categoria}-{tipo}"
+                                  class="border-t p-2 transition-all duration-300 ease-in-out"
+                                  role="region"
+                                  aria-label="Ativos do tipo {tipo}"
+                                >
                                   <TabelaFinanceiraEnhanced
                                     data={{
                                       tables: {
@@ -1032,8 +1130,68 @@
     overflow-y: visible;
   }
 
-  /* Transições suaves para accordions */
+  /* Transições suaves para accordions - Apple-style */
   :global([data-banco], [data-categoria], [data-tipo]) {
-    transition: opacity 200ms ease-in-out;
+    transition:
+      opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 200ms ease-in-out;
+  }
+
+  /* Transições suaves para botões de accordion */
+  :global([data-banco] button, [data-categoria] button, [data-tipo] button) {
+    transition:
+      background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hover effects com estilo Apple */
+  :global(
+      [data-banco] button:hover,
+      [data-categoria] button:hover,
+      [data-tipo] button:hover
+    ) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Active state feedback */
+  :global(
+      [data-banco] button:active,
+      [data-categoria] button:active,
+      [data-tipo] button:active
+    ) {
+    transform: translateY(0);
+    transition-duration: 100ms;
+  }
+
+  /* Transições para conteúdo expandido */
+  :global([role="region"]) {
+    animation: slideDown 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Focus styles para acessibilidade */
+  :global(
+      [data-banco] button:focus-visible,
+      [data-categoria] button:focus-visible,
+      [data-tipo] button:focus-visible
+    ) {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring));
   }
 </style>
