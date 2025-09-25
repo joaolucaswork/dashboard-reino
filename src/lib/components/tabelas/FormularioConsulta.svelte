@@ -39,6 +39,48 @@
   let carteirasSalesforce: CarteiraSalesforce[] = [];
   let loadingCarteiras = false;
 
+  // Função para agrupar carteiras por usuário (para calcular o agrupamento na notificação)
+  function agruparCarteirasPorUsuario(carteiras: CarteiraSalesforce[]) {
+    const gruposDeUsuario = new Map<
+      string,
+      {
+        nome: string;
+        bancos: string[];
+        patrimonioTotal: number;
+        nomeComdinheiro: string | null;
+      }
+    >();
+
+    // Agrupar carteiras por nome de usuário
+    carteiras.forEach((carteira) => {
+      const nomeUsuario = carteira.nome;
+      const banco = carteira.banco?.trim() || "Banco não informado";
+      const patrimonio = Number(carteira.patrimonio) || 0;
+
+      if (gruposDeUsuario.has(nomeUsuario)) {
+        const grupo = gruposDeUsuario.get(nomeUsuario)!;
+        // Adicionar banco se não estiver já na lista
+        if (!grupo.bancos.includes(banco)) {
+          grupo.bancos.push(banco);
+        }
+        // Somar patrimônio
+        grupo.patrimonioTotal += patrimonio;
+      } else {
+        gruposDeUsuario.set(nomeUsuario, {
+          nome: nomeUsuario,
+          bancos: [banco],
+          patrimonioTotal: patrimonio,
+          nomeComdinheiro: carteira.nome_comdinheiro,
+        });
+      }
+    });
+
+    // Converter para array de opções e ordenar por patrimônio total (maior primeiro)
+    return Array.from(gruposDeUsuario.values()).sort(
+      (a, b) => b.patrimonioTotal - a.patrimonioTotal
+    );
+  }
+
   // Função para buscar carteiras do Salesforce
   async function buscarCarteirasSalesforce() {
     if (carteirasSalesforce.length > 0) return; // Já carregadas
@@ -50,11 +92,23 @@
 
       if (data.success && data.carteiras_detalhadas) {
         carteirasSalesforce = data.carteiras_detalhadas;
+
+        // Calcular agrupamento para a notificação
+        const carteirasOriginais = carteirasSalesforce.length;
+        const carteirasAgrupadas =
+          agruparCarteirasPorUsuario(carteirasSalesforce).length;
+
         console.log(
-          `✅ ${carteirasSalesforce.length} carteiras carregadas do Salesforce`
+          `✅ ${carteirasOriginais} carteiras carregadas e agrupadas em ${carteirasAgrupadas} usuários`
         );
-        // Notificação simples com apenas o texto principal
-        toast.success(`${carteirasSalesforce.length} carteiras carregadas`, {
+
+        // Notificação com informação do agrupamento
+        const mensagem =
+          carteirasOriginais === carteirasAgrupadas
+            ? `${carteirasAgrupadas} carteiras carregadas`
+            : `${carteirasAgrupadas} usuários (${carteirasOriginais} carteiras agrupadas)`;
+
+        toast.success(mensagem, {
           duration: 4000,
           icon: SalesforceIcon,
         });
@@ -179,9 +233,11 @@
                   side="top"
                   align="center"
                   sideOffset={8}
-                  class="bg-accent text-accent-foreground font-medium text-base max-w-xs text-center"
+                  class="bg-accent text-accent-foreground font-medium text-sm w-fit"
                 >
-                  {modo.description}
+                  <div class="whitespace-nowrap">
+                    {modo.description}
+                  </div>
                 </Tooltip.Content>
               </Tooltip.Root>
             </Label>

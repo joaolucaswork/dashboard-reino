@@ -18,18 +18,88 @@
   import { RefreshCw } from "@lucide/svelte";
   import { toast } from "svelte-sonner";
   import { derived } from "svelte/store";
+  import * as Tooltip from "$lib/components/ui/tooltip";
 
   // Props para carteiras externas (ex: Salesforce)
   export let carteirasExternas: any[] = [];
   export let usarCarteirasExternas = false;
 
-  // Transformar carteiras detalhadas em opções simples - usando reactive statement para reagir às props
+  // Conteúdo do tooltip baseado no estado atual
+  let tooltipContent: string = "";
+
+  $: {
+    const fonte = usarCarteirasExternas
+      ? "Salesforce CRM"
+      : "Banco de dados local";
+    const totalCarteiras = usarCarteirasExternas
+      ? carteirasExternas.length
+      : $carteirasDetalhadas.length;
+    const carteirasAgrupadas = carteiraOptions.length;
+
+    tooltipContent = `Fonte: ${fonte} • ${totalCarteiras} → ${carteirasAgrupadas} agrupadas`;
+  }
+
+  // Transformar carteiras detalhadas em opções agrupadas por usuário - usando reactive statement para reagir às props
   let carteiraOptions: Array<{
     value: string;
     label: string;
     description: string;
     nomeComdinheiro: string | null;
   }> = [];
+
+  // Função para agrupar carteiras por usuário
+  function agruparCarteirasPorUsuario(carteiras: any[]) {
+    const gruposDeUsuario = new Map<
+      string,
+      {
+        nome: string;
+        bancos: string[];
+        patrimonioTotal: number;
+        nomeComdinheiro: string | null;
+      }
+    >();
+
+    // Agrupar carteiras por nome de usuário
+    carteiras.forEach((carteira) => {
+      const nomeUsuario = carteira.nome;
+      const banco = carteira.banco?.trim() || "Banco não informado";
+      const patrimonio = Number(carteira.patrimonio) || 0;
+
+      if (gruposDeUsuario.has(nomeUsuario)) {
+        const grupo = gruposDeUsuario.get(nomeUsuario)!;
+        // Adicionar banco se não estiver já na lista
+        if (!grupo.bancos.includes(banco)) {
+          grupo.bancos.push(banco);
+        }
+        // Somar patrimônio
+        grupo.patrimonioTotal += patrimonio;
+      } else {
+        gruposDeUsuario.set(nomeUsuario, {
+          nome: nomeUsuario,
+          bancos: [banco],
+          patrimonioTotal: patrimonio,
+          nomeComdinheiro: carteira.nome_comdinheiro,
+        });
+      }
+    });
+
+    // Converter para array de opções e ordenar por patrimônio total (maior primeiro)
+    return Array.from(gruposDeUsuario.values())
+      .sort((a, b) => b.patrimonioTotal - a.patrimonioTotal)
+      .map((grupo) => {
+        const descricaoBancos =
+          grupo.bancos.length === 1
+            ? grupo.bancos[0]
+            : `${grupo.bancos.length} bancos: ${grupo.bancos.join(", ")}`;
+
+        return {
+          value: grupo.nome, // Nome do usuário para seleção
+          label: grupo.nome, // Nome do usuário mostrado
+          description: `${formatarMoeda(grupo.patrimonioTotal)} • ${descricaoBancos}`,
+          nomeComdinheiro: grupo.nomeComdinheiro,
+        };
+      });
+  }
 
   // Reactive statement que atualiza as opções quando qualquer dependência muda
   $: {
@@ -38,14 +108,7 @@
       ? carteirasExternas
       : $carteirasDetalhadas;
 
-    carteiraOptions = carteirasParaUsar.map((carteira) => {
-      return {
-        value: carteira.nome, // Nome de exibição (usado como value para o combobox)
-        label: carteira.nome, // Nome de exibição (mostrado ao usuário)
-        description: `${formatarMoeda(carteira.patrimonio)}`,
-        nomeComdinheiro: carteira.nome_comdinheiro, // Nome técnico para API
-      };
-    });
+    carteiraOptions = agruparCarteirasPorUsuario(carteirasParaUsar);
 
     console.log("🔄 carteiraOptions atualizadas:", {
       usarCarteirasExternas,
@@ -132,7 +195,39 @@
 <!-- Seletor de carteira simplificado -->
 <div class="space-y-3">
   <div class="flex items-center justify-between">
-    <div class="text-label">Selecionar Carteira</div>
+    <div class="flex items-center gap-2">
+      <div class="text-label">Selecionar Carteira</div>
+
+      <!-- Tooltip com informações sobre fonte e classificação -->
+      <Tooltip.Root>
+        <Tooltip.Trigger
+          class="p-1 rounded-full opacity-60 hover:opacity-100 transition-opacity"
+          aria-label="Informações sobre fonte de dados e classificação das carteiras"
+        >
+          <div
+            class="w-4 h-4 rounded-full border border-current flex items-center justify-center text-xs text-muted-foreground"
+          >
+            ?
+          </div>
+        </Tooltip.Trigger>
+        <Tooltip.Content
+          side="top"
+          align="start"
+          sideOffset={8}
+          class="bg-accent text-accent-foreground font-medium text-sm w-fit"
+        >
+          <div class="space-y-2">
+            <div class="whitespace-nowrap">
+              {tooltipContent}
+            </div>
+            <div class="max-w-xs">
+              <strong>Agrupamento:</strong> Por usuário, com valor total consolidado
+              e bancos associados
+            </div>
+          </div>
+        </Tooltip.Content>
+      </Tooltip.Root>
+    </div>
 
     <!-- Botão de atualizar -->
     <Button
