@@ -10,7 +10,7 @@
  */
 export function formatarMoeda(valor, simbolo = true) {
   if (valor === null || valor === undefined || isNaN(valor)) {
-    return simbolo ? "R$ 0,00" : "0,00";
+    return simbolo ? "R$0,00" : "0,00";
   }
 
   const formatado = new Intl.NumberFormat("pt-BR", {
@@ -20,7 +20,10 @@ export function formatarMoeda(valor, simbolo = true) {
     maximumFractionDigits: 2,
   }).format(valor);
 
-  return simbolo ? formatado : formatado.replace("R$", "").trim();
+  // Remove the space between R$ and the number
+  const semEspaco = formatado.replace("R$ ", "R$");
+
+  return simbolo ? semEspaco : semEspaco.replace("R$", "").trim();
 }
 
 /**
@@ -169,9 +172,30 @@ export function formatTableCellValue(value, columnKey = "") {
     return value || "--";
   }
 
-  // Para números, aplicar formatação brasileira
+  // Detectar colunas de moeda (Saldo Bruto e Saldo Líquido)
+  const currencyColumns = ["col5", "col7"]; // col5 = Saldo Bruto, col7 = Saldo Líquido
+  const isCurrencyColumn = currencyColumns.includes(columnKey);
+
+  // Para números, aplicar formatação apropriada
   if (typeof value === "number") {
-    return formatBrazilianNumber(value);
+    if (isCurrencyColumn) {
+      // Usar formatação de moeda brasileira com símbolo R$
+      return formatarMoeda(value, true);
+    } else {
+      // Usar formatação brasileira simples para outros números
+      return formatBrazilianNumber(value);
+    }
+  }
+
+  // Para strings que representam números em colunas de moeda
+  if (
+    isCurrencyColumn &&
+    typeof value === "string" &&
+    value !== "" &&
+    !isNaN(parseFloat(value))
+  ) {
+    const numericValue = parseFloat(value);
+    return formatarMoeda(numericValue, true);
   }
 
   // Para outros valores, retornar como string ou '--'

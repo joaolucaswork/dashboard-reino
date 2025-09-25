@@ -6,6 +6,7 @@
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.ts";
   import * as Popover from "$lib/components/ui/popover/index.ts";
   import { Separator } from "$lib/components/ui/separator/index.ts";
+  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
   import { formatTableCellValue } from "$lib/utils/formatters.js";
   import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
   import {
@@ -17,6 +18,9 @@
     SortAsc,
     SortDesc,
     FileText,
+    TrendingUp,
+    Calculator,
+    Hash,
   } from "@lucide/svelte";
 
   let {
@@ -221,6 +225,103 @@
     return wrapNumbersWithFont(formattedValue);
   }
 
+  function isDescriptionColumn(column) {
+    // Detectar colunas de descrição baseado no header ou accessorKey
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return (
+      header.includes("descrição") ||
+      header.includes("descricao") ||
+      key === "col3" || // col3 é tipicamente a coluna de descrição
+      header.includes("description")
+    );
+  }
+
+  function isQuantityColumn(column) {
+    // Detectar colunas de quantidade baseado no header ou accessorKey
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return (
+      header.includes("quant") ||
+      header.includes("quantidade") ||
+      key === "col4" || // col4 é tipicamente a coluna de quantidade
+      header.includes("quantity")
+    );
+  }
+
+  function getColumnWidthClass(column) {
+    if (isDescriptionColumn(column)) {
+      return "w-64 max-w-64 min-w-48"; // Fixed width for description with proper spacing
+    } else if (isQuantityColumn(column)) {
+      return "w-24 max-w-24 min-w-20"; // Compact width for quantity
+    } else if (isBalanceColumn(column)) {
+      return "w-32 max-w-32 min-w-28"; // Consistent width for balance columns
+    }
+    return ""; // Default width for other columns
+  }
+
+  function truncateText(text, maxLength = 30) {
+    if (!text || typeof text !== "string") return text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  }
+
+  function isBalanceColumn(column) {
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return header.includes("saldo") || key === "col5" || key === "col7";
+  }
+
+  function getBalanceColumnType(column) {
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+
+    if (header.includes("bruto") || key === "col5") {
+      return "gross"; // Saldo Bruto
+    } else if (
+      header.includes("líquido") ||
+      header.includes("liquido") ||
+      key === "col7"
+    ) {
+      return "net"; // Saldo Líquido
+    }
+    return null;
+  }
+
+  function getBalanceColumnStyling(balanceType) {
+    if (balanceType === "gross") {
+      return {
+        cellClass: "bg-amber-950/20 border-l-2 border-l-amber-600/50",
+        icon: TrendingUp,
+        iconClass: "w-3 h-3 text-amber-400 ml-1",
+        headerClass: "bg-amber-950/30 text-amber-200",
+      };
+    } else if (balanceType === "net") {
+      return {
+        cellClass: "bg-emerald-950/20 border-l-2 border-l-emerald-600/50",
+        icon: Calculator,
+        iconClass: "w-3 h-3 text-emerald-400 ml-1",
+        headerClass: "bg-emerald-950/30 text-emerald-200",
+      };
+    }
+    return {
+      cellClass: "",
+      icon: null,
+      iconClass: "",
+      headerClass: "",
+    };
+  }
+
+  function getQuantityColumnStyling() {
+    return {
+      cellClass: "bg-blue-950/20 border-l-2 border-l-blue-600/50",
+      icon: Hash,
+      iconClass: "w-3 h-3 text-blue-400 ml-1",
+      headerClass: "bg-blue-950/30 text-blue-200",
+    };
+  }
+
   function renderHeader(column) {
     if (column.header && typeof column.header === "function") {
       return column.header({
@@ -334,8 +435,8 @@
   {/if}
 
   <!-- Enhanced Table -->
-  <div class="rounded-md border">
-    <Table.Root>
+  <div class="rounded-lg border border-border/50 overflow-hidden shadow-sm">
+    <Table.Root class="w-full">
       <Table.Header>
         <Table.Row>
           <!-- Selection Header -->
@@ -352,13 +453,31 @@
 
           <!-- Column Headers -->
           {#each visibleColumns as column}
-            <Table.Head>
-              <div class="flex items-center space-x-2">
+            {@const balanceType = getBalanceColumnType(column)}
+            {@const balanceStyling = getBalanceColumnStyling(balanceType)}
+            {@const quantityStyling = isQuantityColumn(column)
+              ? getQuantityColumnStyling()
+              : { headerClass: "", icon: null, iconClass: "" }}
+            {@const styling = isQuantityColumn(column)
+              ? quantityStyling
+              : balanceStyling}
+            {@const headerClasses = [
+              getColumnWidthClass(column),
+              styling.headerClass,
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            <Table.Head class={`${headerClasses} px-4 py-3`}>
+              <div class="flex items-center space-x-3">
                 <button
                   class="flex items-center space-x-1 hover:text-foreground transition-colors font-medium"
                   onclick={() => handleSort(column.accessorKey)}
                 >
                   <span>{@html renderHeader(column)}</span>
+                  {#if styling.icon}
+                    {@const IconComponent = styling.icon}
+                    <IconComponent class={styling.iconClass} />
+                  {/if}
                   {#if sortColumn === column.accessorKey}
                     {#if sortDirection === "asc"}
                       <SortAsc class="h-4 w-4" />
@@ -380,13 +499,19 @@
 
       <Table.Body>
         {#each paginatedData as row, index (index)}
-          <Table.Row
-            class="hover:bg-[#2b251e] transition-colors {selectedRows.has(
-              currentPage * pageSize + index
-            )
-              ? 'bg-[#2b251e]'
-              : ''}"
-          >
+          {@const isSelected = selectedRows.has(currentPage * pageSize + index)}
+          {@const isEvenRow = index % 2 === 0}
+          {@const rowClasses = [
+            "transition-colors",
+            isSelected
+              ? "bg-[#2b251e]"
+              : isEvenRow
+                ? "bg-background"
+                : "bg-muted/20",
+            "hover:bg-[#2b251e]",
+          ].join(" ")}
+
+          <Table.Row class={rowClasses}>
             {#if enableRowSelection}
               <Table.Cell>
                 <Checkbox
@@ -399,9 +524,52 @@
 
             <!-- Data Cells -->
             {#each visibleColumns as column, colIndex}
-              <Table.Cell>
-                <div class="flex items-center space-x-2">
-                  <span>{@html renderCell(column, row)}</span>
+              {@const balanceType = getBalanceColumnType(column)}
+              {@const balanceStyling = getBalanceColumnStyling(balanceType)}
+              {@const quantityStyling = isQuantityColumn(column)
+                ? getQuantityColumnStyling()
+                : { cellClass: "" }}
+              {@const styling = isQuantityColumn(column)
+                ? quantityStyling
+                : balanceStyling}
+              {@const cellClasses = [
+                getColumnWidthClass(column),
+                styling.cellClass,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+
+              <Table.Cell class={`${cellClasses} px-4 py-3`}>
+                <div class="flex items-center space-x-3">
+                  {#if isDescriptionColumn(column)}
+                    {@const fullText = row[column.accessorKey]}
+                    {@const truncatedText = truncateText(fullText, 30)}
+                    {#if fullText && fullText.length > 30}
+                      <Tooltip.Root>
+                        <Tooltip.Trigger class="text-left cursor-help w-full">
+                          <div class="truncate text-left max-w-full pr-2">
+                            {truncatedText}
+                          </div>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content
+                          side="top"
+                          class="max-w-sm bg-popover text-popover-foreground border border-border shadow-md z-50 p-3"
+                        >
+                          <div class="text-sm leading-relaxed">
+                            {fullText}
+                          </div>
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    {:else}
+                      <div class="truncate text-left max-w-full pr-2">
+                        {@html renderCell(column, row)}
+                      </div>
+                    {/if}
+                  {:else}
+                    <span class="font-mono"
+                      >{@html renderCell(column, row)}</span
+                    >
+                  {/if}
 
                   <!-- Badge for first column if enabled -->
                   {#if colIndex === 0 && enableBadges}
