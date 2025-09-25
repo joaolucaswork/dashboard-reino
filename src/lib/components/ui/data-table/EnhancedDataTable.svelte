@@ -292,17 +292,17 @@
   function getBalanceColumnStyling(balanceType) {
     if (balanceType === "gross") {
       return {
-        cellClass: "bg-amber-950/20 border-l-2 border-l-amber-600/50",
-        icon: TrendingUp,
-        iconClass: "w-3 h-3 text-amber-400 ml-1",
-        headerClass: "bg-amber-950/30 text-amber-200",
+        cellClass: "bg-orange-950/20 border-l-2 border-l-orange-600/50",
+        icon: null,
+        iconClass: "",
+        headerClass: "bg-orange-950/30 text-orange-200",
       };
     } else if (balanceType === "net") {
       return {
-        cellClass: "bg-emerald-950/20 border-l-2 border-l-emerald-600/50",
-        icon: Calculator,
-        iconClass: "w-3 h-3 text-emerald-400 ml-1",
-        headerClass: "bg-emerald-950/30 text-emerald-200",
+        cellClass: "bg-lime-950/20 border-l-2 border-l-lime-600/50",
+        icon: null,
+        iconClass: "",
+        headerClass: "bg-lime-950/30 text-lime-200",
       };
     }
     return {
@@ -315,10 +315,10 @@
 
   function getQuantityColumnStyling() {
     return {
-      cellClass: "bg-blue-950/20 border-l-2 border-l-blue-600/50",
-      icon: Hash,
-      iconClass: "w-3 h-3 text-blue-400 ml-1",
-      headerClass: "bg-blue-950/30 text-blue-200",
+      cellClass: "bg-yellow-900/20 border-l-2 border-l-yellow-700/50",
+      icon: null,
+      iconClass: "",
+      headerClass: "bg-yellow-900/30 text-yellow-300",
     };
   }
 
