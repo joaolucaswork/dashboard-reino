@@ -23,13 +23,67 @@
   export let carteirasExternas: any[] = [];
   export let usarCarteirasExternas = false;
 
-  // Transformar carteiras detalhadas em opções simples - usando reactive statement para reagir às props
+  // Transformar carteiras detalhadas em opções agrupadas por usuário - usando reactive statement para reagir às props
   let carteiraOptions: Array<{
     value: string;
     label: string;
     description: string;
     nomeComdinheiro: string | null;
   }> = [];
+
+  // Função para agrupar carteiras por usuário
+  function agruparCarteirasPorUsuario(carteiras: any[]) {
+    const gruposDeUsuario = new Map<
+      string,
+      {
+        nome: string;
+        bancos: string[];
+        patrimonioTotal: number;
+        nomeComdinheiro: string | null;
+      }
+    >();
+
+    // Agrupar carteiras por nome de usuário
+    carteiras.forEach((carteira) => {
+      const nomeUsuario = carteira.nome;
+      const banco = carteira.banco?.trim() || "Banco não informado";
+      const patrimonio = Number(carteira.patrimonio) || 0;
+
+      if (gruposDeUsuario.has(nomeUsuario)) {
+        const grupo = gruposDeUsuario.get(nomeUsuario)!;
+        // Adicionar banco se não estiver já na lista
+        if (!grupo.bancos.includes(banco)) {
+          grupo.bancos.push(banco);
+        }
+        // Somar patrimônio
+        grupo.patrimonioTotal += patrimonio;
+      } else {
+        gruposDeUsuario.set(nomeUsuario, {
+          nome: nomeUsuario,
+          bancos: [banco],
+          patrimonioTotal: patrimonio,
+          nomeComdinheiro: carteira.nome_comdinheiro,
+        });
+      }
+    });
+
+    // Converter para array de opções e ordenar por patrimônio total (maior primeiro)
+    return Array.from(gruposDeUsuario.values())
+      .sort((a, b) => b.patrimonioTotal - a.patrimonioTotal)
+      .map((grupo) => {
+        const descricaoBancos =
+          grupo.bancos.length === 1
+            ? grupo.bancos[0]
+            : `${grupo.bancos.length} bancos: ${grupo.bancos.join(", ")}`;
+
+        return {
+          value: grupo.nome, // Nome do usuário para seleção
+          label: grupo.nome, // Nome do usuário mostrado
+          description: `${formatarMoeda(grupo.patrimonioTotal)} • ${descricaoBancos}`,
+          nomeComdinheiro: grupo.nomeComdinheiro,
+        };
+      });
+  }
 
   // Reactive statement que atualiza as opções quando qualquer dependência muda
   $: {
@@ -38,14 +92,7 @@
       ? carteirasExternas
       : $carteirasDetalhadas;
 
-    carteiraOptions = carteirasParaUsar.map((carteira) => {
-      return {
-        value: carteira.nome, // Nome de exibição (usado como value para o combobox)
-        label: carteira.nome, // Nome de exibição (mostrado ao usuário)
-        description: `${formatarMoeda(carteira.patrimonio)}`,
-        nomeComdinheiro: carteira.nome_comdinheiro, // Nome técnico para API
-      };
-    });
+    carteiraOptions = agruparCarteirasPorUsuario(carteirasParaUsar);
 
     console.log("🔄 carteiraOptions atualizadas:", {
       usarCarteirasExternas,
