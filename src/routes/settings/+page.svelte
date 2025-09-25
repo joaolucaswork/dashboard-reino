@@ -13,20 +13,17 @@
     FolderOpen,
     Info,
     RefreshCw,
-    Moon,
     Timer,
     Search,
     Database,
-    Eye,
     Circle,
     ImageIcon,
   } from "@lucide/svelte";
   import FonteDadosConfig from "$lib/components/settings/FonteDadosConfig.svelte";
   import SeletorCarteiraComdinheiro from "$lib/components/tabelas/SeletorCarteiraComdinheiro.svelte";
-  import {
-    bankDisplayMode,
-    type BankDisplayMode,
-  } from "$lib/stores/bankDisplay";
+  import { bankDisplayMode } from "$lib/stores/bankDisplay";
+  import { themeDisplayName } from "$lib/stores/theme.js";
+  import { ThemeToggle } from "$lib/components/ui/theme-toggle/index.js";
 </script>
 
 <div class="space-y-8">
@@ -125,16 +122,11 @@
         >
           <div class="space-y-1">
             <p class="text-label">Tema</p>
-            <p class="text-caption">Escolha seu esquema de cores preferido</p>
+            <p class="text-caption">
+              Escolha seu esquema de cores preferido: {$themeDisplayName}
+            </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            class="btn-secondary flex items-center gap-2"
-          >
-            <Moon size={14} />
-            Escuro
-          </Button>
+          <ThemeToggle showLabel={true} size="default" />
         </div>
         <div
           class="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border"

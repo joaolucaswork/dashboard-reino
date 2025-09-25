@@ -11,7 +11,6 @@
     Menu,
     User,
     House,
-    Bell,
     ChartBar,
     Target,
     Folder,
@@ -22,6 +21,7 @@
     type FolderConfig,
   } from "$lib/components/ui/dynamic-folder-preview/index.js";
   import { ReinoLogo } from "$lib/components/ui/reino-logo/index.js";
+  import { ThemeToggle } from "$lib/components/ui/theme-toggle/index.js";
 
   let { children } = $props();
 
@@ -196,16 +196,16 @@
                 title="Voltar para Home"
                 aria-label="Voltar para página inicial"
               >
-                <ReinoLogo size={20} class="text-white/90" />
+                <ReinoLogo size={20} class="text-sidebar-foreground/90" />
               </a>
             </div>
             <Tooltip.Root>
               <Tooltip.Trigger
-                class="p-2 hover:bg-white/10 rounded-md transition-colors"
+                class="p-2 hover:bg-sidebar-accent rounded-md transition-colors"
                 aria-label="Home"
                 onclick={() => goto("/")}
               >
-                <House size={20} class="text-white/90" />
+                <House size={20} class="text-sidebar-foreground/90" />
               </Tooltip.Trigger>
               <Tooltip.Content
                 side="bottom"
@@ -229,7 +229,7 @@
               title="Voltar para Home"
               aria-label="Voltar para página inicial"
             >
-              <ReinoLogo size={20} class="text-white/90" />
+              <ReinoLogo size={20} class="text-sidebar-foreground/90" />
             </a>
           </div>
         </div>
@@ -245,11 +245,11 @@
                 use:animate={{ preset: "fadeIn", delay: 0.2 }}
               >
                 <Sidebar.GroupLabel
-                  class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
+                  class="text-xs font-medium text-sidebar-foreground/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Integrações
                   <div class="p-2">
-                    <Folder size={14} class="text-white/30" />
+                    <Folder size={14} class="text-sidebar-foreground/30" />
                   </div>
                 </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
@@ -269,7 +269,7 @@
                               {#snippet child({ props })}
                                 <div
                                   {...props}
-                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-lg flex items-center gap-3 cursor-pointer"
+                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg flex items-center gap-3 cursor-pointer"
                                 >
                                   <div
                                     class="w-4 h-4 rounded-sm {integration.color} flex-shrink-0"
@@ -350,7 +350,7 @@
                       >
                         <Folder
                           size={16}
-                          class="text-white/60 hover:text-white/80"
+                          class="text-sidebar-foreground/60 hover:text-sidebar-foreground/80"
                         />
                       </button>
                     </div>
@@ -435,7 +435,7 @@
                       >
                         <Folder
                           size={16}
-                          class="text-white/60 hover:text-white/80"
+                          class="text-sidebar-foreground/60 hover:text-sidebar-foreground/80"
                         />
                       </button>
                     </div>
@@ -443,11 +443,11 @@
                       {@const Icon = item.icon}
                       <Tooltip.Root>
                         <Tooltip.Trigger
-                          class="w-full h-8 rounded-md hover:bg-white/10 flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
+                          class="w-full h-8 rounded-md hover:bg-sidebar-accent flex items-center justify-center cursor-pointer transition-colors duration-200 z-30 relative"
                           onclick={() => goto(item.href)}
                           aria-label={item.title}
                         >
-                          <Icon size={20} class="text-white/70" />
+                          <Icon size={20} class="text-sidebar-foreground/70" />
                         </Tooltip.Trigger>
                         <Tooltip.Content
                           side="right"
@@ -475,11 +475,11 @@
                 use:animate={{ preset: "fadeIn", delay: 0.4 }}
               >
                 <Sidebar.GroupLabel
-                  class="text-xs font-medium text-white/50 mb-3 flex items-center justify-between sidebar-text-fade"
+                  class="text-xs font-medium text-sidebar-foreground/50 mb-3 flex items-center justify-between sidebar-text-fade"
                 >
                   Tabelas
                   <div class="p-2">
-                    <Folder size={14} class="text-white/30" />
+                    <Folder size={14} class="text-sidebar-foreground/30" />
                   </div>
                 </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
@@ -501,11 +501,11 @@
                                 <a
                                   href={item.href}
                                   {...props}
-                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-lg flex items-center gap-3"
+                                  class="sidebar-menu-button w-full justify-start px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg flex items-center gap-3"
                                 >
                                   <Icon
                                     size={20}
-                                    class="text-white/50 flex-shrink-0"
+                                    class="text-sidebar-foreground/50 flex-shrink-0"
                                   />
                                   <span
                                     class="sidebar-menu-item-text sidebar-text-no-wrap"
@@ -541,35 +541,23 @@
                 class="flex items-center gap-3 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2 min-w-0 flex-1"
               >
                 <div
-                  class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
+                  class="w-8 h-8 bg-sidebar-accent rounded-full flex items-center justify-center"
                 >
-                  <User size={20} class="text-white/70" />
+                  <User size={20} class="text-sidebar-foreground/70" />
                 </div>
                 <span
-                  class="text-sm font-medium text-white/90 group-data-[collapsible=icon]:hidden sidebar-text-fade sidebar-text-no-wrap"
+                  class="text-sm font-medium text-sidebar-foreground/90 group-data-[collapsible=icon]:hidden sidebar-text-fade sidebar-text-no-wrap"
                   style="font-weight: 500;">João Lucas</span
                 >
               </div>
               <div
                 class="flex items-center gap-1 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1"
               >
-                <Tooltip.Root>
-                  <Tooltip.Trigger
-                    class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-                    aria-label="Notificações"
-                  >
-                    <Bell size={18} class="text-white/60 hover:text-white/80" />
-                  </Tooltip.Trigger>
-                  <Tooltip.Content
-                    side="right"
-                    align="center"
-                    sideOffset={8}
-                    hidden={sidebarOpen}
-                    class="tooltip-standard"
-                  >
-                    Notificações
-                  </Tooltip.Content>
-                </Tooltip.Root>
+                <div
+                  class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+                >
+                  <ThemeToggle size="sm" class="scale-90" />
+                </div>
                 <Tooltip.Root>
                   <Tooltip.Trigger
                     class="p-1.5 hover:bg-white/10 rounded-md transition-colors"
@@ -578,7 +566,7 @@
                   >
                     <Database
                       size={18}
-                      class="text-white/60 hover:text-white/80"
+                      class="text-sidebar-foreground/60 hover:text-sidebar-foreground/80"
                     />
                   </Tooltip.Trigger>
                   <Tooltip.Content
@@ -599,7 +587,7 @@
                   >
                     <Settings
                       size={18}
-                      class="text-white/60 hover:text-white/80"
+                      class="text-sidebar-foreground/60 hover:text-sidebar-foreground/80"
                     />
                   </Tooltip.Trigger>
                   <Tooltip.Content
@@ -619,7 +607,10 @@
                     ? "Recolher menu lateral"
                     : "Expandir menu lateral"}
                 >
-                  <Menu size={18} class="text-white/60 hover:text-white/80" />
+                  <Menu
+                    size={18}
+                    class="text-sidebar-foreground/60 hover:text-sidebar-foreground/80"
+                  />
                 </Sidebar.Trigger>
               </div>
             </div>
@@ -640,14 +631,14 @@
             <!-- Mobile Sidebar Trigger - Only visible on mobile -->
             <div class="flex items-center gap-4">
               <Sidebar.Trigger
-                class="md:hidden p-2 hover:bg-white/10 rounded-md transition-colors"
+                class="md:hidden p-2 hover:bg-sidebar-accent rounded-md transition-colors"
                 title="Abrir menu"
                 aria-label="Abrir menu lateral"
               >
-                <Menu size={20} class="text-white/80" />
+                <Menu size={20} class="text-sidebar-foreground/80" />
               </Sidebar.Trigger>
               <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
-                <h1 class="text-lg font-bold text-white">
+                <h1 class="text-lg font-bold text-foreground">
                   Ferramentas do BackOffice
                 </h1>
               </div>

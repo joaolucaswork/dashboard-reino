@@ -51,6 +51,7 @@
     "vite": "^7.0.4"
   },
   "dependencies": {
+    "@playwright/test": "^1.55.1",
     "@tanstack/table-core": "^8.21.3",
     "@types/jsforce": "^1.11.5",
     "jsforce": "^3.10.7",

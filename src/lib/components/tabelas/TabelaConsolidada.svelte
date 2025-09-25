@@ -808,8 +808,8 @@
             totalValue={categorias._total_banco || 0}
             assetCount={countAssetsInBank(categorias)}
             on:toggle={() => toggleBanco(banco)}
-            className="hover:bg-[#2b251e] {expandedBancos.has(banco)
-              ? 'bg-[#2b251e]'
+            className="hover:bg-hover-active {expandedBancos.has(banco)
+              ? 'bg-hover-active'
               : 'bg-background'}"
           />
 
@@ -828,10 +828,10 @@
                     <!-- Cabeçalho da Categoria -->
                     <Button
                       variant="ghost"
-                      class="w-full justify-between p-3 h-auto text-left hover:bg-[#2b251e] {expandedCategorias.has(
+                      class="w-full justify-between p-3 h-auto text-left hover:bg-hover-active {expandedCategorias.has(
                         `${banco}-${categoria}`
                       )
-                        ? 'bg-[#2b251e]'
+                        ? 'bg-hover-active'
                         : 'bg-background'}"
                       onclick={() => toggleCategoria(`${banco}-${categoria}`)}
                     >
@@ -880,10 +880,10 @@
                               <!-- Cabeçalho do Tipo -->
                               <Button
                                 variant="ghost"
-                                class="w-full justify-between p-2 h-auto text-left hover:bg-[#2b251e] {expandedTipos.has(
+                                class="w-full justify-between p-2 h-auto text-left hover:bg-hover-active {expandedTipos.has(
                                   `${banco}-${categoria}-${tipo}`
                                 )
-                                  ? 'bg-[#2b251e]'
+                                  ? 'bg-hover-active'
                                   : 'bg-background'}"
                                 onclick={() =>
                                   toggleTipo(`${banco}-${categoria}-${tipo}`)}

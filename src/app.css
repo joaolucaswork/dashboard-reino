@@ -59,7 +59,44 @@
   --hover-active: #2b251e;
 }
 
-/* Dark mode is the default and only theme */
+/* Light theme variables - Warm and comfortable */
+.light {
+  --background: #f4f3f1;
+  --foreground: #1a1612;
+  --card: #ffffff;
+  --card-foreground: #1a1612;
+  --popover: #ffffff;
+  --popover-foreground: #1a1612;
+  --primary: #d4af37;
+  --primary-foreground: #1a1612;
+  --secondary: #f8f7f5;
+  --secondary-foreground: #1a1612;
+  --muted: #f0efed;
+  --muted-foreground: #6b6b6b;
+  --accent: #f8f7f5;
+  --accent-foreground: #1a1612;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e8e6e3;
+  --input: #ffffff;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #cd853f;
+  --chart-3: #daa520;
+  --chart-4: #b8860b;
+  --chart-5: #8b7355;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1612;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #1a1612;
+  --sidebar-accent: #f8f7f5;
+  --sidebar-accent-foreground: #1a1612;
+  --sidebar-border: #e8e6e3;
+  --sidebar-ring: #d4af37;
+  --hover-active: #f8f7f5;
+}
+
+/* Dark mode is the default theme */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -151,6 +188,27 @@
     @apply font-medium tracking-tight text-foreground;
   }
 
+  /* Light mode card enhancements - Subtle borders instead of shadows */
+  .light .card-premium {
+    @apply border border-border/30;
+    box-shadow: none;
+  }
+
+  .light [data-slot="card"] {
+    @apply border border-border/30;
+    box-shadow: none;
+  }
+
+  /* Light mode button enhancements */
+  .light .btn-secondary {
+    @apply border border-border/40;
+  }
+
+  /* Light mode input enhancements */
+  .light .input-premium {
+    @apply border border-border/40;
+  }
+
   h1 {
     @apply text-3xl;
   }
@@ -191,7 +249,7 @@
 @layer components {
   /* Enhanced Card Styles */
   .card-premium {
-    @apply bg-card rounded-2xl shadow-sm;
+    @apply bg-card rounded-2xl border border-border/20;
   }
 
   /* Enhanced Button Styles */
