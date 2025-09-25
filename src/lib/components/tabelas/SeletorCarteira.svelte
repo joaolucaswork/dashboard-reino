@@ -18,10 +18,26 @@
   import { RefreshCw } from "@lucide/svelte";
   import { toast } from "svelte-sonner";
   import { derived } from "svelte/store";
+  import * as Tooltip from "$lib/components/ui/tooltip";
 
   // Props para carteiras externas (ex: Salesforce)
   export let carteirasExternas: any[] = [];
   export let usarCarteirasExternas = false;
+
+  // Conteúdo do tooltip baseado no estado atual
+  let tooltipContent: string = "";
+
+  $: {
+    const fonte = usarCarteirasExternas
+      ? "Salesforce CRM"
+      : "Banco de dados local";
+    const totalCarteiras = usarCarteirasExternas
+      ? carteirasExternas.length
+      : $carteirasDetalhadas.length;
+    const carteirasAgrupadas = carteiraOptions.length;
+
+    tooltipContent = `Fonte: ${fonte} • ${totalCarteiras} → ${carteirasAgrupadas} agrupadas`;
+  }
 
   // Transformar carteiras detalhadas em opções agrupadas por usuário - usando reactive statement para reagir às props
   let carteiraOptions: Array<{
@@ -179,7 +195,39 @@
 <!-- Seletor de carteira simplificado -->
 <div class="space-y-3">
   <div class="flex items-center justify-between">
-    <div class="text-label">Selecionar Carteira</div>
+    <div class="flex items-center gap-2">
+      <div class="text-label">Selecionar Carteira</div>
+
+      <!-- Tooltip com informações sobre fonte e classificação -->
+      <Tooltip.Root>
+        <Tooltip.Trigger
+          class="p-1 rounded-full opacity-60 hover:opacity-100 transition-opacity"
+          aria-label="Informações sobre fonte de dados e classificação das carteiras"
+        >
+          <div
+            class="w-4 h-4 rounded-full border border-current flex items-center justify-center text-xs text-muted-foreground"
+          >
+            ?
+          </div>
+        </Tooltip.Trigger>
+        <Tooltip.Content
+          side="top"
+          align="start"
+          sideOffset={8}
+          class="bg-accent text-accent-foreground font-medium text-sm w-fit"
+        >
+          <div class="space-y-2">
+            <div class="whitespace-nowrap">
+              {tooltipContent}
+            </div>
+            <div class="max-w-xs">
+              <strong>Agrupamento:</strong> Por usuário, com valor total consolidado
+              e bancos associados
+            </div>
+          </div>
+        </Tooltip.Content>
+      </Tooltip.Root>
+    </div>
 
     <!-- Botão de atualizar -->
     <Button
