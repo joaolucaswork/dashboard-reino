@@ -101,7 +101,7 @@ export default {
           "sans-serif",
         ],
         mono: [
-          "Monospace 821 BT",
+          "monospace-reino",
           "Menlo",
           "Monaco",
           "Consolas",
@@ -110,7 +110,7 @@ export default {
           "monospace",
         ],
         data: [
-          "Monospace 821 BT",
+          "monospace-reino",
           "Menlo",
           "Monaco",
           "Consolas",

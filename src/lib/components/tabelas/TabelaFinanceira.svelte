@@ -47,7 +47,7 @@
 
   /**
    * Gera colunas dinamicamente baseado na estrutura data.tables.tab0.lin0
-   * Implementa a mesma lógica do template HTML
+   * Implementa a mesma lógica do template HTML com ordem personalizada
    */
   function generateColumns(data, mode) {
     // Verificar se temos a estrutura de dados necessária
@@ -56,14 +56,38 @@
     const headers = data.tables.tab0.lin0;
     const excludedColumns = getExcludedColumns(mode);
 
-    // Filtrar e mapear colunas seguindo a lógica do template HTML:
-    // {% if col_val != "" and col_key not in excluded_columns %}
-    return Object.entries(headers)
+    // Filtrar colunas válidas
+    const validColumns = Object.entries(headers)
       .filter(([key, value]) => value !== "" && !excludedColumns.includes(key))
       .map(([key, value]) => ({
         accessorKey: key,
         header: value,
       }));
+
+    // Definir ordem desejada: Quantidade, Saldo Bruto, Saldo Líquido, Descrição, demais
+    const desiredOrder = ["col4", "col5", "col7", "col3"]; // Quantidade, Saldo Bruto, Saldo Líquido, Descrição
+
+    // Separar colunas por prioridade
+    const priorityColumns = [];
+    const remainingColumns = [];
+
+    // Adicionar colunas na ordem desejada
+    desiredOrder.forEach((colKey) => {
+      const column = validColumns.find((col) => col.accessorKey === colKey);
+      if (column) {
+        priorityColumns.push(column);
+      }
+    });
+
+    // Adicionar colunas restantes
+    validColumns.forEach((column) => {
+      if (!desiredOrder.includes(column.accessorKey)) {
+        remainingColumns.push(column);
+      }
+    });
+
+    // Retornar colunas na ordem: prioridade + restantes
+    return [...priorityColumns, ...remainingColumns];
   }
 
   // Transformar dados para formato compatível com DataTable

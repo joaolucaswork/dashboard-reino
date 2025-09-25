@@ -126,12 +126,12 @@
   </div>
 
   <!-- Table -->
-  <div class="rounded-md border">
-    <Table.Root>
+  <div class="rounded-lg border border-border/50 overflow-hidden shadow-sm">
+    <Table.Root class="w-full table-auto">
       <Table.Header>
         <Table.Row>
           {#each columns as column}
-            <Table.Head>
+            <Table.Head class="px-4 py-3">
               {#if column.header}
                 <span class="font-medium">{@html renderHeader(column)}</span>
               {:else}
@@ -143,9 +143,16 @@
       </Table.Header>
       <Table.Body>
         {#each paginatedData as row, index (index)}
-          <Table.Row>
+          {@const isEvenRow = index % 2 === 0}
+          {@const rowClasses = [
+            "transition-colors",
+            isEvenRow ? "bg-background" : "bg-muted/50",
+            "hover:bg-[#2b251e]",
+          ].join(" ")}
+
+          <Table.Row class={rowClasses}>
             {#each columns as column}
-              <Table.Cell>
+              <Table.Cell class="px-4 py-3">
                 {@html renderCell(column, row)}
               </Table.Cell>
             {/each}

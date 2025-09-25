@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
+  import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+  } from "$lib/components/ui/card";
   import { Badge } from "$lib/components/ui/badge";
   import { Button } from "$lib/components/ui/button";
   import { Table, Download, FileText } from "@lucide/svelte";
@@ -23,7 +28,12 @@
         processJSONData(rawData);
       } else {
         // Para XML, mostrar como texto
-        processedData = [{ content: typeof rawData === "string" ? rawData : JSON.stringify(rawData) }];
+        processedData = [
+          {
+            content:
+              typeof rawData === "string" ? rawData : JSON.stringify(rawData),
+          },
+        ];
         columns = ["content"];
         totalRows = 1;
       }
@@ -69,16 +79,16 @@
     }
 
     // Extrair dados das linhas
-    Object.keys(tableData).forEach(key => {
+    Object.keys(tableData).forEach((key) => {
       if (key !== "lin0") {
         const row = tableData[key];
         const processedRow: any = {};
-        
+
         Object.keys(row).forEach((colKey, index) => {
           const columnName = headers[index] || colKey;
           processedRow[columnName] = row[colKey];
         });
-        
+
         rows.push(processedRow);
       }
     });
@@ -103,9 +113,9 @@
     } else {
       // Array de valores simples
       columns = ["value"];
-      processedData = arrayData.map(item => ({ value: item }));
+      processedData = arrayData.map((item) => ({ value: item }));
     }
-    
+
     totalRows = arrayData.length;
   }
 
@@ -115,7 +125,7 @@
     columns = ["key", "value"];
     processedData = entries.map(([key, value]) => ({
       key,
-      value: typeof value === "object" ? JSON.stringify(value) : value
+      value: typeof value === "object" ? JSON.stringify(value) : value,
     }));
     totalRows = entries.length;
   }
@@ -125,17 +135,23 @@
 
     const csvContent = [
       columns.join(","),
-      ...processedData.map(row => 
-        columns.map(col => {
-          const value = row[col] || "";
-          // Escapar aspas e adicionar aspas se necessário
-          const stringValue = String(value);
-          if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
-            return `"${stringValue.replace(/"/g, '""')}"`;
-          }
-          return stringValue;
-        }).join(",")
-      )
+      ...processedData.map((row) =>
+        columns
+          .map((col) => {
+            const value = row[col] || "";
+            // Escapar aspas e adicionar aspas se necessário
+            const stringValue = String(value);
+            if (
+              stringValue.includes(",") ||
+              stringValue.includes('"') ||
+              stringValue.includes("\n")
+            ) {
+              return `"${stringValue.replace(/"/g, '""')}"`;
+            }
+            return stringValue;
+          })
+          .join(",")
+      ),
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -149,14 +165,51 @@
     document.body.removeChild(link);
   }
 
-  function formatValue(value: any): string {
+  function formatValue(value: any, columnName?: string): string {
     if (value === null || value === undefined) return "";
+
+    // Detectar colunas de moeda baseado no nome da coluna
+    const isCurrencyColumn =
+      columnName &&
+      (columnName.toLowerCase().includes("saldo") ||
+        columnName.toLowerCase().includes("valor") ||
+        columnName.toLowerCase().includes("bruto") ||
+        columnName.toLowerCase().includes("líquido") ||
+        columnName.toLowerCase().includes("liquido"));
+
     if (typeof value === "number") {
-      // Formatar números com separadores brasileiros se parecer um valor monetário
-      if (value > 1000) {
+      if (isCurrencyColumn) {
+        // Usar formatação de moeda brasileira com símbolo R$ (sem espaço)
+        const formatted = new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+        return formatted.replace("R$ ", "R$");
+      } else if (value > 1000) {
+        // Formatar números grandes com separadores brasileiros
         return value.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
     }
+
+    // Para strings que representam números em colunas de moeda
+    if (
+      isCurrencyColumn &&
+      typeof value === "string" &&
+      value !== "" &&
+      !isNaN(parseFloat(value))
+    ) {
+      const numericValue = parseFloat(value);
+      const formatted = new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(numericValue);
+      return formatted.replace("R$ ", "R$");
+    }
+
     return String(value);
   }
 </script>
@@ -171,7 +224,8 @@
         </CardTitle>
         <div class="flex items-center gap-2">
           <Badge variant="secondary">
-            {totalRows} {totalRows === 1 ? "registro" : "registros"}
+            {totalRows}
+            {totalRows === 1 ? "registro" : "registros"}
           </Badge>
           <Badge variant="outline">
             {format}
@@ -188,7 +242,7 @@
     <CardContent>
       {#if processedData.length > 0}
         <div class="overflow-x-auto">
-          <table class="w-full border-collapse border border-border">
+          <table class="w-full table-auto border-collapse border border-border">
             <thead>
               <tr class="bg-muted">
                 {#each columns as column}
@@ -200,10 +254,17 @@
             </thead>
             <tbody>
               {#each processedData as row, index}
-                <tr class="hover:bg-muted/50 {index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}">
+                {@const isEvenRow = index % 2 === 0}
+                {@const rowClasses = [
+                  "transition-colors",
+                  isEvenRow ? "bg-background" : "bg-muted/50",
+                  "hover:bg-[#2b251e]",
+                ].join(" ")}
+
+                <tr class={rowClasses}>
                   {#each columns as column}
                     <td class="border border-border p-2 text-sm">
-                      {formatValue(row[column])}
+                      {formatValue(row[column], column)}
                     </td>
                   {/each}
                 </tr>
@@ -212,7 +273,9 @@
           </table>
         </div>
       {:else}
-        <div class="flex items-center justify-center py-8 text-muted-foreground">
+        <div
+          class="flex items-center justify-center py-8 text-muted-foreground"
+        >
           <div class="text-center">
             <FileText size={48} class="mx-auto mb-2 opacity-50" />
             <p>Nenhum dado para exibir</p>
