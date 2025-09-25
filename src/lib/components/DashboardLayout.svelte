@@ -637,10 +637,20 @@
       >
         <div class="flex h-16 items-center px-6">
           <div class="flex flex-1 items-center justify-between">
-            <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
-              <h1 class="text-lg font-bold text-white">
-                Ferramentas do BackOffice
-              </h1>
+            <!-- Mobile Sidebar Trigger - Only visible on mobile -->
+            <div class="flex items-center gap-4">
+              <Sidebar.Trigger
+                class="md:hidden p-2 hover:bg-white/10 rounded-md transition-colors"
+                title="Abrir menu"
+                aria-label="Abrir menu lateral"
+              >
+                <Menu size={20} class="text-white/80" />
+              </Sidebar.Trigger>
+              <div use:animate={{ preset: "fadeIn", delay: 0.3 }}>
+                <h1 class="text-lg font-bold text-white">
+                  Ferramentas do BackOffice
+                </h1>
+              </div>
             </div>
           </div>
         </div>
