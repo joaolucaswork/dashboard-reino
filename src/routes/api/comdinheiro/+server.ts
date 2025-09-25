@@ -773,8 +773,22 @@ function processarDadosConsolidados(
     temTables: !!dados.tables,
     temTab0: !!(dados.tables && dados.tables.tab0),
     chavesPrincipais: Object.keys(dados),
-    estruturaCompleta: dados,
   });
+
+  // Debug: Log sample data to understand column structure
+  if (dados.tables && dados.tables.tab0) {
+    const tab0 = dados.tables.tab0;
+    console.log("📋 Cabeçalho (lin0):", tab0.lin0);
+
+    // Log first few data rows to understand structure
+    const dataKeys = Object.keys(tab0)
+      .filter((key) => key !== "lin0")
+      .slice(0, 3);
+    console.log(
+      "📊 Primeiras linhas de dados:",
+      dataKeys.map((key) => ({ key, data: tab0[key] }))
+    );
+  }
 
   // Verificar diferentes estruturas possíveis
   let tab0;
@@ -819,28 +833,28 @@ function processarDadosConsolidados(
     if (key === "lin0") continue; // Pular cabeçalho
 
     const rowData = row as any;
-    const banco = (rowData.col0 || "Sem Banco").toString().trim();
-    const ativo = (rowData.col1 || "").toString().trim();
+    // Mapeamento das colunas baseado na aplicação de referência
+    // A referência usa col1 para banco, col4 para quantidade, col5 para saldo, col6 para tipo
+    // Isso sugere que a API pode retornar dados em ordem diferente da URL
+    const banco = (rowData.col1 || "Sem Banco").toString().trim();
+    const ativo = (rowData.col1 || "").toString().trim(); // Pode ser o mesmo que banco
     const descricao = (rowData.col2 || "").toString().trim();
     const quantidade =
-      parseFloat(
-        String(rowData.col3 || "0")
-          .replace(/\./g, "")
-          .replace(",", ".")
-      ) || 0;
-    const saldoBruto =
       parseFloat(
         String(rowData.col4 || "0")
           .replace(/\./g, "")
           .replace(",", ".")
       ) || 0;
-    const tipoAtivo = (rowData.col5 || "Sem Tipo")
-      .toString()
-      .trim()
-      .toLowerCase();
+    const saldoBruto =
+      parseFloat(
+        String(rowData.col5 || "0")
+          .replace(/\./g, "")
+          .replace(",", ".")
+      ) || 0;
+    const tipoAtivo = (rowData.col6 || "Sem Tipo").toString().trim();
     const saldoLiquido =
       parseFloat(
-        String(rowData.col6 || "0")
+        String(rowData.col7 || "0")
           .replace(/\./g, "")
           .replace(",", ".")
       ) || 0;
@@ -859,16 +873,11 @@ function processarDadosConsolidados(
       };
     }
 
-    // Criar cópia da linha com valores processados
+    // Criar cópia da linha com valores processados (mantendo estrutura original)
     const linhaCopy = {
       ...rowData,
-      col0: banco,
-      col1: ativo,
-      col2: descricao,
-      col3: quantidade,
-      col4: saldoBruto,
-      col5: tipoAtivo,
-      col6: saldoLiquido,
+      col4: quantidade,
+      col5: saldoBruto,
     };
 
     // Adicionar linha e atualizar totais
@@ -883,8 +892,35 @@ function processarDadosConsolidados(
     }
   }
 
-  // Aplicar reestruturação por categorias (simplificada)
+  console.log("🏦 Dados agrupados antes da reestruturação:", {
+    bancos: Object.keys(agrupados),
+    totalBancos: Object.keys(agrupados).length,
+    exemploEstrutura:
+      Object.keys(agrupados).length > 0
+        ? {
+            banco: Object.keys(agrupados)[0],
+            tipos: Object.keys(agrupados[Object.keys(agrupados)[0]]).filter(
+              (k) => k !== "_total_banco"
+            ),
+          }
+        : null,
+  });
+
+  // Aplicar reestruturação por categorias
   const agrupadosReestruturados = reestruturarAgrupamento(agrupados);
+
+  console.log("🔄 Dados após reestruturação:", {
+    bancos: Object.keys(agrupadosReestruturados),
+    exemploCategorizacao:
+      Object.keys(agrupadosReestruturados).length > 0
+        ? {
+            banco: Object.keys(agrupadosReestruturados)[0],
+            categorias: Object.keys(
+              agrupadosReestruturados[Object.keys(agrupadosReestruturados)[0]]
+            ).filter((k) => k !== "_total_banco"),
+          }
+        : null,
+  });
 
   // Formatar total geral no padrão brasileiro
   const totalGeral = new Intl.NumberFormat("pt-BR", {
@@ -937,26 +973,78 @@ function reestruturarAgrupamento(agrupados: any): any {
 }
 
 /**
- * Categorizar tipo de ativo (simplificado)
+ * Categorizar tipo de ativo (baseado na implementação de referência)
+ * Mapeia tipos de ativos para categorias principais seguindo o padrão da aplicação anterior
  */
 function categorizarTipoAtivo(tipo: string): string {
-  const tipoLower = tipo.toLowerCase();
+  const tipoUpper = tipo.toUpperCase().trim();
 
-  if (tipoLower.includes("acao") || tipoLower.includes("stock")) {
-    return "Ações";
-  } else if (tipoLower.includes("fundo") || tipoLower.includes("fund")) {
-    return "Fundos";
-  } else if (
-    tipoLower.includes("renda") ||
-    tipoLower.includes("debenture") ||
-    tipoLower.includes("cdb")
-  ) {
-    return "Renda Fixa";
-  } else if (tipoLower.includes("caixa") || tipoLower.includes("cash")) {
-    return "Caixa";
-  } else {
-    return "Outros";
+  // Mapeamento de categorias baseado na aplicação de referência
+  const categoriasMap = {
+    Previdência: ["VGBL", "PGBL"],
+    "Renda Variável": ["ACAO"],
+    "Renda Fixa": [
+      "CDB",
+      "LCI",
+      "LCA",
+      "LIG",
+      "DEBENTURE",
+      "CRI",
+      "CRA",
+      "TITULO",
+      "LCD",
+    ],
+    "Fundos de Investimento": ["FUNDOS", "FUNDO"],
+    Caixa: ["CAIXA", "CAIXAB"],
+  };
+
+  // Verificar correspondência exata primeiro
+  for (const [categoria, tiposLista] of Object.entries(categoriasMap)) {
+    if (tiposLista.some((t) => tipoUpper === t)) {
+      console.log(`🎯 Categorização exata: ${tipo} -> ${categoria}`);
+      return categoria;
+    }
   }
+
+  // Verificar correspondência parcial para casos especiais
+  if (tipoUpper.includes("FUNDO") || tipoUpper.includes("FUND")) {
+    console.log(`🎯 Categorização parcial: ${tipo} -> Fundos de Investimento`);
+    return "Fundos de Investimento";
+  }
+
+  if (tipoUpper.includes("ACAO") || tipoUpper.includes("STOCK")) {
+    console.log(`🎯 Categorização parcial: ${tipo} -> Renda Variável`);
+    return "Renda Variável";
+  }
+
+  if (
+    tipoUpper.includes("CDB") ||
+    tipoUpper.includes("LCI") ||
+    tipoUpper.includes("LCA") ||
+    tipoUpper.includes("DEBENTURE") ||
+    tipoUpper.includes("TITULO")
+  ) {
+    console.log(`🎯 Categorização parcial: ${tipo} -> Renda Fixa`);
+    return "Renda Fixa";
+  }
+
+  if (tipoUpper.includes("CAIXA") || tipoUpper.includes("CASH")) {
+    console.log(`🎯 Categorização parcial: ${tipo} -> Caixa`);
+    return "Caixa";
+  }
+
+  if (
+    tipoUpper.includes("VGBL") ||
+    tipoUpper.includes("PGBL") ||
+    tipoUpper.includes("PREVIDENCIA")
+  ) {
+    console.log(`🎯 Categorização parcial: ${tipo} -> Previdência`);
+    return "Previdência";
+  }
+
+  // Categoria padrão para tipos não mapeados
+  console.log(`❓ Tipo não categorizado: ${tipo} -> Outros`);
+  return "Outros";
 }
 
 // Função para gerar código em diferentes linguagens

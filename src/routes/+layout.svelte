@@ -2,9 +2,16 @@
   import favicon from "$lib/assets/favicon.svg";
   import DashboardLayout from "$lib/components/DashboardLayout.svelte";
   import { Toaster } from "svelte-sonner";
+  import { themeStore, isDarkTheme } from "$lib/stores/theme.js";
+  import { onMount } from "svelte";
   import "../app.css";
 
   let { children } = $props();
+
+  // Initialize theme on app load
+  onMount(() => {
+    themeStore.initializeTheme();
+  });
 </script>
 
 <svelte:head>
@@ -16,7 +23,7 @@
 </DashboardLayout>
 
 <Toaster
-  theme="dark"
+  theme={$isDarkTheme ? "dark" : "light"}
   position="bottom-right"
   richColors={false}
   expand

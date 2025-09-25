@@ -63,10 +63,10 @@
 
   // Função para obter classe de cor baseada no patrimônio
   function getPatrimonioClass(patrimonio: number): string {
-    if (patrimonio >= 10000000) return "text-green-600 font-semibold";
-    if (patrimonio >= 1000000) return "text-blue-600 font-medium";
-    if (patrimonio >= 100000) return "text-yellow-600";
-    return "text-gray-600";
+    if (patrimonio >= 10000000) return "text-primary font-semibold";
+    if (patrimonio >= 1000000) return "text-foreground font-medium";
+    if (patrimonio >= 100000) return "text-muted-foreground";
+    return "text-muted-foreground/70";
   }
 </script>
 

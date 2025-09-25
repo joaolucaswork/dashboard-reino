@@ -20,7 +20,7 @@
 <div class="space-y-8">
   <!-- Header Section -->
   <div class="space-y-3" use:animate={{ preset: "slideInUp", delay: 0.2 }}>
-    <h2 class="text-3xl font-bold text-white tracking-tight">
+    <h2 class="text-3xl font-bold text-foreground tracking-tight">
       Dashboard de Gestão Financeira
     </h2>
     <p class="text-body max-w-2xl">
@@ -71,7 +71,7 @@
       <Card class="card-premium h-full">
         <CardContent class="p-4">
           <CardTitle
-            class="text-lg font-bold text-white mb-2 flex items-center gap-2"
+            class="text-lg font-bold text-card-foreground mb-2 flex items-center gap-2"
           >
             <TrendingUp size={18} class="text-primary" />
             Análises
@@ -88,7 +88,7 @@
       <Card class="card-premium h-full">
         <CardContent class="p-4">
           <CardTitle
-            class="text-lg font-bold text-white mb-2 flex items-center gap-2"
+            class="text-lg font-bold text-card-foreground mb-2 flex items-center gap-2"
           >
             <FileCode size={18} class="text-primary" />
             Relatórios
@@ -104,7 +104,7 @@
       <Card class="card-premium h-full">
         <CardContent class="p-4">
           <CardTitle
-            class="text-lg font-bold text-white mb-2 flex items-center gap-2"
+            class="text-lg font-bold text-card-foreground mb-2 flex items-center gap-2"
           >
             <Settings size={18} class="text-primary" />
             Configurações
