@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Authentication Persistence</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1612;
+            color: #f5f5f5;
+        }
+        .test-section {
+            background: #2a2520;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #3d342a;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #1a4d3a; border: 1px solid #2d7a5f; }
+        .error { background: #4d1a1a; border: 1px solid #7a2d2d; }
+        .info { background: #1a3a4d; border: 1px solid #2d5f7a; }
+        button {
+            background: #d4af37;
+            color: #1a1612;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #e6c547; }
+        input {
+            background: #3d342a;
+            color: #f5f5f5;
+            border: 1px solid #5a4d3a;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Test Authentication Persistence</h1>
+    
+    <div class="test-section">
+        <h2>1. LocalStorage Test</h2>
+        <div id="localStorage-test"></div>
+        <button onclick="testLocalStorage()">Test LocalStorage</button>
+        <button onclick="clearLocalStorage()">Clear LocalStorage</button>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Credential Storage Test</h2>
+        <div>
+            <input type="text" id="test-username" placeholder="Username" value="test_user">
+            <input type="password" id="test-password" placeholder="Password" value="test_pass">
+            <button onclick="saveTestCredentials()">Save Test Credentials</button>
+        </div>
+        <div id="credential-test"></div>
+        <button onclick="loadTestCredentials()">Load Test Credentials</button>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Authentication State Test</h2>
+        <div id="auth-state-test"></div>
+        <button onclick="testAuthState()">Test Auth State</button>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Page Reload Simulation</h2>
+        <div id="reload-test"></div>
+        <button onclick="simulateReload()">Simulate Page Reload</button>
+        <button onclick="actualReload()">Actual Page Reload</button>
+    </div>
+
+    <script>
+        const STORAGE_KEY = "comdinheiro_credentials";
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            return `<div class="test-result ${type}">${message}</div>`;
+        }
+
+        function testLocalStorage() {
+            const container = document.getElementById('localStorage-test');
+            let results = '';
+            
+            try {
+                // Test basic localStorage functionality
+                const testKey = 'test-key';
+                const testValue = 'test-value';
+                
+                localStorage.setItem(testKey, testValue);
+                const retrieved = localStorage.getItem(testKey);
+                
+                if (retrieved === testValue) {
+                    results += log('✅ LocalStorage basic functionality works', 'success');
+                } else {
+                    results += log('❌ LocalStorage basic functionality failed', 'error');
+                }
+                
+                localStorage.removeItem(testKey);
+                
+                // Test JSON storage
+                const testObj = { username: 'test', password: 'pass' };
+                localStorage.setItem('test-json', JSON.stringify(testObj));
+                const retrievedObj = JSON.parse(localStorage.getItem('test-json'));
+                
+                if (retrievedObj.username === 'test' && retrievedObj.password === 'pass') {
+                    results += log('✅ LocalStorage JSON functionality works', 'success');
+                } else {
+                    results += log('❌ LocalStorage JSON functionality failed', 'error');
+                }
+                
+                localStorage.removeItem('test-json');
+                
+            } catch (error) {
+                results += log(`❌ LocalStorage error: ${error.message}`, 'error');
+            }
+            
+            container.innerHTML = results;
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('comdinheiro_username');
+            localStorage.removeItem('comdinheiro_password');
+            log('🧹 LocalStorage cleared');
+        }
+
+        function saveTestCredentials() {
+            const username = document.getElementById('test-username').value;
+            const password = document.getElementById('test-password').value;
+            const container = document.getElementById('credential-test');
+            
+            try {
+                const credentials = { username, password };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(credentials));
+                container.innerHTML = log(`✅ Credentials saved: ${username}`, 'success');
+            } catch (error) {
+                container.innerHTML = log(`❌ Failed to save credentials: ${error.message}`, 'error');
+            }
+        }
+
+        function loadTestCredentials() {
+            const container = document.getElementById('credential-test');
+            let results = '';
+            
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const credentials = JSON.parse(saved);
+                    results += log(`✅ Credentials loaded: ${credentials.username}`, 'success');
+                    results += log(`Password present: ${!!credentials.password}`, 'info');
+                } else {
+                    results += log('⚠️ No credentials found in localStorage', 'info');
+                }
+            } catch (error) {
+                results += log(`❌ Failed to load credentials: ${error.message}`, 'error');
+            }
+            
+            container.innerHTML = results;
+        }
+
+        function testAuthState() {
+            const container = document.getElementById('auth-state-test');
+            let results = '';
+            
+            // Check what's in localStorage
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const credentials = JSON.parse(saved);
+                    results += log(`📋 Stored credentials: ${credentials.username}`, 'info');
+                    
+                    // Simulate authentication check
+                    const isAuthenticated = !!(credentials.username && credentials.password);
+                    if (isAuthenticated) {
+                        results += log('✅ User should be authenticated', 'success');
+                    } else {
+                        results += log('❌ User should NOT be authenticated (missing data)', 'error');
+                    }
+                } catch (error) {
+                    results += log(`❌ Invalid credentials format: ${error.message}`, 'error');
+                }
+            } else {
+                results += log('⚠️ No credentials stored - user should see login modal', 'info');
+            }
+            
+            container.innerHTML = results;
+        }
+
+        function simulateReload() {
+            const container = document.getElementById('reload-test');
+            let results = '';
+            
+            // Simulate what happens on page reload
+            results += log('🔄 Simulating page reload...', 'info');
+            
+            // Check if credentials would be restored
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const credentials = JSON.parse(saved);
+                    results += log(`✅ Credentials would be restored: ${credentials.username}`, 'success');
+                    
+                    // Simulate the authentication state check
+                    const wouldBeAuthenticated = !!(credentials.username && credentials.password);
+                    if (wouldBeAuthenticated) {
+                        results += log('✅ User would remain authenticated after reload', 'success');
+                    } else {
+                        results += log('❌ User would lose authentication after reload', 'error');
+                    }
+                } catch (error) {
+                    results += log(`❌ Credentials restoration would fail: ${error.message}`, 'error');
+                }
+            } else {
+                results += log('⚠️ No credentials to restore - login modal would appear', 'info');
+            }
+            
+            container.innerHTML = results;
+        }
+
+        function actualReload() {
+            window.location.reload();
+        }
+
+        // Run initial tests on page load
+        window.addEventListener('load', () => {
+            testLocalStorage();
+            loadTestCredentials();
+            testAuthState();
+            simulateReload();
+        });
+    </script>
+</body>
+</html>

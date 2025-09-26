@@ -59,12 +59,21 @@ export const credenciaisComdinheiro = derived(
 export const usuarioLogadoComdinheiro = derived(
   carteirasComdinheiroState,
   ($state) => {
+    // User is considered authenticated if they have valid credentials
+    // Wallets will be fetched automatically in the background
     return !!(
       $state.credentials &&
       $state.credentials.username &&
-      $state.credentials.password &&
-      $state.carteiras.length > 0
+      $state.credentials.password
     );
+  }
+);
+
+// Store derivado para verificar se o usuário tem carteiras carregadas
+export const carteirasCarregadas = derived(
+  carteirasComdinheiroState,
+  ($state) => {
+    return $state.carteiras.length > 0;
   }
 );
 
@@ -179,7 +188,8 @@ export async function buscarCarteirasComdinheiro(
   if (
     !forceRefresh &&
     isCacheValid(state!.lastFetch) &&
-    state!.carteiras.length > 0
+    state!.carteiras.length > 0 &&
+    state!.credentials?.username === creds.username
   ) {
     return { success: true, carteiras: state!.carteiras };
   }
@@ -269,20 +279,37 @@ export function resetarCarteirasComdinheiro(): void {
   carteirasComdinheiroState.set(initialState);
 }
 
-// Inicializar store (carregar credenciais salvas)
-export function inicializarCarteirasComdinheiro(): void {
+// Inicializar store (carregar credenciais salvas e buscar carteiras)
+export async function inicializarCarteirasComdinheiro(): Promise<void> {
   if (!browser) return;
 
   const credentials = carregarCredenciais();
   if (credentials) {
+    // Atualizar estado com credenciais
     carteirasComdinheiroState.update((state) => ({
       ...state,
       credentials,
     }));
+
+    // Buscar carteiras automaticamente se temos credenciais válidas
+    // Não bloquear a inicialização se falhar - apenas log o erro
+    try {
+      await buscarCarteirasComdinheiro(credentials);
+    } catch (error) {
+      console.warn(
+        "Aviso: Não foi possível restaurar carteiras na inicialização:",
+        error
+      );
+      // Não limpar credenciais - pode ser um erro temporário de rede
+      // O usuário ainda pode tentar fazer login manualmente
+    }
   }
 }
 
 // Auto-inicializar se estiver no browser
 if (browser) {
-  inicializarCarteirasComdinheiro();
+  // Use setTimeout to ensure DOM is ready and avoid blocking
+  setTimeout(() => {
+    inicializarCarteirasComdinheiro();
+  }, 0);
 }

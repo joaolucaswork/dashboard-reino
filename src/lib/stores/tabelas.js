@@ -1,7 +1,7 @@
 import { writable, derived } from "svelte/store";
 import { validarFormulario } from "$lib/utils/validators.js";
 import { getMockDataByMode } from "$lib/mocks/tabelas.js";
-import { toast, showToast } from "$lib/utils/toast.js";
+import { toast, showToast, authShowToast } from "$lib/utils/toast.js";
 
 // Estados principais do formulário
 // TEMPORARILY CHANGED DEFAULT - was "relatorio", changed to active mode
@@ -91,8 +91,8 @@ export async function consultarDados() {
   loadingState.set(true);
   errorState.set(null);
 
-  // Show loading toast
-  const loadingToastId = showToast.consultingData();
+  // Show loading toast (authentication-aware)
+  const loadingToastId = await authShowToast.consultingData();
 
   try {
     // Obter valores atuais dos stores
@@ -214,9 +214,9 @@ export async function consultarDados() {
 
     dadosConsulta.set(resultData);
 
-    // Dismiss loading toast and show success
-    toast.dismiss(loadingToastId);
-    showToast.dataLoaded();
+    // Dismiss loading toast and show success (authentication-aware)
+    if (loadingToastId) toast.dismiss(loadingToastId);
+    authShowToast.dataLoaded();
 
     return resultData;
   } catch (error) {
@@ -224,9 +224,9 @@ export async function consultarDados() {
       error instanceof Error ? error.message : "Erro ao consultar dados";
     errorState.set(errorMessage);
 
-    // Dismiss loading toast and show error
-    toast.dismiss(loadingToastId);
-    showToast.dataLoadFailed(errorMessage);
+    // Dismiss loading toast and show error (authentication-aware)
+    if (loadingToastId) toast.dismiss(loadingToastId);
+    authShowToast.dataLoadFailed(errorMessage);
 
     throw error;
   } finally {

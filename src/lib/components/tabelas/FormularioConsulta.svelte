@@ -30,7 +30,8 @@
   } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
-  import SalesforceIcon from "$lib/components/icons/SalesforceIcon.svelte";
+  import { authShowToast } from "$lib/utils/toast.js";
+  import { logAuthDebugInfo } from "$lib/utils/auth-debug.js";
 
   // Interface para carteiras do Salesforce
   interface CarteiraSalesforce {
@@ -61,6 +62,7 @@
 
   async function fazerLoginComdinheiro() {
     if (!credenciaisLogin.username || !credenciaisLogin.password) {
+      // Keep form validation errors visible for unauthenticated users
       toast.error("Preencha usuário e senha");
       return;
     }
@@ -76,17 +78,17 @@
       );
 
       if (resultado.success) {
-        toast.success(
+        authShowToast.loginSuccess(
           `Login realizado com sucesso! ${resultado.carteiras?.length || 0} carteiras encontradas`
         );
         modalLoginAberto = false;
         credenciaisLogin = { username: "", password: "" };
       } else {
-        toast.error(resultado.error || "Erro ao fazer login");
+        authShowToast.loginFailed(resultado.error || "Erro ao fazer login");
       }
     } catch (error) {
       console.error("Erro no login:", error);
-      toast.error("Erro ao conectar com o Comdinheiro");
+      authShowToast.loginFailed("Erro ao conectar com o Comdinheiro");
     } finally {
       loadingLogin = false;
     }
@@ -156,21 +158,15 @@
         );
 
         // Notificação com informação do agrupamento
-        const mensagem =
-          carteirasOriginais === carteirasAgrupadas
-            ? `${carteirasAgrupadas} carteiras carregadas`
-            : `${carteirasAgrupadas} usuários (${carteirasOriginais} carteiras agrupadas)`;
-
-        toast.success(mensagem, {
-          duration: 4000,
-          icon: SalesforceIcon,
-        });
+        authShowToast.walletsLoaded(carteirasAgrupadas);
       } else {
         throw new Error(data.error || "Erro ao buscar carteiras");
       }
     } catch (error) {
       console.error("❌ Erro ao buscar carteiras do Salesforce:", error);
-      toast.error("Erro ao carregar carteiras do Salesforce");
+      authShowToast.walletLoadFailed(
+        "Erro ao carregar carteiras do Salesforce"
+      );
     } finally {
       loadingCarteiras = false;
     }
@@ -179,6 +175,19 @@
   // Carregar carteiras quando componente for montado
   onMount(() => {
     buscarCarteirasSalesforce();
+
+    // Debug authentication state on component mount
+    if (typeof window !== "undefined") {
+      console.log("🔍 FormularioConsulta mounted - checking auth state");
+      logAuthDebugInfo();
+
+      // Log authentication state changes
+      const unsubscribe = usuarioLogadoComdinheiro.subscribe((logado) => {
+        console.log("🔐 Authentication state changed:", logado);
+      });
+
+      return unsubscribe;
+    }
   });
 
   // Opções de modo de visualização

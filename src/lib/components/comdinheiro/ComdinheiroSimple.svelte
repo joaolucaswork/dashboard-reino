@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
+  import { authShowToast } from "$lib/utils/toast.js";
   import {
     Card,
     CardContent,
@@ -54,7 +55,7 @@
       }
     } catch (error) {
       console.error("Erro ao carregar ferramentas:", error);
-      toast.error("Erro ao carregar ferramentas disponíveis");
+      authShowToast.dataLoadFailed("Erro ao carregar ferramentas disponíveis");
     }
   }
 
@@ -83,13 +84,13 @@
 
       if (data.success) {
         ultimoResultado = data.data;
-        toast.success("Consulta executada com sucesso!");
+        authShowToast.dataLoaded();
       } else {
         throw new Error(data.error || "Erro na consulta");
       }
     } catch (error) {
       console.error("Erro na consulta:", error);
-      toast.error(
+      authShowToast.dataLoadFailed(
         "Erro na consulta: " +
           (error instanceof Error ? error.message : "Erro desconhecido")
       );
@@ -169,11 +170,13 @@ echo $result;
         break;
     }
 
+    // Keep UI feedback for code generation (not financial data)
     toast.success("Código gerado com sucesso!");
   }
 
   function copiarCodigo() {
     navigator.clipboard.writeText(codigoGerado);
+    // Keep UI feedback for copy action (not financial data)
     toast.success("Código copiado para a área de transferência!");
   }
 

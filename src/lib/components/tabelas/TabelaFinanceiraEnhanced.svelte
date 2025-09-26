@@ -2,6 +2,7 @@
   import EnhancedDataTable from "$lib/components/ui/data-table/EnhancedDataTable.svelte";
   import { Badge } from "$lib/components/ui/badge/index.ts";
   import { toast } from "svelte-sonner";
+  import { authShowToast } from "$lib/utils/toast.js";
   import { financialBadgeConfigs } from "$lib/utils/table-enhancements.js";
 
   let { data, mode = "relatorio", title = "Dados Financeiros" } = $props();
@@ -143,12 +144,15 @@
         return sum + value;
       }, 0);
 
-      toast.success(`${selectedRows.length} linha(s) selecionada(s)`, {
-        description: `Valor total: R$ ${totalValue.toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
-      });
+      authShowToast.info(
+        `${selectedRows.length} linha(s) selecionada(s) - Valor total: R$ ${totalValue.toLocaleString(
+          "pt-BR",
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }
+        )}`
+      );
     }
   }
 </script>
