@@ -23,6 +23,7 @@
   // Props para carteiras externas (ex: Salesforce)
   export let carteirasExternas: any[] = [];
   export let usarCarteirasExternas = false;
+  export let disabled = false;
 
   // Conteúdo do tooltip baseado no estado atual
   let tooltipContent: string = "";
@@ -246,12 +247,14 @@
     options={carteiraOptions}
     placeholder={$carregandoCarteiras
       ? "Carregando carteiras..."
-      : `${carteiraOptions.length} carteiras disponíveis`}
+      : disabled
+        ? "Login necessário"
+        : `${carteiraOptions.length} carteiras disponíveis`}
     searchPlaceholder="Buscar carteira..."
     emptyMessage={$erroCarteiras
       ? $erroCarteiras
       : "Nenhuma carteira encontrada."}
-    disabled={$carregandoCarteiras}
+    disabled={$carregandoCarteiras || disabled}
   />
 
   <!-- Mensagem de erro -->

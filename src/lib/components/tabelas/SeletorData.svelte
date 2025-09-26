@@ -9,6 +9,9 @@
   import { Button } from "$lib/components/ui/button";
   import { DatePicker } from "$lib/components/ui/date-picker";
 
+  // Props
+  export let disabled = false;
+
   // Função para obter data atual no formato YYYY-MM-DD
   function getDataAtual() {
     return new Date().toISOString().split("T")[0];
@@ -73,8 +76,9 @@
         minValue={$dataInicial}
         maxValue={getDataAtual()}
         error={!dataFinalValida}
-        placeholder="Selecione a data final"
+        placeholder={disabled ? "Login necessário" : "Selecione a data final"}
         class="h-12"
+        {disabled}
       />
       {#if !dataFinalValida}
         <p class="text-caption text-destructive mt-1">
@@ -95,7 +99,10 @@
           bind:value={$dataInicial}
           maxValue={$dataFinal || getDataAtual()}
           error={!dataInicialValida}
-          placeholder="Selecione a data inicial"
+          placeholder={disabled
+            ? "Login necessário"
+            : "Selecione a data inicial"}
+          {disabled}
         />
         {#if !dataInicialValida}
           <p class="text-caption text-destructive mt-1">
