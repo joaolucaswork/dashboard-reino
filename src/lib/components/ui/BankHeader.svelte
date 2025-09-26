@@ -3,6 +3,7 @@
   import { getBancoInfo } from "$lib/data/bancos.js";
   import { formatarMoeda } from "$lib/utils/formatters.js";
   import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
+  import { Badge } from "$lib/components/ui/badge/index.js";
 
   /**
    * Bank Header Component for Consolidated Tables
@@ -45,103 +46,151 @@
 </script>
 
 <!-- Bank Header Container -->
-<div
-  class="
-    bank-header flex items-center justify-between p-4 rounded-lg
-    transition-all duration-300 ease-in-out
-    {clickable ? 'cursor-pointer hover:bg-muted/50' : ''}
-    {isExpanded ? 'bg-muted/30' : 'bg-background'}
-    {className}
-  "
-  class:shadow-sm={isExpanded}
-  role={clickable ? "button" : "heading"}
-  tabindex={clickable ? 0 : -1}
-  aria-expanded={clickable ? isExpanded : undefined}
-  aria-label={clickable
-    ? `${bankName} - ${isExpanded ? "Expandido" : "Recolhido"}`
-    : bankName}
-  on:click={handleClick}
-  on:keydown={handleKeydown}
->
-  <!-- Left Section: Logo and Bank Info -->
-  <div class="flex items-center gap-3">
-    <!-- Bank Logo -->
-    <BankLogo
-      {bankName}
-      isActive={isExpanded}
-      size="lg"
-      className="flex-shrink-0"
-    />
-
-    <!-- Bank Information -->
-    <div class="flex flex-col">
-      <!-- Bank Name -->
-      <h3 class="text-lg font-bold text-foreground leading-tight">
+{#if clickable}
+  <button
+    class="
+      bank-header flex items-center justify-between p-4 rounded-lg w-full text-left
+      transition-all duration-300 ease-in-out
+      cursor-pointer hover:bg-muted/50
+      {isExpanded ? 'bg-muted/30' : 'bg-background'}
+      {className}
+    "
+    class:shadow-sm={isExpanded}
+    aria-expanded={isExpanded}
+    aria-label="{bankName} - {isExpanded ? 'Expandido' : 'Recolhido'}"
+    on:click={handleClick}
+  >
+    <!-- Left Section: Logo, Bank Name and Asset Count Badge -->
+    <div class="flex items-center gap-3">
+      <!-- Bank Logo -->
+      <BankLogo
         {bankName}
-      </h3>
+        isActive={isExpanded}
+        size="lg"
+        className="flex-shrink-0"
+      />
 
-      <!-- Bank Category (if available) -->
-      {#if bankInfo?.categoria}
-        <span class="text-sm text-muted-foreground font-medium capitalize">
-          {bankInfo.categoria.replace("_", " ")}
-        </span>
-      {/if}
-    </div>
-  </div>
+      <!-- Bank Name and Asset Count -->
+      <div class="flex items-center gap-2">
+        <!-- Bank Name -->
+        <h3 class="text-lg font-bold text-foreground leading-tight">
+          {bankName}
+        </h3>
 
-  <!-- Right Section: Summary and Expand Indicator -->
-  <div class="flex items-center gap-4">
-    {#if showSummary}
-      <!-- Summary Information -->
-      <div class="text-right">
-        <!-- Total Value -->
-        <div class="text-lg font-bold text-foreground">
-          {@html wrapNumbersWithFont(formattedTotal)}
-        </div>
-
-        <!-- Asset Count -->
+        <!-- Asset Count Badge (similar to category and type levels) -->
         {#if assetCount > 0}
-          <div class="text-sm text-muted-foreground font-medium">
+          <Badge variant="outline" class="text-sm">
             {@html wrapNumbersWithFont(
               `${assetCount} ${assetCount === 1 ? "ativo" : "ativos"}`
             )}
-          </div>
+          </Badge>
         {/if}
       </div>
-    {/if}
+    </div>
 
-    {#if clickable}
-      <!-- Expand/Collapse Indicator -->
-      <div
-        class="
-          w-6 h-6 flex items-center justify-center
-          transition-transform duration-300 ease-in-out
-          text-muted-foreground
-        "
-        class:rotate-180={isExpanded}
-      >
-        <!-- Chevron Down Icon -->
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="6,9 12,15 18,9"></polyline>
-        </svg>
+    <!-- Right Section: Total Value and Expand Indicator -->
+    <div class="flex items-center gap-4">
+      {#if showSummary}
+        <!-- Total Value (consistent with category and type levels) -->
+        <div class="text-right">
+          <div class="text-lg font-medium text-foreground">
+            {@html wrapNumbersWithFont(formattedTotal)}
+          </div>
+        </div>
+      {/if}
+
+      <!-- Expand/Collapse Indicator (consistent with other levels) -->
+      <div class="text-muted-foreground">
+        {#if isExpanded}
+          <!-- Minus icon when expanded -->
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        {:else}
+          <!-- Plus icon when collapsed -->
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        {/if}
       </div>
-    {/if}
+    </div>
+  </button>
+{:else}
+  <div
+    class="
+      bank-header flex items-center justify-between p-4 rounded-lg
+      transition-all duration-300 ease-in-out
+      {isExpanded ? 'bg-muted/30' : 'bg-background'}
+      {className}
+    "
+    class:shadow-sm={isExpanded}
+    role="heading"
+    aria-level="2"
+    aria-label={bankName}
+  >
+    <!-- Left Section: Logo, Bank Name and Asset Count Badge -->
+    <div class="flex items-center gap-3">
+      <!-- Bank Logo -->
+      <BankLogo
+        {bankName}
+        isActive={isExpanded}
+        size="lg"
+        className="flex-shrink-0"
+      />
+
+      <!-- Bank Name and Asset Count -->
+      <div class="flex items-center gap-2">
+        <!-- Bank Name -->
+        <h3 class="text-lg font-bold text-foreground leading-tight">
+          {bankName}
+        </h3>
+
+        <!-- Asset Count Badge (similar to category and type levels) -->
+        {#if assetCount > 0}
+          <Badge variant="outline" class="text-sm">
+            {@html wrapNumbersWithFont(
+              `${assetCount} ${assetCount === 1 ? "ativo" : "ativos"}`
+            )}
+          </Badge>
+        {/if}
+      </div>
+    </div>
+
+    <!-- Right Section: Total Value -->
+    <div class="flex items-center gap-4">
+      {#if showSummary}
+        <!-- Total Value (consistent with category and type levels) -->
+        <div class="text-right">
+          <div class="text-lg font-medium text-foreground">
+            {@html wrapNumbersWithFont(formattedTotal)}
+          </div>
+        </div>
+      {/if}
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   .bank-header {
     /* Ensure proper focus styles for accessibility */
     outline: none;
+    border: none; /* Remove default button border */
+    background: transparent; /* Let classes handle background */
   }
 
   .bank-header:focus-visible {
@@ -157,5 +206,10 @@
   /* Active state feedback */
   .bank-header:active {
     transform: translateY(0);
+  }
+
+  /* Ensure button text alignment */
+  button.bank-header {
+    text-align: left;
   }
 </style>

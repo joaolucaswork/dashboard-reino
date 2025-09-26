@@ -162,7 +162,7 @@
         <p class="text-caption">
           Carteira: {data.carteira.replace("_", " ")} | Data: {data.data_final}
           {#if data?.total_geral}
-            | Total: R$ {data.total_geral}
+            | R$ {data.total_geral}
           {/if}
         </p>
       {/if}

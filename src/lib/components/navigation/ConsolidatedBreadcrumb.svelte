@@ -12,6 +12,7 @@
   import { ChevronDown, Check } from "@lucide/svelte";
   import { goto } from "$app/navigation";
   import { dadosConsulta } from "$lib/stores/tabelas.js";
+  import InvestmentCategoryIndicator from "$lib/components/ui/InvestmentCategoryIndicator.svelte";
 
   let { breadcrumbPath = [], onNavigate = null } = $props();
 
@@ -179,7 +180,11 @@
                   <Popover.Trigger
                     class="flex items-center gap-1 font-semibold text-foreground hover:bg-muted/50 rounded-sm px-1 py-0.5 transition-colors"
                   >
-                    <span>{breadcrumbItem.label}</span>
+                    <InvestmentCategoryIndicator
+                      category={breadcrumbItem.label}
+                      showBadge={false}
+                      className="font-semibold"
+                    />
                     <ChevronDown class="h-3 w-3 text-muted-foreground" />
                   </Popover.Trigger>
                   <Popover.Content class="w-64 p-0" align="start">
@@ -202,7 +207,11 @@
                               }}
                               class="flex items-center justify-between"
                             >
-                              <span>{option.label}</span>
+                              <InvestmentCategoryIndicator
+                                category={option.label}
+                                showBadge={false}
+                                dotSize="w-1.5 h-1.5"
+                              />
                               {#if breadcrumbItem.label === option.value || breadcrumbItem.key === option.value}
                                 <Check class="h-4 w-4" />
                               {/if}
@@ -214,7 +223,12 @@
                   </Popover.Content>
                 </Popover.Root>
               {:else}
-                <BreadcrumbPage>{breadcrumbItem.label}</BreadcrumbPage>
+                <BreadcrumbPage>
+                  <InvestmentCategoryIndicator
+                    category={breadcrumbItem.label}
+                    showBadge={false}
+                  />
+                </BreadcrumbPage>
               {/if}
             {:else if breadcrumbItem.level === "tipo"}
               <!-- Tipo com/sem dropdown -->

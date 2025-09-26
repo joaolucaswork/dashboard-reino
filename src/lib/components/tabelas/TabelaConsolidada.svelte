@@ -19,6 +19,7 @@
   import { getBancoCorHex } from "$lib/data/bancos.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import BankHeader from "$lib/components/ui/BankHeader.svelte";
+  import InvestmentCategoryIndicator from "$lib/components/ui/InvestmentCategoryIndicator.svelte";
   import { DatePicker } from "$lib/components/ui/date-picker";
   import {
     formatarNomeCarteira,
@@ -911,21 +912,23 @@
                         ? 'Expandida'
                         : 'Recolhida'}"
                     >
-                      <div class="flex items-center gap-2">
-                        <div class="flex-1">
-                          <div class="flex items-center gap-2">
-                            <span class="font-medium text-base"
-                              >{categoria}</span
-                            >
-                            <Badge variant="outline" class="text-sm">
-                              {@html wrapNumbersWithFont(
-                                `${countAssetsInCategory(conteudo)} tipo(s)`
-                              )}
-                            </Badge>
-                          </div>
-                          <div class="text-caption">
+                      <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center gap-2">
+                          <InvestmentCategoryIndicator
+                            category={categoria}
+                            showBadge={false}
+                            className="font-medium text-base"
+                          />
+                          <Badge variant="outline" class="text-sm">
                             {@html wrapNumbersWithFont(
-                              `Total: ${formatCurrency(conteudo._total_categoria || 0)}`
+                              `${countAssetsInCategory(conteudo)} tipo(s)`
+                            )}
+                          </Badge>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-base font-medium text-foreground">
+                            {@html wrapNumbersWithFont(
+                              `${formatCurrency(conteudo._total_categoria || 0)}`
                             )}
                           </div>
                         </div>
@@ -978,24 +981,28 @@
                                   ? 'Expandido'
                                   : 'Recolhido'}"
                               >
-                                <div class="flex items-center gap-2">
-                                  <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                      <AssetTypeIndicator
-                                        assetType={tipo}
-                                        context="main"
-                                        showColorIndicator={true}
-                                        className="text-base font-medium"
-                                      />
-                                      <Badge variant="outline" class="text-sm">
-                                        {@html wrapNumbersWithFont(
-                                          `${countAssetsInType(grupo)} item(s)`
-                                        )}
-                                      </Badge>
-                                    </div>
-                                    <div class="text-sm text-muted-foreground">
+                                <div
+                                  class="flex items-center justify-between w-full"
+                                >
+                                  <div class="flex items-center gap-2">
+                                    <AssetTypeIndicator
+                                      assetType={tipo}
+                                      context="main"
+                                      showColorIndicator={true}
+                                      className="text-base font-medium"
+                                    />
+                                    <Badge variant="outline" class="text-sm">
                                       {@html wrapNumbersWithFont(
-                                        `Total: ${formatCurrency(grupo._total_tipo || 0)}`
+                                        `${countAssetsInType(grupo)} item(s)`
+                                      )}
+                                    </Badge>
+                                  </div>
+                                  <div class="text-left">
+                                    <div
+                                      class="text-sm font-medium text-foreground"
+                                    >
+                                      {@html wrapNumbersWithFont(
+                                        `${formatCurrency(grupo._total_tipo || 0)}`
                                       )}
                                     </div>
                                   </div>
