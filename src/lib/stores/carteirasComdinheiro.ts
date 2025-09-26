@@ -59,22 +59,12 @@ export const credenciaisComdinheiro = derived(
 export const usuarioLogadoComdinheiro = derived(
   carteirasComdinheiroState,
   ($state) => {
-    const logado = !!(
+    return !!(
       $state.credentials &&
       $state.credentials.username &&
       $state.credentials.password &&
       $state.carteiras.length > 0
     );
-    console.log("🔐 Status do login Comdinheiro:", {
-      logado,
-      hasCredentials: !!$state.credentials,
-      hasUsername: !!$state.credentials?.username,
-      hasPassword: !!$state.credentials?.password,
-      carteiras: $state.carteiras.length,
-      loading: $state.loading,
-      error: $state.error,
-    });
-    return logado;
   }
 );
 
@@ -168,29 +158,18 @@ export async function buscarCarteirasComdinheiro(
   credentials?: ComdinheiroCredentials,
   forceRefresh = false
 ): Promise<{ success: boolean; error?: string; carteiras?: string[] }> {
-  console.log("🔍 buscarCarteirasComdinheiro iniciada", {
-    credentials: !!credentials,
-    forceRefresh,
-  });
-
   if (!browser) {
-    console.log("❌ Não está no browser");
     return { success: false, error: "Função disponível apenas no navegador" };
   }
 
   // Usar credenciais fornecidas ou carregadas
   const creds = credentials || carregarCredenciais();
   if (!creds || !creds.username || !creds.password) {
-    console.log("❌ Credenciais inválidas", { creds: !!creds });
     return {
       success: false,
       error: "Credenciais do Comdinheiro não configuradas",
     };
   }
-
-  console.log("✅ Credenciais válidas", {
-    username: creds.username.substring(0, 3) + "***",
-  });
 
   // Verificar cache se não for refresh forçado
   const currentState = carteirasComdinheiroState;
@@ -219,22 +198,11 @@ export async function buscarCarteirasComdinheiro(
       password: creds.password,
     });
 
-    console.log("🌐 Fazendo requisição para API...");
     const response = await fetch(`/api/comdinheiro?${params}`);
-    console.log("📡 Resposta recebida", {
-      status: response.status,
-      ok: response.ok,
-    });
-
     const data = await response.json();
-    console.log("📊 Dados parseados", {
-      success: data.success,
-      carteiras: data.carteiras?.length || 0,
-    });
 
     if (data.success) {
       const carteiras = data.carteiras || [];
-      console.log("✅ Sucesso! Carteiras encontradas:", carteiras.length);
 
       carteirasComdinheiroState.update((state) => ({
         ...state,
@@ -250,14 +218,11 @@ export async function buscarCarteirasComdinheiro(
 
       return { success: true, carteiras };
     } else {
-      console.log("❌ Erro na resposta da API:", data.error);
       throw new Error(data.error || "Erro ao buscar carteiras");
     }
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Erro desconhecido";
-
-    console.log("❌ Erro capturado:", errorMessage);
 
     carteirasComdinheiroState.update((state) => ({
       ...state,
