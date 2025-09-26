@@ -20,7 +20,7 @@
 <div class="space-y-8">
   <!-- Header Section -->
   <div class="space-y-3" use:animate={{ preset: "slideInUp", delay: 0.2 }}>
-    <h2 class="text-3xl font-bold text-foreground tracking-tight">
+    <h2 class="text-3xl font-bold text-red-500 tracking-tight">
       Dashboard de Gestão Financeira
     </h2>
     <p class="text-body max-w-2xl">
