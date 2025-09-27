@@ -8,6 +8,8 @@
     dadosConsulta,
   } from "$lib/stores/tabelas.js";
 
+  import { usuarioLogadoComdinheiro } from "$lib/stores/carteirasComdinheiro.js";
+
   import SeletorCarteira from "./SeletorCarteira.svelte";
   import SeletorData from "./SeletorData.svelte";
   import SeletorOpcoes from "./SeletorOpcoes.svelte";
@@ -16,10 +18,20 @@
   import { Label } from "$lib/components/ui/label";
   import { RadioGroup, RadioGroupItem } from "$lib/components/ui/radio-group";
   import * as Tooltip from "$lib/components/ui/tooltip";
-  import { ChartBar, Target, Search } from "@lucide/svelte";
+  import * as Dialog from "$lib/components/ui/dialog";
+  import { Input } from "$lib/components/ui/input";
+  import {
+    ChartBar,
+    Target,
+    Search,
+    LogIn,
+    Database,
+    RefreshCw,
+  } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
-  import SalesforceIcon from "$lib/components/icons/SalesforceIcon.svelte";
+  import { authShowToast } from "$lib/utils/toast.js";
+  import { logAuthDebugInfo } from "$lib/utils/auth-debug.js";
 
   // Interface para carteiras do Salesforce
   interface CarteiraSalesforce {
@@ -38,6 +50,49 @@
   // Estado para carteiras do Salesforce
   let carteirasSalesforce: CarteiraSalesforce[] = [];
   let loadingCarteiras = false;
+
+  // Modal de login do Comdinheiro
+  let modalLoginAberto = false;
+  let credenciaisLogin = { username: "", password: "" };
+  let loadingLogin = false;
+
+  function abrirModalLogin() {
+    modalLoginAberto = true;
+  }
+
+  async function fazerLoginComdinheiro() {
+    if (!credenciaisLogin.username || !credenciaisLogin.password) {
+      // Keep form validation errors visible for unauthenticated users
+      toast.error("Preencha usuário e senha");
+      return;
+    }
+
+    loadingLogin = true;
+    try {
+      const { buscarCarteirasComdinheiro } = await import(
+        "$lib/stores/carteirasComdinheiro.js"
+      );
+      const resultado = await buscarCarteirasComdinheiro(
+        credenciaisLogin,
+        true
+      );
+
+      if (resultado.success) {
+        authShowToast.loginSuccess(
+          `Login realizado com sucesso! ${resultado.carteiras?.length || 0} carteiras encontradas`
+        );
+        modalLoginAberto = false;
+        credenciaisLogin = { username: "", password: "" };
+      } else {
+        authShowToast.loginFailed(resultado.error || "Erro ao fazer login");
+      }
+    } catch (error) {
+      console.error("Erro no login:", error);
+      authShowToast.loginFailed("Erro ao conectar com o Comdinheiro");
+    } finally {
+      loadingLogin = false;
+    }
+  }
 
   // Função para agrupar carteiras por usuário (para calcular o agrupamento na notificação)
   function agruparCarteirasPorUsuario(carteiras: CarteiraSalesforce[]) {
@@ -103,21 +158,15 @@
         );
 
         // Notificação com informação do agrupamento
-        const mensagem =
-          carteirasOriginais === carteirasAgrupadas
-            ? `${carteirasAgrupadas} carteiras carregadas`
-            : `${carteirasAgrupadas} usuários (${carteirasOriginais} carteiras agrupadas)`;
-
-        toast.success(mensagem, {
-          duration: 4000,
-          icon: SalesforceIcon,
-        });
+        authShowToast.walletsLoaded(carteirasAgrupadas);
       } else {
         throw new Error(data.error || "Erro ao buscar carteiras");
       }
     } catch (error) {
       console.error("❌ Erro ao buscar carteiras do Salesforce:", error);
-      toast.error("Erro ao carregar carteiras do Salesforce");
+      authShowToast.walletLoadFailed(
+        "Erro ao carregar carteiras do Salesforce"
+      );
     } finally {
       loadingCarteiras = false;
     }
@@ -126,6 +175,19 @@
   // Carregar carteiras quando componente for montado
   onMount(() => {
     buscarCarteirasSalesforce();
+
+    // Debug authentication state on component mount
+    if (typeof window !== "undefined") {
+      console.log("🔍 FormularioConsulta mounted - checking auth state");
+      logAuthDebugInfo();
+
+      // Log authentication state changes
+      const unsubscribe = usuarioLogadoComdinheiro.subscribe((logado) => {
+        console.log("🔐 Authentication state changed:", logado);
+      });
+
+      return unsubscribe;
+    }
   });
 
   // Opções de modo de visualização
@@ -254,6 +316,7 @@
       <SeletorCarteira
         carteirasExternas={carteirasSalesforce}
         usarCarteirasExternas={$modoVisualizacao === "consolidado"}
+        disabled={!$usuarioLogadoComdinheiro}
       />
       {#if loadingCarteiras && $modoVisualizacao === "consolidado"}
         <p class="text-sm text-muted-foreground mt-2">
@@ -264,7 +327,7 @@
 
     <!-- Data Final -->
     <div class="w-fit min-w-0">
-      <SeletorData />
+      <SeletorData disabled={!$usuarioLogadoComdinheiro} />
     </div>
   </div>
 
@@ -302,3 +365,94 @@
     </div>
   {/if}
 </form>
+
+<!-- Overlay Global quando usuário não está logado -->
+{#if !$usuarioLogadoComdinheiro}
+  <div
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
+  >
+    <div
+      class="bg-background p-8 rounded-lg shadow-xl border border-border max-w-md w-full mx-4"
+    >
+      <div class="text-center mb-6">
+        <LogIn class="h-12 w-12 mx-auto text-primary mb-4" />
+        <h3 class="text-lg font-semibold text-foreground mb-2">
+          Login Necessário
+        </h3>
+        <p class="text-sm text-muted-foreground">
+          Para acessar as funcionalidades de consulta, você precisa fazer login
+          com suas credenciais do Comdinheiro.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <Button onclick={abrirModalLogin} class="w-full">
+          <LogIn class="h-4 w-4 mr-2" />
+          Fazer Login no Comdinheiro
+        </Button>
+        <p class="text-xs text-center text-muted-foreground">
+          Suas credenciais são salvas localmente de forma segura
+        </p>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Modal de Login do Comdinheiro -->
+<Dialog.Root bind:open={modalLoginAberto}>
+  <Dialog.Content class="sm:max-w-md">
+    <Dialog.Header>
+      <Dialog.Title class="flex items-center gap-2">
+        <Database class="h-5 w-5 text-primary" />
+        Login Comdinheiro
+      </Dialog.Title>
+      <Dialog.Description>
+        Faça login com suas credenciais do Comdinheiro para acessar suas
+        carteiras
+      </Dialog.Description>
+    </Dialog.Header>
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 gap-4">
+        <div class="space-y-2">
+          <Label for="modal-username">Usuário</Label>
+          <Input
+            id="modal-username"
+            type="text"
+            bind:value={credenciaisLogin.username}
+            placeholder="seu.usuario@email.com"
+            disabled={loadingLogin}
+          />
+        </div>
+        <div class="space-y-2">
+          <Label for="modal-password">Senha</Label>
+          <Input
+            id="modal-password"
+            type="password"
+            bind:value={credenciaisLogin.password}
+            placeholder="Sua senha"
+            disabled={loadingLogin}
+          />
+        </div>
+      </div>
+    </div>
+    <Dialog.Footer>
+      <Button
+        variant="outline"
+        onclick={() => (modalLoginAberto = false)}
+        disabled={loadingLogin}
+      >
+        Cancelar
+      </Button>
+      <Button
+        onclick={fazerLoginComdinheiro}
+        disabled={loadingLogin ||
+          !credenciaisLogin.username ||
+          !credenciaisLogin.password}
+      >
+        {#if loadingLogin}
+          <RefreshCw class="h-4 w-4 animate-spin mr-2" />
+        {/if}
+        Fazer Login
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>

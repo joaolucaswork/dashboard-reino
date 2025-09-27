@@ -4,9 +4,13 @@
   import {
     buscarCarteirasComdinheiro,
     formatarNomeCarteira,
+    salvarCredenciais,
+    carteirasComdinheiro,
+    credenciaisComdinheiro,
     type ComdinheiroCredentials,
   } from "$lib/stores/carteirasComdinheiro.js";
   import { toast } from "svelte-sonner";
+  import { authShowToast } from "$lib/utils/toast.js";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
@@ -21,55 +25,41 @@
 
   // Estado do componente
   let loading = false;
-  let carteiras: string[] = [];
   let carteirasFiltradas: string[] = [];
   let termoBusca = "";
   let showCredentials = false;
 
-  // Credenciais do Comdinheiro
+  // Credenciais do Comdinheiro (local para o formulário)
   let credentials: ComdinheiroCredentials = {
     username: "",
     password: "",
   };
 
-  // Carregar credenciais do localStorage
-  onMount(() => {
-    const savedCredentials = localStorage.getItem("comdinheiro_credentials");
-    if (savedCredentials) {
-      try {
-        credentials = JSON.parse(savedCredentials);
-        if (credentials.username && credentials.password) {
-          buscarCarteiras();
-        }
-      } catch (e) {
-        console.error("Erro ao carregar credenciais:", e);
-      }
-    }
-  });
-
-  // Filtrar carteiras baseado no termo de busca
+  // Reativo: atualizar carteiras filtradas quando carteiras ou termo mudam
   $: {
     if (!termoBusca.trim()) {
-      carteirasFiltradas = carteiras;
+      carteirasFiltradas = $carteirasComdinheiro;
     } else {
-      const termo = termoBusca.toLowerCase();
-      carteirasFiltradas = carteiras.filter((carteira) =>
-        carteira.toLowerCase().includes(termo)
+      const termoLower = termoBusca.toLowerCase();
+      carteirasFiltradas = $carteirasComdinheiro.filter(
+        (carteira) =>
+          carteira.toLowerCase().includes(termoLower) ||
+          formatarNomeCarteira(carteira).toLowerCase().includes(termoLower)
       );
     }
   }
 
-  // Salvar credenciais no localStorage
-  function salvarCredenciais() {
-    localStorage.setItem(
-      "comdinheiro_credentials",
-      JSON.stringify(credentials)
-    );
-  }
+  // Inicializar credenciais do formulário com as do store
+  onMount(() => {
+    if ($credenciaisComdinheiro) {
+      credentials = { ...$credenciaisComdinheiro };
+    }
+  });
 
   // Buscar carteiras do Comdinheiro
   async function buscarCarteiras() {
     if (!credentials.username || !credentials.password) {
+      // Keep form validation errors visible for unauthenticated users
       toast.error("Configure suas credenciais do Comdinheiro primeiro");
       showCredentials = true;
       return;
@@ -78,32 +68,20 @@
     try {
       loading = true;
 
-      const params = new URLSearchParams({
-        action: "carteiras",
-        username: credentials.username,
-        password: credentials.password,
-      });
+      const resultado = await buscarCarteirasComdinheiro(credentials, true);
 
-      const response = await fetch(`/api/comdinheiro?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        carteiras = data.carteiras || [];
-        carteirasFiltradas = carteiras;
-
+      if (resultado.success) {
         // Salvar credenciais se a busca foi bem-sucedida
-        salvarCredenciais();
+        salvarCredenciais(credentials);
 
-        toast.success(
-          `${carteiras.length} carteiras encontradas no Comdinheiro`
-        );
+        authShowToast.walletsLoaded(resultado.carteiras?.length || 0);
         showCredentials = false;
       } else {
-        throw new Error(data.error || "Erro ao buscar carteiras");
+        throw new Error(resultado.error || "Erro ao buscar carteiras");
       }
     } catch (error) {
       console.error("Erro ao buscar carteiras:", error);
-      toast.error(
+      authShowToast.walletLoadFailed(
         "Erro ao buscar carteiras: " +
           (error instanceof Error ? error.message : "Erro desconhecido")
       );
@@ -116,12 +94,13 @@
   // Selecionar carteira
   function selecionarCarteira(carteira: string) {
     carteiraAtual.set(carteira);
-    toast.success(`Carteira "${carteira}" selecionada`);
+    authShowToast.walletSelected(carteira);
   }
 
   // Configurar credenciais
   async function configurarCredenciais() {
     if (!credentials.username || !credentials.password) {
+      // Keep form validation errors visible for unauthenticated users
       toast.error("Preencha usuário e senha");
       return;
     }
@@ -136,9 +115,9 @@
     <div class="flex items-center gap-2">
       <Database size={16} class="text-primary" />
       <Label class="text-sm font-medium">Carteiras Comdinheiro</Label>
-      {#if carteiras.length > 0}
+      {#if $carteirasComdinheiro.length > 0}
         <Badge variant="secondary" class="text-xs">
-          {carteiras.length} disponíveis
+          {$carteirasComdinheiro.length} disponíveis
         </Badge>
       {/if}
     </div>
@@ -227,7 +206,7 @@
   {/if}
 
   <!-- Busca de Carteiras -->
-  {#if carteiras.length > 0}
+  {#if $carteirasComdinheiro.length > 0}
     <div class="space-y-2">
       <div class="relative">
         <Search class="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />

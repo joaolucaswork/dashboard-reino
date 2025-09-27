@@ -12,6 +12,7 @@
   import { Label } from "$lib/components/ui/label";
   import { Database, Cloud, RefreshCw, Settings } from "@lucide/svelte";
   import { toast } from "svelte-sonner";
+  import { authShowToast } from "$lib/utils/toast.js";
 
   import {
     appConfig,
@@ -40,16 +41,12 @@
       const result = await atualizarCarteiras(novaFonte);
 
       if (result.success) {
-        toast.success(
-          `Fonte alterada para ${novaFonte === "database" ? "banco local" : "Salesforce"}`,
-          {
-            description: `${result.carteiras.length} carteiras carregadas`,
-          }
-        );
+        authShowToast.configurationSaved();
+        authShowToast.walletsLoaded(result.carteiras.length);
       } else {
-        toast.error("Erro ao carregar carteiras da nova fonte", {
-          description: result.error,
-        });
+        authShowToast.walletLoadFailed(
+          "Erro ao carregar carteiras da nova fonte"
+        );
         // Reverter alteração em caso de erro
         atualizarConfiguracao(
           "fonteCarteiras",
@@ -57,7 +54,7 @@
         );
       }
     } catch (error) {
-      toast.error("Erro ao alterar fonte de dados");
+      authShowToast.walletLoadFailed("Erro ao alterar fonte de dados");
       console.error("Erro ao alterar fonte:", error);
     }
   }
@@ -68,16 +65,12 @@
       const result = await atualizarCarteiras($appConfig.fonteCarteiras);
 
       if (result.success) {
-        toast.success("Conexão testada com sucesso", {
-          description: `${result.carteiras.length} carteiras encontradas`,
-        });
+        authShowToast.walletsLoaded(result.carteiras.length);
       } else {
-        toast.error("Erro na conexão", {
-          description: result.error,
-        });
+        authShowToast.networkError();
       }
     } catch (error) {
-      toast.error("Erro ao testar conexão");
+      authShowToast.networkError();
       console.error("Erro ao testar conexão:", error);
     }
   }

@@ -1,10 +1,51 @@
 import { toast as sonnerToast } from "svelte-sonner";
 import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+import { get } from "svelte/store";
 
 /**
  * Toast utility functions with Portuguese messages
  * Following the project's styling standards and Portuguese language requirements
+ *
+ * Authentication-aware notifications: Financial data notifications are only shown
+ * to authenticated users to prevent system notifications from appearing to
+ * unauthenticated users.
  */
+
+// Import authentication store - using dynamic import to avoid circular dependencies
+let usuarioLogadoComdinheiro: any = null;
+
+/**
+ * Initialize authentication store reference
+ * This is called lazily to avoid circular dependency issues
+ */
+async function getAuthStore() {
+  if (!usuarioLogadoComdinheiro) {
+    try {
+      const { usuarioLogadoComdinheiro: authStore } = await import(
+        "$lib/stores/carteirasComdinheiro.js"
+      );
+      usuarioLogadoComdinheiro = authStore;
+    } catch (error) {
+      console.warn("Could not load authentication store:", error);
+      return null;
+    }
+  }
+  return usuarioLogadoComdinheiro;
+}
+
+/**
+ * Check if user is authenticated for financial data notifications
+ */
+async function isUserAuthenticated(): Promise<boolean> {
+  try {
+    const authStore = await getAuthStore();
+    if (!authStore) return false;
+    return get(authStore) || false;
+  } catch (error) {
+    console.warn("Authentication check failed:", error);
+    return false;
+  }
+}
 
 export const toast = {
   /**
@@ -177,4 +218,138 @@ export const showToast = {
   portfolioRisk: () => toast.warning(toastMessages.warning.portfolioRisk),
   marketVolatility: () => toast.warning(toastMessages.warning.marketVolatility),
   unsavedChanges: () => toast.warning(toastMessages.warning.unsavedChanges),
+};
+
+/**
+ * Authentication-aware toast functions for financial data notifications
+ * These functions check if the user is authenticated before showing notifications
+ * related to financial data, wallets, portfolios, and system operations.
+ */
+export const authToast = {
+  /**
+   * Show authentication-aware success toast for financial operations
+   */
+  success: async (message: string, options?: any) => {
+    const isAuthenticated = await isUserAuthenticated();
+    if (isAuthenticated) {
+      return toast.success(message, options);
+    }
+    // Silently ignore notification for unauthenticated users
+    return null;
+  },
+
+  /**
+   * Show authentication-aware error toast for financial operations
+   * Note: Critical errors may still be shown to unauthenticated users
+   */
+  error: async (
+    message: string,
+    options?: any,
+    showToUnauthenticated = false
+  ) => {
+    const isAuthenticated = await isUserAuthenticated();
+    if (isAuthenticated || showToUnauthenticated) {
+      return toast.error(message, options);
+    }
+    // Silently ignore notification for unauthenticated users
+    return null;
+  },
+
+  /**
+   * Show authentication-aware info toast for financial operations
+   */
+  info: async (message: string, options?: any) => {
+    const isAuthenticated = await isUserAuthenticated();
+    if (isAuthenticated) {
+      return toast.info(message, options);
+    }
+    // Silently ignore notification for unauthenticated users
+    return null;
+  },
+
+  /**
+   * Show authentication-aware loading toast for financial operations
+   */
+  loading: async (message: string, options?: any) => {
+    const isAuthenticated = await isUserAuthenticated();
+    if (isAuthenticated) {
+      return toast.loading(message, options);
+    }
+    // Silently ignore notification for unauthenticated users
+    return null;
+  },
+
+  /**
+   * Show authentication-aware warning toast for financial operations
+   */
+  warning: async (message: string, options?: any) => {
+    const isAuthenticated = await isUserAuthenticated();
+    if (isAuthenticated) {
+      return toast.warning(message, options);
+    }
+    // Silently ignore notification for unauthenticated users
+    return null;
+  },
+};
+
+/**
+ * Authentication-aware convenience functions for common financial notifications
+ * These replace the showToast functions for financial data operations
+ */
+export const authShowToast = {
+  // Success toasts for financial operations
+  dataLoaded: () => authToast.success(toastMessages.success.dataLoaded),
+  portfolioUpdated: () =>
+    authToast.success(toastMessages.success.portfolioUpdated),
+  transactionProcessed: () =>
+    authToast.success(toastMessages.success.transactionProcessed),
+  configurationSaved: () =>
+    authToast.success(toastMessages.success.configurationSaved),
+
+  // Wallet/Portfolio specific success messages
+  walletsLoaded: (count: number) =>
+    authToast.success(`${count} carteiras carregadas`),
+  walletSelected: (name: string) =>
+    authToast.success(`Carteira "${name}" selecionada`),
+  loginSuccess: (message: string) => authToast.success(message),
+
+  // Error toasts for financial operations
+  dataLoadFailed: (error?: string) =>
+    authToast.error(error || toastMessages.error.dataLoadFailed),
+  portfolioError: (error?: string) =>
+    authToast.error(error || toastMessages.error.portfolioError),
+  transactionError: (error?: string) =>
+    authToast.error(error || toastMessages.error.transactionError),
+  networkError: () => authToast.error(toastMessages.error.networkError),
+
+  // Wallet/Portfolio specific error messages
+  walletLoadFailed: (error?: string) =>
+    authToast.error(error || "Erro ao carregar carteiras"),
+  loginFailed: (error?: string) =>
+    authToast.error(error || "Erro ao fazer login"),
+  credentialsError: (error?: string) =>
+    authToast.error(error || "Erro nas credenciais"),
+
+  // Loading toasts for financial operations
+  consultingData: () => authToast.loading(toastMessages.loading.consultingData),
+  analyzingPortfolio: () =>
+    authToast.loading(toastMessages.loading.analyzingPortfolio),
+  calculatingReturns: () =>
+    authToast.loading(toastMessages.loading.calculatingReturns),
+  savingData: () => authToast.loading(toastMessages.loading.savingData),
+
+  // Wallet/Portfolio specific loading messages
+  loadingWallets: () => authToast.loading("Carregando carteiras..."),
+  connectingToService: () => authToast.loading("Conectando ao serviço..."),
+
+  // Info toasts for financial operations
+  portfolioInfo: () => authToast.info(toastMessages.info.portfolioInfo),
+  marketUpdate: () => authToast.info(toastMessages.info.marketUpdate),
+  noDataFound: () => authToast.info(toastMessages.info.noDataFound),
+
+  // Warning toasts for financial operations
+  portfolioRisk: () => authToast.warning(toastMessages.warning.portfolioRisk),
+  marketVolatility: () =>
+    authToast.warning(toastMessages.warning.marketVolatility),
+  unsavedChanges: () => authToast.warning(toastMessages.warning.unsavedChanges),
 };

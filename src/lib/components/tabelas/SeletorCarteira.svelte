@@ -17,12 +17,14 @@
   import { Button } from "$lib/components/ui/button";
   import { RefreshCw } from "@lucide/svelte";
   import { toast } from "svelte-sonner";
+  import { authShowToast } from "$lib/utils/toast.js";
   import { derived } from "svelte/store";
   import * as Tooltip from "$lib/components/ui/tooltip";
 
   // Props para carteiras externas (ex: Salesforce)
   export let carteirasExternas: any[] = [];
   export let usarCarteirasExternas = false;
+  export let disabled = false;
 
   // Conteúdo do tooltip baseado no estado atual
   let tooltipContent: string = "";
@@ -163,9 +165,7 @@
 
       if (!result.success) {
         console.error("❌ Erro ao carregar carteiras:", result.error);
-        toast.error("Erro ao carregar carteiras", {
-          description: result.error,
-        });
+        authShowToast.walletLoadFailed(result.error);
       } else {
         console.log("✅ Carteiras carregadas com sucesso:", {
           total: result.carteiras?.length || 0,
@@ -175,7 +175,7 @@
       }
     } catch (error) {
       console.error("❌ Erro inesperado ao carregar carteiras:", error);
-      toast.error("Erro inesperado ao carregar carteiras");
+      authShowToast.walletLoadFailed("Erro inesperado ao carregar carteiras");
     }
   });
 
@@ -183,11 +183,9 @@
   async function handleAtualizarCarteiras() {
     const result = await atualizarCarteiras($appConfig.fonteCarteiras);
     if (result.success) {
-      toast.success("Carteiras atualizadas com sucesso");
+      authShowToast.dataLoaded();
     } else {
-      toast.error("Erro ao atualizar carteiras", {
-        description: result.error,
-      });
+      authShowToast.walletLoadFailed(result.error);
     }
   }
 </script>
@@ -246,12 +244,14 @@
     options={carteiraOptions}
     placeholder={$carregandoCarteiras
       ? "Carregando carteiras..."
-      : `${carteiraOptions.length} carteiras disponíveis`}
+      : disabled
+        ? "Login necessário"
+        : `${carteiraOptions.length} carteiras disponíveis`}
     searchPlaceholder="Buscar carteira..."
     emptyMessage={$erroCarteiras
       ? $erroCarteiras
       : "Nenhuma carteira encontrada."}
-    disabled={$carregandoCarteiras}
+    disabled={$carregandoCarteiras || disabled}
   />
 
   <!-- Mensagem de erro -->

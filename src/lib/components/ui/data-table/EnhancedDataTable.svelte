@@ -9,6 +9,7 @@
   import * as Tooltip from "$lib/components/ui/tooltip/index.js";
   import { formatTableCellValue } from "$lib/utils/formatters.js";
   import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
+  import InvestmentCategoryIndicator from "$lib/components/ui/InvestmentCategoryIndicator.svelte";
   import {
     MoreHorizontal,
     Download,
@@ -249,6 +250,39 @@
     );
   }
 
+  function isInvestmentCategoryColumn(column) {
+    // Detectar colunas de categoria de investimento baseado no header ou accessorKey
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return (
+      header.includes("tipo de ativo") ||
+      header.includes("categoria") ||
+      key === "col2" || // col2 é tipicamente a coluna de tipo de ativo
+      header.includes("asset type") ||
+      header.includes("investment type")
+    );
+  }
+
+  // Função para detectar qualquer coluna monetária (quantidade, saldo, valor, etc.)
+  function isMonetaryColumn(column) {
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return (
+      header.includes("saldo") ||
+      header.includes("valor") ||
+      header.includes("quantidade") ||
+      header.includes("quant") ||
+      key === "col4" || // Quantidade
+      key === "col5" || // Saldo Bruto
+      key === "col7" || // Saldo Líquido
+      header.includes("total") ||
+      header.includes("preço") ||
+      header.includes("preco") ||
+      isQuantityColumn(column) ||
+      isBalanceColumn(column)
+    );
+  }
+
   function getColumnWidthClass(column) {
     if (isDescriptionColumn(column)) {
       return "min-w-48 max-w-64"; // Minimum width with controlled maximum for descriptions
@@ -461,14 +495,20 @@
             {@const styling = isQuantityColumn(column)
               ? quantityStyling
               : balanceStyling}
+            {@const isMonetary = isMonetaryColumn(column)}
             {@const headerClasses = [
               getColumnWidthClass(column),
               styling.headerClass,
+              isMonetary ? "text-left" : "",
             ]
               .filter(Boolean)
               .join(" ")}
             <Table.Head class={`${headerClasses} px-4 py-3`}>
-              <div class="flex items-center space-x-3">
+              <div
+                class="flex items-center space-x-3 {isMonetary
+                  ? 'justify-end'
+                  : ''}"
+              >
                 <button
                   class="flex items-center space-x-1 hover:text-foreground transition-colors font-medium"
                   onclick={() => handleSort(column.accessorKey)}
@@ -565,9 +605,19 @@
                         {@html renderCell(column, row)}
                       </div>
                     {/if}
+                  {:else if isInvestmentCategoryColumn(column)}
+                    <!-- Investment Category Column with Color Indicator -->
+                    <div class="text-left whitespace-nowrap">
+                      <InvestmentCategoryIndicator
+                        category={row[column.accessorKey]}
+                        showBadge={true}
+                        variant="outline"
+                        size="sm"
+                        dotSize="w-1.5 h-1.5"
+                      />
+                    </div>
                   {:else}
-                    {@const isNumericColumn =
-                      isQuantityColumn(column) || isBalanceColumn(column)}
+                    {@const isNumericColumn = isMonetaryColumn(column)}
                     <div
                       class={`${isNumericColumn ? "text-right font-mono" : "text-left"} whitespace-nowrap`}
                     >

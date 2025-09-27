@@ -64,8 +64,16 @@
         header: value,
       }));
 
-    // Definir ordem desejada: Quantidade, Saldo Bruto, Saldo Líquido, Descrição, demais
-    const desiredOrder = ["col4", "col5", "col7", "col3"]; // Quantidade, Saldo Bruto, Saldo Líquido, Descrição
+    // Definir ordem desejada: Instituição Financeira, Ativo, Tipo Ativo, Descrição, Quantidade, Saldo Bruto, Saldo Líquido
+    const desiredOrder = [
+      "col1",
+      "col2",
+      "col6",
+      "col3",
+      "col4",
+      "col5",
+      "col7",
+    ]; // Instituição Financeira, Ativo, Tipo Ativo, Descrição, Quantidade, Saldo Bruto, Saldo Líquido
 
     // Separar colunas por prioridade
     const priorityColumns = [];
@@ -136,7 +144,7 @@
         <p class="text-caption">
           Carteira: {data.carteira.replace("_", " ")} | Data: {data.data_final}
           {#if data?.total_geral}
-            | Total: R$ {data.total_geral}
+            | R$ {data.total_geral}
           {/if}
         </p>
       {/if}

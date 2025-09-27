@@ -4,6 +4,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { formatTableCellValue } from "$lib/utils/formatters.js";
   import { wrapNumbersWithFont } from "$lib/utils/number-font.js";
+  import InvestmentCategoryIndicator from "$lib/components/ui/InvestmentCategoryIndicator.svelte";
 
   let {
     data = [],
@@ -98,6 +99,37 @@
     return wrapNumbersWithFont(formattedValue);
   }
 
+  // Função para detectar colunas monetárias
+  function isMonetaryColumn(column) {
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return (
+      header.includes("saldo") ||
+      header.includes("valor") ||
+      header.includes("quantidade") ||
+      header.includes("quant") ||
+      key === "col4" || // Quantidade
+      key === "col5" || // Saldo Bruto
+      key === "col7" || // Saldo Líquido
+      header.includes("total") ||
+      header.includes("preço") ||
+      header.includes("preco")
+    );
+  }
+
+  function isInvestmentCategoryColumn(column) {
+    // Detectar colunas de categoria de investimento baseado no header ou accessorKey
+    const header = (column.header || "").toLowerCase();
+    const key = (column.accessorKey || "").toLowerCase();
+    return (
+      header.includes("tipo de ativo") ||
+      header.includes("categoria") ||
+      key === "col2" || // col2 é tipicamente a coluna de tipo de ativo
+      header.includes("asset type") ||
+      header.includes("investment type")
+    );
+  }
+
   function renderHeader(column) {
     if (column.header && typeof column.header === "function") {
       return column.header({
@@ -131,7 +163,8 @@
       <Table.Header>
         <Table.Row>
           {#each columns as column}
-            <Table.Head class="px-4 py-3">
+            {@const isMonetary = isMonetaryColumn(column)}
+            <Table.Head class="px-4 py-3 {isMonetary ? 'text-left' : ''}">
               {#if column.header}
                 <span class="font-medium">{@html renderHeader(column)}</span>
               {:else}
@@ -152,8 +185,22 @@
 
           <Table.Row class={rowClasses}>
             {#each columns as column}
-              <Table.Cell class="px-4 py-3">
-                {@html renderCell(column, row)}
+              {@const isMonetary = isMonetaryColumn(column)}
+              {@const isCategory = isInvestmentCategoryColumn(column)}
+              <Table.Cell
+                class="px-4 py-3 {isMonetary ? 'text-right font-mono' : ''}"
+              >
+                {#if isCategory}
+                  <InvestmentCategoryIndicator
+                    category={row[column.accessorKey]}
+                    showBadge={true}
+                    variant="outline"
+                    size="sm"
+                    dotSize="w-1.5 h-1.5"
+                  />
+                {:else}
+                  {@html renderCell(column, row)}
+                {/if}
               </Table.Cell>
             {/each}
           </Table.Row>
