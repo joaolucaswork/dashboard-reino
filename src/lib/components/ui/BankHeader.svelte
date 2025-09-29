@@ -51,7 +51,7 @@
     class="
       bank-header flex items-center justify-between p-4 rounded-lg w-full text-left
       transition-all duration-300 ease-in-out
-      cursor-pointer hover:bg-muted/50
+      cursor-pointer hover:bg-muted/50 no-shadow-light
       {isExpanded ? 'bg-muted/30' : 'bg-background'}
       {className}
     "
@@ -134,7 +134,7 @@
   <div
     class="
       bank-header flex items-center justify-between p-4 rounded-lg
-      transition-all duration-300 ease-in-out
+      transition-all duration-300 ease-in-out no-shadow-light
       {isExpanded ? 'bg-muted/30' : 'bg-background'}
       {className}
     "

@@ -66,12 +66,12 @@
         content: item.icon,
         iconProps: {
           size: 14, // Fixed size to prevent auto-scaling with container
-          class: "text-white/60",
+          class: "text-sidebar-foreground/60",
         },
       };
     }
     return {
-      class: `${iconSize} bg-white/60 rounded-sm justify-self-center`,
+      class: `${iconSize} bg-sidebar-foreground/60 rounded-sm justify-self-center`,
       content: null,
     };
   }

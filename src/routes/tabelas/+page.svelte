@@ -28,7 +28,7 @@
   <!-- Status messages are now handled by toast notifications -->
 
   <!-- Formulário de Consulta -->
-  <Card class="mb-8">
+  <Card class="mb-8 form-transparent-theme border-0 shadow-none">
     <CardContent class="pt-1 px-0">
       <FormularioConsulta />
     </CardContent>
@@ -45,7 +45,7 @@
       <TabelaMovimentacoes data={$dadosConsulta} />
     {:else if $modoVisualizacao === "analise"}
       <!-- Placeholder para análises - será implementado posteriormente -->
-      <Card>
+      <Card class="content-white-theme">
         <CardHeader>
           <CardTitle class="text-lg font-semibold">
             Análises Financeiras
@@ -63,7 +63,7 @@
       </Card>
     {:else if $modoVisualizacao === "asset_allocation"}
       <!-- Placeholder para asset allocation - será implementado posteriormente -->
-      <Card>
+      <Card class="content-white-theme">
         <CardHeader>
           <CardTitle class="text-lg font-semibold">Asset Allocation</CardTitle>
         </CardHeader>

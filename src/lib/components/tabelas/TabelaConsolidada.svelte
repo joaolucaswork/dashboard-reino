@@ -839,7 +839,7 @@
             size="sm"
             onclick={consultarDados}
             disabled={$loadingState}
-            class="h-8 w-8 p-0"
+            class="h-8 w-8 p-0 btn-white-solid"
           >
             <RefreshCw class="h-4 w-4 {$loadingState ? 'animate-spin' : ''}" />
           </Button>
@@ -861,7 +861,7 @@
       {#each Object.entries(data.agrupados) as [banco, categorias]}
         <div
           data-banco={banco}
-          class="border rounded-lg overflow-hidden transition-opacity duration-300 {getBancoOpacity(
+          class="border rounded-lg overflow-hidden transition-opacity duration-300 content-white-theme {getBancoOpacity(
             banco
           )} {getStickyClasses('banco', banco)}"
         >
@@ -888,7 +888,7 @@
                 {#if categoria !== "_total_banco"}
                   <div
                     data-categoria="{banco}-{categoria}"
-                    class="border rounded-md overflow-hidden bg-background transition-opacity duration-300 {getCategoriaOpacity(
+                    class="border-b overflow-hidden bg-transparent content-white-theme transition-opacity duration-300 {getCategoriaOpacity(
                       banco,
                       categoria
                     )} {getStickyClasses('categoria', `${banco}-${categoria}`)}"
@@ -896,11 +896,7 @@
                     <!-- Cabeçalho da Categoria -->
                     <Button
                       variant="ghost"
-                      class="w-full justify-between p-3 h-auto text-left hover:bg-hover-active transition-all duration-200 ease-in-out {expandedCategorias.has(
-                        `${banco}-${categoria}`
-                      )
-                        ? 'bg-hover-active'
-                        : 'bg-background'}"
+                      class="w-full justify-between p-3 h-auto text-left bg-transparent hover:bg-muted/20 transition-all duration-200 ease-in-out btn-white-theme"
                       onclick={() => toggleCategoria(`${banco}-${categoria}`)}
                       aria-expanded={expandedCategorias.has(
                         `${banco}-${categoria}`
@@ -952,7 +948,7 @@
                           {#if tipo !== "_total_categoria"}
                             <div
                               data-tipo="{banco}-{categoria}-{tipo}"
-                              class="border rounded-sm overflow-hidden bg-background transition-opacity duration-300 {getTipoOpacity(
+                              class="border rounded-sm overflow-hidden bg-background content-white-theme transition-opacity duration-300 {getTipoOpacity(
                                 banco,
                                 categoria,
                                 tipo
@@ -964,7 +960,7 @@
                               <!-- Cabeçalho do Tipo -->
                               <Button
                                 variant="ghost"
-                                class="w-full justify-between p-2 h-auto text-left hover:bg-hover-active transition-all duration-200 ease-in-out {expandedTipos.has(
+                                class="w-full justify-between p-2 h-auto text-left hover:bg-hover-active transition-all duration-200 ease-in-out btn-white-theme {expandedTipos.has(
                                   `${banco}-${categoria}-${tipo}`
                                 )
                                   ? 'bg-hover-active'

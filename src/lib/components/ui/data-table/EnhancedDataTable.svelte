@@ -326,17 +326,17 @@
   function getBalanceColumnStyling(balanceType) {
     if (balanceType === "gross") {
       return {
-        cellClass: "bg-orange-950/20 border-l-2 border-l-orange-600/50",
+        cellClass: "table-gross-cell",
         icon: null,
         iconClass: "",
-        headerClass: "bg-orange-950/30 text-orange-200",
+        headerClass: "table-gross-header",
       };
     } else if (balanceType === "net") {
       return {
-        cellClass: "bg-lime-950/20 border-l-2 border-l-lime-600/50",
+        cellClass: "table-net-cell",
         icon: null,
         iconClass: "",
-        headerClass: "bg-lime-950/30 text-lime-200",
+        headerClass: "table-net-header",
       };
     }
     return {
@@ -349,10 +349,10 @@
 
   function getQuantityColumnStyling() {
     return {
-      cellClass: "bg-yellow-900/20 border-l-2 border-l-yellow-700/50",
+      cellClass: "table-quantity-cell",
       icon: null,
       iconClass: "",
-      headerClass: "bg-yellow-900/30 text-yellow-300",
+      headerClass: "table-quantity-header",
     };
   }
 
@@ -431,13 +431,13 @@
   }
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 tabela-white-theme">
   <!-- Minimal Column Visibility Control -->
   {#if enableColumnVisibility}
     <div class="flex justify-end mb-4">
       <Popover.Root bind:open={showColumnVisibility}>
         <Popover.Trigger>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" class="btn-white-theme">
             <Columns3 class="h-4 w-4 mr-2" />
             Colunas
           </Button>
@@ -469,7 +469,9 @@
   {/if}
 
   <!-- Enhanced Table -->
-  <div class="rounded-lg border border-border/50 overflow-hidden shadow-sm">
+  <div
+    class="rounded-lg border border-border/50 overflow-hidden shadow-sm table-container"
+  >
     <Table.Root class="w-full table-auto">
       <Table.Header>
         <Table.Row>
@@ -544,11 +546,11 @@
           {@const rowClasses = [
             "transition-colors",
             isSelected
-              ? "bg-[#2b251e]"
+              ? "bg-hover-active"
               : isEvenRow
                 ? "bg-background"
                 : "bg-muted/50",
-            "hover:bg-[#2b251e]",
+            "hover:bg-hover-active",
           ].join(" ")}
 
           <Table.Row class={rowClasses}>
@@ -730,6 +732,7 @@
         <Button
           variant="outline"
           size="sm"
+          class="btn-white-theme"
           onclick={previousPage}
           disabled={currentPage === 0}
         >
@@ -745,6 +748,7 @@
         <Button
           variant="outline"
           size="sm"
+          class="btn-white-theme"
           onclick={nextPage}
           disabled={currentPage >= totalPages - 1}
         >

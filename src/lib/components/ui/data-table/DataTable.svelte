@@ -142,7 +142,7 @@
   }
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 tabela-white-theme">
   <!-- Toolbar -->
   <div class="flex items-center justify-between">
     <!-- Search Input -->
@@ -158,7 +158,9 @@
   </div>
 
   <!-- Table -->
-  <div class="rounded-lg border border-border/50 overflow-hidden shadow-sm">
+  <div
+    class="rounded-lg border border-border/50 overflow-hidden shadow-sm table-container"
+  >
     <Table.Root class="w-full table-auto">
       <Table.Header>
         <Table.Row>
@@ -180,7 +182,7 @@
           {@const rowClasses = [
             "transition-colors",
             isEvenRow ? "bg-background" : "bg-muted/50",
-            "hover:bg-[#2b251e]",
+            "hover:bg-hover-active",
           ].join(" ")}
 
           <Table.Row class={rowClasses}>

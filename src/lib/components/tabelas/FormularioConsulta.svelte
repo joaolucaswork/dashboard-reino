@@ -240,7 +240,7 @@
   }
 </script>
 
-<form onsubmit={handleSubmit} class="space-y-8">
+<form onsubmit={handleSubmit} class="space-y-8 form-transparent-theme">
   <!-- Seleção do Modo de Visualização -->
   <div class="space-y-4">
     <RadioGroup bind:value={$modoVisualizacao} class="flex flex-wrap gap-4">
@@ -257,7 +257,7 @@
               for={modo.value}
               class="flex items-center justify-start p-4 h-12 w-fit rounded-lg border-transparent cursor-pointer hover:bg-accent transition-all duration-200 {$modoVisualizacao ===
               modo.value
-                ? 'bg-accent/80 border-border'
+                ? 'bg-accent/80 border-border form-tab-active'
                 : $modoVisualizacao && $modoVisualizacao !== modo.value
                   ? 'opacity-40'
                   : ''}"
@@ -268,13 +268,13 @@
                 modo.value
                   ? 'text-primary'
                   : $modoVisualizacao && $modoVisualizacao !== modo.value
-                    ? 'text-white/60'
+                    ? 'text-muted-foreground'
                     : 'text-primary'}"
               />
               <span
                 class="font-medium text-base text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
                 $modoVisualizacao !== modo.value
-                  ? 'text-white/60'
+                  ? 'text-muted-foreground'
                   : 'text-foreground'}"
               >
                 {modo.label}
@@ -336,7 +336,7 @@
     <Button
       type="submit"
       disabled={!$formularioValido || $loadingState}
-      class="px-8 py-2 min-w-[200px] relative"
+      class="px-8 py-2 min-w-[200px] relative btn-white-solid"
       variant={$dadosConsulta ? "secondary" : "default"}
     >
       {#if $loadingState}

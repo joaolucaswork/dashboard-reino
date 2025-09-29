@@ -67,6 +67,7 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "hover-active": "hsl(var(--hover-active))",
         // Legacy colors for backward compatibility
         "bg-primary": "#0a0a0a",
         "bg-secondary": "#111111",

@@ -86,11 +86,11 @@
     /* Text color is handled by the badge component itself */
   }
 
-  /* Simple text styling - always white */
+  /* Simple text styling - theme aware */
   .category-text {
     font-weight: inherit;
     font-size: inherit;
-    color: white; /* Force white text */
+    color: hsl(var(--foreground)); /* Theme-aware text color */
   }
 
   /* Focus styles for accessibility */

@@ -57,6 +57,19 @@
   --sidebar-border: #2a251f;
   --sidebar-ring: #d4af37;
   --hover-active: #2b251e;
+  /* Table column highlighting - Dark mode */
+  --table-gross-bg: rgba(194, 65, 12, 0.2);
+  --table-gross-border: rgba(194, 65, 12, 0.5);
+  --table-gross-header-bg: rgba(194, 65, 12, 0.3);
+  --table-gross-header-text: #fed7aa;
+  --table-net-bg: rgba(77, 124, 15, 0.2);
+  --table-net-border: rgba(77, 124, 15, 0.5);
+  --table-net-header-bg: rgba(77, 124, 15, 0.3);
+  --table-net-header-text: #d9f99d;
+  --table-quantity-bg: rgba(133, 77, 14, 0.2);
+  --table-quantity-border: rgba(133, 77, 14, 0.5);
+  --table-quantity-header-bg: rgba(133, 77, 14, 0.3);
+  --table-quantity-header-text: #fde047;
 }
 
 /* Light theme variables - Warm and comfortable */
@@ -94,6 +107,19 @@
   --sidebar-border: #e8e6e3;
   --sidebar-ring: #d4af37;
   --hover-active: #f8f7f5;
+  /* Table column highlighting - Light mode */
+  --table-gross-bg: rgba(251, 146, 60, 0.15);
+  --table-gross-border: rgba(251, 146, 60, 0.4);
+  --table-gross-header-bg: rgba(251, 146, 60, 0.2);
+  --table-gross-header-text: #c2410c;
+  --table-net-bg: rgba(132, 204, 22, 0.15);
+  --table-net-border: rgba(132, 204, 22, 0.4);
+  --table-net-header-bg: rgba(132, 204, 22, 0.2);
+  --table-net-header-text: #365314;
+  --table-quantity-bg: rgba(245, 158, 11, 0.15);
+  --table-quantity-border: rgba(245, 158, 11, 0.4);
+  --table-quantity-header-bg: rgba(245, 158, 11, 0.2);
+  --table-quantity-header-text: #92400e;
 }
 
 /* Dark mode is the default theme */
@@ -139,6 +165,18 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-hover-active: var(--hover-active);
+  --color-table-gross-bg: var(--table-gross-bg);
+  --color-table-gross-border: var(--table-gross-border);
+  --color-table-gross-header-bg: var(--table-gross-header-bg);
+  --color-table-gross-header-text: var(--table-gross-header-text);
+  --color-table-net-bg: var(--table-net-bg);
+  --color-table-net-border: var(--table-net-border);
+  --color-table-net-header-bg: var(--table-net-header-bg);
+  --color-table-net-header-text: var(--table-net-header-text);
+  --color-table-quantity-bg: var(--table-quantity-bg);
+  --color-table-quantity-border: var(--table-quantity-border);
+  --color-table-quantity-header-bg: var(--table-quantity-header-bg);
+  --color-table-quantity-header-text: var(--table-quantity-header-text);
 }
 
 @layer base {
@@ -209,6 +247,170 @@
     @apply border border-border/40;
   }
 
+  /* Light mode table enhancements - White backgrounds for tables page */
+  .light .tabela-white-theme {
+    @apply bg-white;
+  }
+
+  .light .tabela-white-theme .table-container {
+    @apply bg-white border border-gray-200;
+  }
+
+  .light .tabela-white-theme [data-slot="table"] {
+    @apply bg-white;
+  }
+
+  .light .tabela-white-theme [data-slot="table-row"] {
+    @apply bg-white hover:bg-gray-50;
+  }
+
+  .light .tabela-white-theme [data-slot="table-cell"] {
+    @apply bg-white;
+  }
+
+  .light .tabela-white-theme [data-slot="table-head"] {
+    @apply bg-white text-gray-900;
+  }
+
+  /* Light mode button enhancements for tables */
+  .light .btn-white-theme {
+    @apply bg-white text-gray-900 border border-gray-300 hover:bg-gray-50;
+  }
+
+  /* Light mode button with full white background - no shadow, no border */
+  .light .btn-white-solid {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .light .btn-white-solid:hover {
+    background-color: #f9fafb !important;
+  }
+
+  /* Light mode form elements for tables */
+  .light .form-white-theme {
+    @apply bg-white border border-gray-300 text-gray-900;
+  }
+
+  .light .form-white-theme:focus {
+    @apply border-primary ring-1 ring-primary;
+  }
+
+  /* Light mode card enhancements for tables */
+  .light .card-white-theme {
+    @apply bg-white border border-gray-200 shadow-sm;
+  }
+
+  /* Light mode transparent form theme */
+  .light .form-transparent-theme {
+    @apply bg-transparent;
+  }
+
+  /* Light mode content below form - white backgrounds */
+  .light .content-white-theme {
+    @apply bg-white border border-gray-200 shadow-sm;
+  }
+
+  /* Light mode full white background - no transparency */
+  .light .content-white-theme {
+    background-color: #ffffff !important;
+    border-color: #e5e7eb !important;
+  }
+
+  /* Light mode accordion/expansion panels */
+  .light .accordion-white-theme {
+    @apply bg-white border border-gray-200;
+  }
+
+  .light .accordion-white-theme [data-slot="accordion-item"] {
+    @apply bg-white border-b border-gray-200;
+  }
+
+  .light .accordion-white-theme [data-slot="accordion-trigger"] {
+    @apply bg-white hover:bg-gray-50 text-gray-900;
+  }
+
+  .light .accordion-white-theme [data-slot="accordion-content"] {
+    @apply bg-white text-gray-900;
+  }
+
+  /* Light mode filter sections */
+  .light .filter-white-theme {
+    @apply bg-white border border-gray-200 rounded-lg p-4 shadow-sm;
+  }
+
+  /* Light mode bank selection interface */
+  .light .bank-selection-white-theme {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  }
+
+  .light .bank-selection-white-theme .bank-item {
+    @apply bg-white hover:bg-gray-50 border-b border-gray-200;
+  }
+
+  /* Light mode - Remove shadows from Bank Headers and accordion elements */
+  .light .bank-header {
+    box-shadow: none !important;
+  }
+
+  .light .no-shadow-light {
+    box-shadow: none !important;
+  }
+
+  .light .content-white-theme {
+    box-shadow: none !important;
+  }
+
+  .light .content-white-theme .table-container {
+    box-shadow: none !important;
+  }
+
+  .light .tabela-financeira-enhanced :global(.table-container) {
+    box-shadow: none !important;
+  }
+
+  /* Remove hover shadows in light mode */
+  .light [data-banco] button:hover,
+  .light [data-categoria] button:hover,
+  .light [data-tipo] button:hover {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* Remove focus shadows in light mode - keep outline for accessibility */
+  .light [data-banco] button:focus-visible,
+  .light [data-categoria] button:focus-visible,
+  .light [data-tipo] button:focus-visible {
+    box-shadow: none !important;
+  }
+
+  /* Remove shadow from sticky breadcrumb in light mode */
+  .light :global(.breadcrumb-container.is-sticky) {
+    box-shadow: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  /* Remove shadows from sidebar thumbnail previews in light mode */
+  .light :global(.thumbnail-preview) {
+    box-shadow: none !important;
+  }
+
+  .light :global(.thumbnail-preview:hover) {
+    box-shadow: none !important;
+  }
+
+  .light :global(.thumbnail-preview a:hover, .thumbnail-preview button:hover) {
+    box-shadow: none !important;
+  }
+
+  /* Light mode - FormularioConsulta active tab with full white background */
+  .light .form-tab-active {
+    background-color: #ffffff !important;
+    border-color: #e5e7eb !important;
+  }
+
   h1 {
     @apply text-3xl;
   }
@@ -277,7 +479,7 @@
 
   /* Tooltip Standard Style */
   .tooltip-standard {
-    @apply bg-accent text-white font-semibold text-base border border-foreground/20 shadow-lg;
+    @apply bg-popover text-popover-foreground font-semibold text-base border border-border shadow-lg;
   }
 
   /* Typography Enhancements */
@@ -410,6 +612,37 @@
   [data-calendar] button[data-calendar-day][data-outside-month] {
     font-weight: 400;
     opacity: 0.5; /* Lighter weight for outside month */
+  }
+
+  /* Table column styling classes */
+  .table-gross-cell {
+    background-color: var(--table-gross-bg);
+    border-left: 2px solid var(--table-gross-border);
+  }
+
+  .table-gross-header {
+    background-color: var(--table-gross-header-bg);
+    color: var(--table-gross-header-text);
+  }
+
+  .table-net-cell {
+    background-color: var(--table-net-bg);
+    border-left: 2px solid var(--table-net-border);
+  }
+
+  .table-net-header {
+    background-color: var(--table-net-header-bg);
+    color: var(--table-net-header-text);
+  }
+
+  .table-quantity-cell {
+    background-color: var(--table-quantity-bg);
+    border-left: 2px solid var(--table-quantity-border);
+  }
+
+  .table-quantity-header {
+    background-color: var(--table-quantity-header-bg);
+    color: var(--table-quantity-header-text);
   }
 }
 
