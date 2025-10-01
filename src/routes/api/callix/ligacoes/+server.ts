@@ -1,207 +1,229 @@
-import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 import { CALLIX_API_TOKEN } from '$lib/config';
+import { getQualificationById, getAgentById } from '$lib/utils/callix-mappings';
 
-// Configurações da API Callix
-const CALLIX_API_URL = 'https://reinocapital.callix.com.br/api/v1';
+const CALLIX_BASE_URL = 'https://reinocapital.callix.com.br/api/v1';
 
-interface CallixResponse {
-  data: CallixCall[];
-  meta: {
-    pagination: {
-      total: number;
-      count: number;
-      per_page: number;
-      current_page: number;
-      total_pages: number;
+interface CallixCall {
+  id: string;
+  attributes: {
+    started_at: string;
+    ended_at: string;
+    duration: number;
+    destination_phone: string;
+    protocol: number;
+    note: string | null;
+    hangup_cause: number;
+    service_duration: number;
+    has_audio: boolean;
+  };
+  relationships: {
+    agent: {
+      data: { type: string; id: string; };
+    };
+    qualification: {
+      data: { type: string; id: string; };
+    };
+    customer: {
+      data: { type: string; id: string; };
     };
   };
 }
 
-interface CallixCall {
+interface ProcessedCall {
   id: string;
-  started_at: string;
+  created_at: string;
   ended_at: string;
-  destination_phone: string;
-  call_type: number;
-  extension: number;
-  agent: {
-    id: number;
-    name: string;
-  };
-  qualification?: {
-    id: number;
-    name: string;
-  };
-  protocol?: string;
-  note?: string;
-  hangup_cause: number;
   duration: number;
-  talk_time: number;
-  client?: {
-    name: string;
-    email: string;
-  };
+  destination_phone: string;
+  protocol: number;
+  note: string | null;
+  hangup_cause: number;
+  service_duration: number;
+  has_audio: boolean;
+  agent_id: string;
+  agent_name: string;
+  agent_initials: string;
+  agent_color: string;
+  qualification_id: string;
+  qualification_name: string;
+  qualification_icon: string;
+  qualification_category: string;
+  customer_id: string;
+  customer_name: string;
 }
 
-export const GET: RequestHandler = async ({ url, fetch }) => {
-  console.log('🚀 API Endpoint chamada com URL:', url.toString());
-  
+// Cache simples apenas para clientes (únicos que precisam de consulta à API)
+const customerCache = new Map<string, string>();
+
+async function fetchFromCallix(endpoint: string): Promise<any> {
+  const url = `${CALLIX_BASE_URL}${endpoint}`;
+  console.log(`🌐 Requisição para: ${url}`);
+
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${CALLIX_API_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`❌ Erro na API Callix (${response.status}):`, errorText);
+    throw new Error(`Erro da API Callix: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+}
+
+async function getCustomerName(customerId: string): Promise<string> {
+  if (customerCache.has(customerId)) {
+    return customerCache.get(customerId)!;
+  }
+
   try {
-    // Verificar se o token da API está configurado
+    const data = await fetchFromCallix(`/customers/${customerId}`);
+    const name = data.data?.attributes?.name || `Cliente ${customerId}`;
+    customerCache.set(customerId, name);
+    return name;
+  } catch {
+    const fallbackName = `Cliente ${customerId}`;
+    customerCache.set(customerId, fallbackName);
+    return fallbackName;
+  }
+}
+
+async function processCallsOptimized(calls: CallixCall[]): Promise<ProcessedCall[]> {
+  console.log(`🔄 Processando ${calls.length} ligações com mapeamento otimizado...`);
+
+  if (calls.length === 0) {
+    return [];
+  }
+
+  // Buscar apenas clientes únicos (agentes e qualificações são mapeados diretamente)
+  const customerIds = [...new Set(calls.map(call => call.relationships.customer.data.id))];
+
+  console.log(`📊 Processando:`, {
+    ligacoes: calls.length,
+    clientesUnicos: customerIds.length,
+    agentes: 'mapeamento direto',
+    qualificacoes: 'mapeamento direto'
+  });
+
+  // Buscar nomes de clientes
+  const customerNames = await Promise.all(customerIds.map(id => getCustomerName(id)));
+  const customerMap = new Map(customerIds.map((id, index) => [id, customerNames[index]]));
+
+  // Processar ligações com mapeamentos diretos
+  const processedCalls: ProcessedCall[] = calls.map(call => {
+    const qualification = getQualificationById(call.relationships.qualification.data.id);
+    const agent = getAgentById(call.relationships.agent.data.id);
+    
+    return {
+      id: call.id,
+      created_at: call.attributes.started_at,
+      ended_at: call.attributes.ended_at,
+      duration: call.attributes.duration,
+      destination_phone: call.attributes.destination_phone,
+      protocol: call.attributes.protocol,
+      note: call.attributes.note,
+      hangup_cause: call.attributes.hangup_cause,
+      service_duration: call.attributes.service_duration,
+      has_audio: call.attributes.has_audio,
+      agent_id: call.relationships.agent.data.id,
+      agent_name: agent.name,
+      agent_initials: agent.initials,
+      agent_color: agent.color,
+      qualification_id: call.relationships.qualification.data.id,
+      qualification_name: qualification.name,
+      qualification_icon: qualification.icon,
+      qualification_category: qualification.category,
+      customer_id: call.relationships.customer.data.id,
+      customer_name: customerMap.get(call.relationships.customer.data.id) || `Cliente ${call.relationships.customer.data.id}`
+    };
+  });
+
+  console.log(`✅ ${processedCalls.length} ligações processadas com mapeamento otimizado`);
+  
+  // Logs para debug
+  const agentsSummary = processedCalls.reduce((acc, call) => {
+    acc[call.agent_name] = (acc[call.agent_name] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const qualificationsSummary = processedCalls.reduce((acc, call) => {
+    acc[call.qualification_name] = (acc[call.qualification_name] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  console.log(`👥 Agentes encontrados:`, agentsSummary);
+  console.log(`🏷️ Qualificações encontradas:`, qualificationsSummary);
+
+  return processedCalls;
+}
+export const GET: RequestHandler = async ({ url }) => {
+  console.log('🚀 Iniciando consulta otimizada à API Callix...');
+
+  try {
     if (!CALLIX_API_TOKEN) {
-      console.log('❌ Token não configurado');
-      return json(
-        { error: 'Token da API Callix não configurado', message: 'CALLIX_API_TOKEN não encontrado nas variáveis de ambiente' },
-        { status: 500 }
-      );
+      throw new Error('CALLIX_API_TOKEN não encontrado nas variáveis de ambiente');
     }
 
-    // Extrair parâmetros da query string
-    const dataInicio = url.searchParams.get('data_inicio');
-    const dataFim = url.searchParams.get('data_fim');
+    const dataInicio = url.searchParams.get('dataInicio');
+    const dataFim = url.searchParams.get('dataFim');
     const agente = url.searchParams.get('agente');
     const qualificacao = url.searchParams.get('qualificacao');
     const telefone = url.searchParams.get('telefone');
 
-    // Validar parâmetros obrigatórios
     if (!dataInicio || !dataFim) {
-      return json(
-        { error: 'Parâmetros obrigatórios', message: 'data_inicio e data_fim são obrigatórios' },
-        { status: 400 }
-      );
+      return json({ error: 'dataInicio e dataFim são obrigatórios' }, { status: 400 });
     }
 
-    // Validar formato das datas
-    const startDate = new Date(dataInicio);
-    const endDate = new Date(dataFim);
+    // Construir parâmetros da consulta
+    const params = new URLSearchParams();
     
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      return json(
-        { error: 'Formato de data inválido', message: 'Use o formato YYYY-MM-DD' },
-        { status: 400 }
-      );
+    const startDate = `${dataInicio}T00:00:00.000Z`;
+    const endDate = `${dataFim}T23:59:59.999Z`;
+    params.append('filter[started_at]', `${startDate},${endDate}`);
+
+    if (agente) params.append('filter[agent]', agente);
+    if (qualificacao) params.append('filter[qualification]', qualificacao);
+    if (telefone) params.append('filter[destination_phone]', telefone);
+
+    params.append('page[limit]', '500');
+
+    // Buscar ligações
+    const endpoint = `/outgoing_completed_calls?${params.toString()}`;
+    const data = await fetchFromCallix(endpoint);
+
+    console.log(`📞 ${data.meta?.count || 0} ligações encontradas na API`);
+
+    if (!data.data || data.data.length === 0) {
+      return json({
+        calls: [],
+        meta: data.meta || { count: 0 },
+        message: 'Nenhuma ligação encontrada para o período especificado'
+      });
     }
 
-    // Validar intervalo máximo de 31 dias
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 31) {
-      return json(
-        { error: 'Intervalo muito grande', message: 'O intervalo máximo é de 31 dias' },
-        { status: 400 }
-      );
-    }
-
-    // Construir filtros para a API Callix
-    const filters = new URLSearchParams();
-    
-    // Filtro de data obrigatório (formato ISO com timezone)
-    const startISO = `${dataInicio}T00:00:00.000Z`;
-    const endISO = `${dataFim}T23:59:59.999Z`;
-    filters.append('filter[started_at]', `${startISO},${endISO}`);
-
-    // Filtros opcionais
-    if (agente) {
-      filters.append('filter[agent]', agente);
-    }
-    
-    if (qualificacao) {
-      filters.append('filter[qualification]', qualificacao);
-    }
-    
-    if (telefone) {
-      filters.append('filter[destination_phone]', telefone);
-    }
-
-    console.log('Consultando API Callix com filtros:', filters.toString());
-
-    // Fazer requisição para a API Callix
-    const callixUrl = `${CALLIX_API_URL}/outgoing_completed_calls?${filters.toString()}`;
-    
-    const response = await fetch(callixUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${CALLIX_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Erro na API Callix:', response.status, errorText);
-      
-      // Tratar diferentes tipos de erro
-      if (response.status === 401) {
-        return json(
-          { error: 'Erro de autenticação', message: 'Token da API Callix inválido ou expirado' },
-          { status: 401 }
-        );
-      } else if (response.status === 403) {
-        return json(
-          { error: 'Acesso negado', message: 'Sem permissão para acessar esta API' },
-          { status: 403 }
-        );
-      } else if (response.status === 429) {
-        return json(
-          { error: 'Limite de requisições', message: 'Muitas requisições. Tente novamente em alguns minutos.' },
-          { status: 429 }
-        );
-      } else {
-        return json(
-          { error: 'Erro na API Callix', message: `Status ${response.status}: ${errorText}` },
-          { status: response.status }
-        );
-      }
-    }
-
-    const data: CallixResponse = await response.json();
-    
-    console.log(`API Callix retornou ${data.data?.length || 0} ligações`);
-
-    // Processar e retornar os dados
-    const processedCalls = data.data?.map(call => ({
-      id: call.id,
-      started_at: call.started_at,
-      ended_at: call.ended_at,
-      destination_phone: call.destination_phone,
-      call_type: call.call_type,
-      extension: call.extension,
-      agent: call.agent,
-      qualification: call.qualification,
-      protocol: call.protocol,
-      note: call.note,
-      hangup_cause: call.hangup_cause,
-      duration: call.duration,
-      talk_time: call.talk_time,
-      client: call.client,
-    })) || [];
+    // Processar com mapeamento otimizado
+    const processedCalls = await processCallsOptimized(data.data);
 
     return json({
       calls: processedCalls,
-      total: data.meta?.pagination?.total || processedCalls.length,
-      periodo: {
-        inicio: dataInicio,
-        fim: dataFim,
-      },
-      filtros_aplicados: {
-        agente: agente || null,
-        qualificacao: qualificacao || null,
-        telefone: telefone || null,
-      },
+      meta: data.meta,
+      message: `${processedCalls.length} ligações processadas com mapeamento otimizado`
     });
 
   } catch (error) {
-    console.error('Erro interno ao consultar API Callix:', error);
-    
+    console.error('❌ Erro na consulta:', error);
     return json(
       { 
-        error: 'Erro interno do servidor', 
-        message: 'Erro ao conectar com a API da Callix. Tente novamente em alguns minutos.',
-        details: error instanceof Error ? error.message : 'Erro desconhecido'
-      },
+        error: error instanceof Error ? error.message : 'Erro desconhecido',
+        details: 'Verifique se o token da API está correto e se a API está acessível'
+      }, 
       { status: 500 }
     );
   }
