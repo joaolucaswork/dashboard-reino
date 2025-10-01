@@ -276,7 +276,7 @@
                 $modoVisualizacao !== modo.value
                   ? 'text-white/60'
                   : modo.value === 'consolidado'
-                    ? 'text-orange-500'
+                    ? 'text-green-500'
                     : 'text-foreground'}"
               >
                 {modo.label}
