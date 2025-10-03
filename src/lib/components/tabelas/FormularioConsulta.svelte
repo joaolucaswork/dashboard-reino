@@ -275,7 +275,9 @@
                 class="font-medium text-base text-left leading-tight whitespace-nowrap transition-colors duration-200 {$modoVisualizacao &&
                 $modoVisualizacao !== modo.value
                   ? 'text-white/60'
-                  : 'text-foreground'}"
+                  : modo.value === 'consolidado'
+                    ? 'text-green-500'
+                    : 'text-foreground'}"
               >
                 {modo.label}
               </span>

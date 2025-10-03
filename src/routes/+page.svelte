@@ -14,6 +14,7 @@
     Play,
     ChartLine,
     Cog,
+    Phone,
   } from "@lucide/svelte";
 </script>
 
@@ -106,6 +107,22 @@
           <CardTitle
             class="text-lg font-bold text-card-foreground mb-2 flex items-center gap-2"
           >
+            <Phone size={18} class="text-primary" />
+            Relatório de Ligações
+          </CardTitle>
+          <p class="text-caption">
+            Analise métricas de ligações da Callix com relatórios detalhados.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+
+    <div>
+      <Card class="card-premium h-full">
+        <CardContent class="p-4">
+          <CardTitle
+            class="text-lg font-bold text-card-foreground mb-2 flex items-center gap-2"
+          >
             <Settings size={18} class="text-primary" />
             Configurações
           </CardTitle>
@@ -141,6 +158,27 @@
             >
               <Play size={14} />
               Gerar Relatório
+            </a>
+            <a
+              href="/relatorio-ligacoes"
+              class="btn-premium btn-primary flex items-center gap-2"
+            >
+              <Phone size={14} />
+              Relatório de Ligações (CSV)
+            </a>
+            <a
+              href="/relatorio-ligacoes-api"
+              class="btn-premium btn-primary flex items-center gap-2"
+            >
+              <Phone size={14} />
+              Relatório de Ligações (API)
+            </a>
+            <a
+              href="/teste-api"
+              class="btn-premium btn-primary flex items-center gap-2"
+            >
+              <Phone size={14} />
+              🔧 Teste API (Debug)
             </a>
             <a href="/analises" class="btn-minimal flex items-center gap-2">
               <ChartLine size={14} />

@@ -542,13 +542,13 @@
           {@const isSelected = selectedRows.has(currentPage * pageSize + index)}
           {@const isEvenRow = index % 2 === 0}
           {@const rowClasses = [
-            "transition-colors",
+            "transition-colors text-black",
             isSelected
               ? "bg-[#2b251e]"
               : isEvenRow
-                ? "bg-background"
-                : "bg-muted/50",
-            "hover:bg-[#2b251e]",
+                ? "bg-gray-50"
+                : "bg-gray-100",
+            "hover:bg-blue-100",
           ].join(" ")}
 
           <Table.Row class={rowClasses}>
@@ -587,7 +587,7 @@
                     {#if fullText && fullText.length > 30}
                       <Tooltip.Root>
                         <Tooltip.Trigger class="text-left cursor-help w-full">
-                          <div class="truncate text-left max-w-full pr-2">
+                          <div class="truncate text-left max-w-full pr-2 text-black">
                             {truncatedText}
                           </div>
                         </Tooltip.Trigger>
@@ -601,13 +601,13 @@
                         </Tooltip.Content>
                       </Tooltip.Root>
                     {:else}
-                      <div class="truncate text-left max-w-full pr-2">
+                      <div class="truncate text-left max-w-full pr-2 text-black">
                         {@html renderCell(column, row)}
                       </div>
                     {/if}
                   {:else if isInvestmentCategoryColumn(column)}
                     <!-- Investment Category Column with Color Indicator -->
-                    <div class="text-left whitespace-nowrap">
+                    <div class="text-left whitespace-nowrap text-black">
                       <InvestmentCategoryIndicator
                         category={row[column.accessorKey]}
                         showBadge={true}
@@ -619,7 +619,7 @@
                   {:else}
                     {@const isNumericColumn = isMonetaryColumn(column)}
                     <div
-                      class={`${isNumericColumn ? "text-right font-mono" : "text-left"} whitespace-nowrap`}
+                      class={`${isNumericColumn ? "text-right font-mono" : "text-left"} whitespace-nowrap text-black`}
                     >
                       {@html renderCell(column, row)}
                     </div>

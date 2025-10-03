@@ -247,7 +247,7 @@
     <CardContent>
       <div class="space-y-3">
         {#each Object.entries(formattedTotals.bankTotals) as [bankName, total]}
-          <div class="flex items-center justify-between p-3 border rounded-lg">
+          <div class="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
             <div class="flex items-center space-x-3">
               <Badge
                 variant={getBankBadgeVariant(
@@ -277,7 +277,7 @@
         <div class="space-y-3">
           {#each formattedTotals.topAssets as asset, index}
             <div
-              class="flex items-center justify-between p-3 border rounded-lg"
+              class="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
             >
               <div class="flex items-center space-x-3">
                 <Badge variant="outline" class="text-xs">
@@ -326,7 +326,7 @@
 
                 {#if Array.isArray(assets)}
                   {#each assets as asset}
-                    <div class="px-4 py-3 border-t grid grid-cols-3 text-sm">
+                    <div class="px-4 py-3 border-t grid grid-cols-3 text-sm bg-blue-50 hover:bg-blue-100 transition-colors">
                       <div class="font-medium">
                         {asset.nome || asset.ativo || "Sem nome"}
                       </div>
@@ -342,7 +342,7 @@
                   {/each}
                 {:else if typeof assets === "object"}
                   {#each Object.values(assets) as asset}
-                    <div class="px-4 py-3 border-t grid grid-cols-3 text-sm">
+                    <div class="px-4 py-3 border-t grid grid-cols-3 text-sm bg-blue-50 hover:bg-blue-100 transition-colors">
                       <div class="font-medium">
                         {asset.nome || asset.ativo || "Sem nome"}
                       </div>
